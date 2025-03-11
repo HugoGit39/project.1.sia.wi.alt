@@ -4,21 +4,34 @@
 #
 #############################################################################################
 
-# load functions
+# * 1 Load packages -----------------------------------------------------------
 
-#custom theme
+library(shiny)
+library(bs4Dash)
+library(here)
+library(dplyr)
+library(readxl)
+library(fresh)
+library(data.table)
+library(DT)
+library(shinySearchbar)
+library(emayili)
+library(shinyjs)
+
+# * 2 Load functions -----------------------------------------------------------
+
 source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
-
-#email
 source(here("shiny", "test", "app", "functions", "email.R"))
 
-#modules
-source(here("shiny", "test", "app", "functions", "mod_app_info.R"))
-source(here("shiny", "test", "app", "functions", "mod_prod_filter.R"))
-source(here("shiny", "test", "app", "functions", "mod_sub_data.R"))
-source(here("shiny", "test", "app", "functions", "mod_contact.R"))
+# * 3 Load modules -----------------------------------------------------------
 
-#load data
+source(here("shiny", "test", "app", "modules", "mod_header.R"))
+source(here("shiny", "test", "app", "modules", "mod_app_info.R"))
+source(here("shiny", "test", "app", "modules", "mod_prod_filter.R"))
+source(here("shiny", "test", "app", "modules", "mod_sub_data.R"))
+source(here("shiny", "test", "app", "modules", "mod_contact.R"))
+
+# * 4 Load data -----------------------------------------------------------
 db_path <- here("shiny", "test", "app", "data", "database_maar_dan_goed.xlsx")
 
 # Load and preprocess data

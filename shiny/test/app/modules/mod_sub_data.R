@@ -27,7 +27,7 @@ mod_sub_data_ui <- function(id) {
 }
 
 #server
-mod_sub_data_ser <- function(id) {
+mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
     # Define an empty dataframe structure (editable by users)

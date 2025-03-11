@@ -1,6 +1,6 @@
 ############################################################################################
 #
-#  Function for product filter
+#  Function module for product filter
 #
 #############################################################################################
 
@@ -36,7 +36,7 @@ mod_prod_fil_ui <- function(id) {
 
 
 # Function to create the Server logic
-mod_prod_fil_ser <- function(id) {
+mod_prod_fil__server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
     # Function to get available choices excluding selected ones
