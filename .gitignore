@@ -56,3 +56,6 @@ temp/
 
 # df csv file
 shiny/test/app/data
+
+# shinyserver prod folder
+shiny/shinyserver
