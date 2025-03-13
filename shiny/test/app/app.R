@@ -24,7 +24,8 @@ header = mod_header_ui("header"),
     body = dashboardBody(
     tabItems(
       tabItem(tabName = "app_info", mod_app_info_ui("app_info")),
-      tabItem(tabName = "product_filter", mod_prod_fil_ui("product_comp")),
+      #tabItem(tabName = "product_filter", mod_prod_fil_ui("product_comp")),
+      tabItem(tabName = "feature_filter", mod_feat_fil_ui("feature_comp")),
       tabItem(tabName = "submit_data", mod_sub_data_ui("add_data")),
       tabItem(tabName = "contact_us", mod_contact_ui("contact"))
     )
@@ -55,9 +56,10 @@ server <- function(input, output, session) {
 # * * 2.1 modules -----------------------------------------------------------
 
   mod_header_server("header")
-  mod_prod_fil_server("product_comp")
-  mod_sub_data_server("add_data")
-  mod_contact_severr("contact")
+  #mod_prod_fil_server("product_comp")
+  mod_feat_fil_server("feature_comp", sia_df)
+  #mod_sub_data_server("add_data")
+  mod_contact_server("contact")
 
 # * * 2.2 additional -----------------------------------------------------------
 
