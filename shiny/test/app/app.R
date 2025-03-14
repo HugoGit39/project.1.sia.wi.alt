@@ -57,11 +57,13 @@ server <- function(input, output, session) {
 
   mod_header_server("header")
   #mod_prod_fil_server("product_comp")
-  mod_feat_fil_server("feature_comp", sia_df)
+  mod_feat_fil_server("feature_comp", sia_df_reactive )
   #mod_sub_data_server("add_data")
   mod_contact_server("contact")
 
 # * * 2.2 additional -----------------------------------------------------------
+
+  sia_df_reactive  <- reactive({sia_df})
 
 }
 

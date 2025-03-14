@@ -1,231 +1,180 @@
-#' ############################################################################################
-#' #
-#' #  Function nodule for nfeauture filter (extensive)
-#' #
-#' #############################################################################################
-#'
-#' #' Module UI for Filtering Wearables
-#' mod_feat_fil_ui <- function(id) {
-#'   ns <- NS(id)
-#'   bs4Dash::bs4Card(
-#'     title = "Filter Wearables",
-#'     status = "primary",
-#'     width = 12,
-#'     collapsible = TRUE,
-#'     solidHeader = TRUE,
-#'     bs4Dash::column(
-#'       width = 4,
-#'       bs4Dash::bs4Card(
-#'         title = "SiA Expert Score",
-#'         sliderInput(ns("sia_score_short"), "Short-term Score", min = 0, max = 10, value = c(0, 10)),
-#'         sliderInput(ns("sia_score_long"), "Long-term Score", min = 0, max = 10, value = c(0, 10))
-#'       ),
-#'       bs4Dash::bs4Card(
-#'         title = "General Device Information",
-#'         selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
-#'         dateRangeInput(ns("release_date"), "Release Date"),
-#'         sliderInput(ns("cost"), "Cost", min = 0, max = 10000, value = c(0, 10000)),
-#'         selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
-#'         selectInput(ns("type"), "Type", choices = NULL, multiple = TRUE),
-#'         selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
-#'         sliderInput(ns("weight"), "Weight (g)", min = 0, max = 500, value = c(0, 500))
-#'       ),
-#'       bs4Dash::bs4Card(
-#'         title = "Technical Specifications",
-#'         checkboxInput(ns("water_resistant"), "Water Resistant", value = FALSE),
-#'         sliderInput(ns("battery_life"), "Battery Life (hours)", min = 0, max = 100, value = c(0, 100)),
-#'         sliderInput(ns("charging_duration"), "Charging Duration (hours)", min = 0, max = 24, value = c(0, 24)),
-#'         checkboxInput(ns("bio_cueing"), "Bio Cueing", value = FALSE),
-#'         checkboxInput(ns("bio_feedback"), "Bio Feedback", value = FALSE)
-#'       ),
-#'       bs4Dash::bs4Card(
-#'         title = "Signal",
-#'         checkboxGroupInput(ns("signal"), "Select Signal Types:",
-#'                            choices = c("PPG", "ECG", "ICG", "Respiration", "EDA", "EEG", "BP", "Accelerometer", "Gyroscope", "GPS", "Skin Temperature", "Other"))
-#'       ),
-#'       bs4Dash::bs4Card(
-#'         title = "Data Access",
-#'         checkboxInput(ns("raw_data"), "Raw Data Available", value = FALSE),
-#'         sliderInput(ns("device_storage"), "Device Storage (MB)", min = 0, max = 50000, value = c(0, 50000)),
-#'         checkboxInput(ns("gdpr_compliant"), "GDPR Compliant", value = FALSE),
-#'         checkboxInput(ns("fda_approved"), "FDA Approved", value = FALSE),
-#'         checkboxInput(ns("ce_approved"), "CE Approved", value = FALSE)
-#'       ),
-#'       bs4Dash::bs4Card(
-#'         title = "Validation Level",
-#'         selectInput(ns("validation_level"), "Validation Level", choices = NULL),
-#'         sliderInput(ns("num_validation_studies"), "No. of Validation Studies", min = 0, max = 50, value = c(0, 50))
-#'       )
-#'     ),
-#'     DT::DTOutput(ns("filtered_table"))
-#'   )
-#' }
-#'
-#' #' Module Server for Filtering Wearables
-#' mod_feat_fil_server <- function(id, sia_df) {
-#'   moduleServer(id, function(input, output, session) {
-#'     ns <- session$ns
-#'
-#'     observe({
-#'       updateSelectInput(session, "manufacturer", choices = unique(sia_df$manufacturer))
-#'       updateSelectInput(session, "main_use", choices = unique(sia_df$main_use))
-#'       updateSelectInput(session, "type", choices = unique(sia_df$wearable_type))
-#'       updateSelectInput(session, "location", choices = unique(sia_df$location))
-#'       updateSelectInput(session, "validation_level", choices = unique(sia_df$validation_level))
-#'     })
-#'
-#'     filtered_data <- reactive({
-#'       if (all(
-#'         is.null(input$manufacturer), is.null(input$main_use), is.null(input$type), is.null(input$location),
-#'         input$sia_score_short[1] == 0, input$sia_score_short[2] == 10,
-#'         input$sia_score_long[1] == 0, input$sia_score_long[2] == 10,
-#'         input$cost[1] == 0, input$cost[2] == 10000,
-#'         input$device_storage[1] == 0, input$device_storage[2] == 50000,
-#'         input$num_validation_studies[1] == 0, input$num_validation_studies[2] == 50,
-#'         !input$water_resistant, !input$bio_cueing, !input$bio_feedback,
-#'         !input$raw_data, !input$gdpr_compliant, !input$fda_approved, !input$ce_approved
-#'       )) {
-#'         return(sia_df) # Return full table initially
-#'       }
-#'
-#'       sia_df %>%
-#'         filter(
-#'           `SiA Expert score (short-term)` >= input$sia_score_short[1],
-#'           `SiA Expert score (short-term)` <= input$sia_score_short[2],
-#'           `SiA Expert score (long-term)` >= input$sia_score_long[1],
-#'           `SiA Expert score (long-term)` <= input$sia_score_long[2],
-#'           if (!is.null(input$manufacturer)) manufacturer %in% input$manufacturer else TRUE,
-#'           if (!is.null(input$main_use)) main_use %in% input$main_use else TRUE,
-#'           if (!is.null(input$type)) wearable_type %in% input$type else TRUE,
-#'           if (!is.null(input$location)) location %in% input$location else TRUE,
-#'           between(as.numeric(cost), input$cost[1], input$cost[2]),
-#'           (`water_resistant` == 1 & input$water_resistant) | !input$water_resistant,
-#'           (`bio_cueing` == 1 & input$bio_cueing) | !input$bio_cueing,
-#'           (`bio_feedback` == 1 & input$bio_feedback) | !input$bio_feedback,
-#'           (`raw_data` == 1 & input$raw_data) | !input$raw_data,
-#'           (`gdpr_compliant` == 1 & input$gdpr_compliant) | !input$gdpr_compliant,
-#'           (`fda_approved` == 1 & input$fda_approved) | !input$fda_approved,
-#'           (`ce_approved` == 1 & input$ce_approved) | !input$ce_approved,
-#'           between(as.numeric(device_storage), input$device_storage[1], input$device_storage[2]),
-#'           if (!is.null(input$validation_level)) validation_level %in% input$validation_level else TRUE,
-#'           between(as.numeric(num_validation_studies), input$num_validation_studies[1], input$num_validation_studies[2])
-#'         )
-#'     })
-#'
-#'     output$filtered_table <- DT::renderDT({
-#'       DT::datatable(filtered_data(), options = list(pageLength = 10, autoWidth = TRUE))
-#'     })
-#'   })
-#' }
-#'
+############################################################################################
+#
+#  Function nodule for nfeauture filter (extensive)
+#
+#############################################################################################
 
 #' Module UI for Filtering Wearables
 mod_feat_fil_ui <- function(id) {
   ns <- NS(id)
   fluidRow(
     column(
-      width = 4,
+      width = 3,
       bs4Dash::bs4Card(
         title = "Filter Wearables",
         status = "primary",
         width = 12,
-        collapsible = TRUE,
+        collapsible = FALSE,
         solidHeader = TRUE,
-        bs4Dash::bs4Card(
-          title = "SiA Expert Score",
-          sliderInput(ns("sia_score_short"), "Short-term Score", min = 0, max = 10, value = c(0, 10)),
-          sliderInput(ns("sia_score_long"), "Long-term Score", min = 0, max = 10, value = c(0, 10))
+        bs4Card(title = "SiA Expert Score",
+                width = 12,
+                status = "secondary",
+                solidHeader = TRUE,
+                collapsible = FALSE,
+                sliderInput(ns("sia_es_long"), "Long-Term", min = 0, max = 10, value = c(0,10)),
+                sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10))
         ),
-        bs4Dash::bs4Card(
-          title = "General Device Information",
-          selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
-          dateRangeInput(ns("release_date"), "Release Date"),
-          sliderInput(ns("cost"), "Cost", min = 0, max = 10000, value = c(0, 10000)),
-          selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
-          selectInput(ns("type"), "Type", choices = NULL, multiple = TRUE),
-          selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
-          sliderInput(ns("weight"), "Weight (g)", min = 0, max = 500, value = c(0, 500))
+        bs4Card(title = "General Device Information",
+                width = 12,
+                status = "secondary",
+                collapsible = FALSE,
+                selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
+                selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
+                dateRangeInput(ns("release_date"), "Release Date", start = min(sia_df$release_date, na.rm = TRUE), end = max(sia_df$release_date, na.rm = TRUE), format = "yyyy"),
+                selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
+                selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
+                sliderInput(ns("device_cost"), "Cost (€)", min = 0, max = max(sia_df$device_cost, na.rm = TRUE), value = c(0, max(sia_df$device_cost, na.rm = TRUE))),
+                selectInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
+                selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
+                sliderInput(ns("weight"), "Weight (g)", min=0, max = max(sia_df$weight, na.rm = TRUE), value = c(0,max(sia_df$weight, na.rm = TRUE))),
+                selectInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
         ),
-        bs4Dash::bs4Card(
-          title = "Technical Specifications",
-          checkboxInput(ns("water_resistant"), "Water Resistant", value = FALSE),
-          sliderInput(ns("battery_life"), "Battery Life (hours)", min = 0, max = 100, value = c(0, 100)),
-          sliderInput(ns("charging_duration"), "Charging Duration (hours)", min = 0, max = 24, value = c(0, 24)),
-          checkboxInput(ns("bio_cueing"), "Bio Cueing", value = FALSE),
-          checkboxInput(ns("bio_feedback"), "Bio Feedback", value = FALSE)
+        bs4Card(title = "Technical Specifications",
+                width = 12,
+                status = "secondary",
+                collapsible = FALSE,
+                #checkboxInput(ns("water_resistance"), "Water Resistant", choices = NULL),
+                sliderInput(ns("battery_life"), "Battery Life (min)", min = 0, max = max(sia_df$battery_life, na.rm = TRUE), value = c(0, max(sia_df$battery_life, na.rm = TRUE))),
+                selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
+                sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000))
+                #checkboxInput(ns("bio_cueing"), "Bio Cueing", choices = NULL),
+                #checkboxInput(ns("bio_feedback"), "Bio Feedback", choices = NULL)
         ),
-        bs4Dash::bs4Card(
-          title = "Signal",
-          checkboxGroupInput(ns("signal"), "Select Signal Types:",
-                             choices = c("PPG", "ECG", "ICG", "Respiration", "EDA", "EEG", "BP", "Accelerometer", "Gyroscope", "GPS", "Skin Temperature", "Other"))
-        ),
-        bs4Dash::bs4Card(
-          title = "Data Access",
-          checkboxInput(ns("raw_data"), "Raw Data Available", value = FALSE),
-          sliderInput(ns("device_storage"), "Device Storage (MB)", min = 0, max = 50000, value = c(0, 50000)),
-          checkboxInput(ns("gdpr_compliant"), "GDPR Compliant", value = FALSE),
-          checkboxInput(ns("fda_approved"), "FDA Approved", value = FALSE),
-          checkboxInput(ns("ce_approved"), "CE Approved", value = FALSE)
-        ),
-        bs4Dash::bs4Card(
-          title = "Validation Level",
-          selectInput(ns("validation_level"), "Validation Level", choices = NULL),
-          sliderInput(ns("num_validation_studies"), "No. of Validation Studies", min = 0, max = 50, value = c(0, 50))
+        bs4Card(title = "Signals",
+                width = 12,
+                status = "secondary",
+                collapsible = FALSE,
+                checkboxInput(ns("ppg"), "Photoplethysmogram (PPG)"),
+                checkboxInput(ns("ecg"), "Electrocardiogram (ECG)"),
+                checkboxInput(ns("icg"), "Impedance cardiography (ICG)"),
+                checkboxInput(ns("emg"), "Electromyography (EMG)"),
+                checkboxInput(ns("respiration"), "Respiration"),
+                checkboxInput(ns("eda"), "Electrodermal activity (EDA)"),
+                checkboxInput(ns("eeg"), "Electroencephalography (EEG)"),
+                checkboxInput(ns("bp"), "Blood Pressure"),
+                checkboxInput(ns("accelerometer"), "Accelerometer"),
+                checkboxInput(ns("gyroscope"), "Gyroscope"),
+                checkboxInput(ns("gps"), "Global Positioning System (GPS)"),
+                checkboxInput(ns("skin_temperature"), "Skin Temperature")
+                #selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
         )
       )
     ),
     column(
-      width = 8,
+      width = 9,
       bs4Dash::bs4Card(
         title = "Filtered Results",
         status = "primary",
         width = 12,
-        collapsible = TRUE,
+        collapsible = FALSE,
         solidHeader = TRUE,
-        DT::DTOutput(ns("filtered_table"))
+        div(
+          style = "overflow-x: auto;",  # Enable horizontal scrolling
+          DT::DTOutput(ns("filtered_table"))
+        )
       )
     )
   )
 }
 
 #' Module Server for Filtering Wearables
-mod_feat_fil_server <- function(id, sia_df) {
+mod_feat_fil_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
+    # Observe data and update selectInput choices dynamically
     observe({
-      updateSelectInput(session, "manufacturer", choices = unique(sia_df$manufacturer))
-      updateSelectInput(session, "main_use", choices = unique(sia_df$main_use))
-      updateSelectInput(session, "type", choices = unique(sia_df$wearable_type))
-      updateSelectInput(session, "location", choices = unique(sia_df$location))
-      updateSelectInput(session, "validation_level", choices = unique(sia_df$level_validation))
+      df <- data()
+
+      #General Device Information
+      updateSelectInput(session, "manufacturer", choices = unique(df$manufacturer))
+      updateSelectInput(session, "model", choices = unique(df$model))
+      updateSelectInput(session, "market_status", choices = unique(df$market_status))
+      updateSelectInput(session, "main_use", choices = unique(df$main_use))
+      updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
+      updateSelectInput(session, "location", choices = unique(df$location))
+      updateSelectInput(session, "size", choices = unique(df$size))
+
+      #Technical Specifications
+      updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
+      updateSelectInput(session, "location", choices = unique(df$location))
+      updateSelectInput(session, "size", choices = unique(df$size))
+      updateSelectInput(session, "charging_method", choices = unique(df$charging_method))
+
+      #Signals
+      #updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
     })
 
+
+
     filtered_data <- reactive({
-      sia_df %>%
+
+      data() %>%
         filter(
-          sia_es_short >= input$sia_score_short[1] & sia_es_short <= input$sia_score_short[2],
-          sia_es_long >= input$sia_score_long[1] & sia_es_long <= input$sia_score_long[2],
-          if (!is.null(input$manufacturer)) manufacturer %in% input$manufacturer else TRUE,
-          if (!is.null(input$main_use)) main_use %in% input$main_use else TRUE,
-          if (!is.null(input$type)) wearable_type %in% input$type else TRUE,
-          if (!is.null(input$location)) location %in% input$location else TRUE,
-          between(as.numeric(device_cost), input$device_cost[1], input$device_cost[2]),
-          (`water_resistant` == 1 & input$water_resistant) | !input$water_resistant,
-          (`bio_cueing` == 1 & input$bio_cueing) | !input$bio_cueing,
-          (`bio_feedback` == 1 & input$bio_feedback) | !input$bio_feedback,
-          (`raw_data` == 1 & input$raw_data) | !input$raw_data,
-          (`gdpr_compliant` == 1 & input$gdpr_compliant) | !input$gdpr_compliant,
-          (`fda_approved` == 1 & input$fda_approved) | !input$fda_approved,
-          (`ce_approved` == 1 & input$ce_approved) | !input$ce_approved,
-          between(as.numeric(device_storage), input$device_storage[1], input$device_storage[2]),
-          if (!is.null(input$level_validation)) level_validation %in% input$level_validation else TRUE,
-          between(as.numeric(num_validation_studies), input$num_validation_studies[1], input$num_validation_studies[2])
+          # Expert Score Filters
+          is.na(sia_es_long) | (sia_es_long >= input$sia_es_long[1] & sia_es_long <= input$sia_es_long[2]),
+          is.na(sia_es_short) | (sia_es_short >= input$sia_es_short[1] & sia_es_short <= input$sia_es_short[2]),
+
+
+          # General Device Information Filters (Fixing selectInput)
+          (is.null(input$manufacturer) | manufacturer %in% input$manufacturer),
+          (is.null(input$model) | model %in% input$model),
+          (is.null(input$market_status) | market_status %in% input$market_status),
+          (is.null(input$main_use) | main_use %in% input$main_use),
+          (is.null(input$wearable_type) | wearable_type %in% input$wearable_type),
+          (is.null(input$location) | location %in% input$location),
+          (is.null(input$size) | size %in% input$size),
+
+          # Date Range Filter
+          (is.null(input$release_date[1]) | is.null(input$release_date[2]) |
+             is.na(release_date) | (release_date >= input$release_date[1] & release_date <= input$release_date[2])),
+
+          # Numeric Range Filters
+          is.na(device_cost) | (device_cost >= input$device_cost[1] & device_cost <= input$device_cost[2]),
+          is.na(weight) | (weight >= input$weight[1] & weight <= input$weight[2]),
+
+          #Technical Specifications
+          is.na(battery_life) | (battery_life >= input$battery_life[1] & battery_life <= input$battery_life[2]),
+          is.na(charging_duration) | (charging_duration >= input$charging_duration[1] & charging_duration <= input$charging_duration[2])
+
         )
+
     })
 
     output$filtered_table <- DT::renderDT({
-      DT::datatable(filtered_data(), options = list(pageLength = 10, autoWidth = TRUE))
+      df <- filtered_data()
+
+      # Define custom column names mapping
+      # colnames(df) <- c(
+      #   "Long-Term Score", "Short-Term Score",
+      #   "Manufacturer", "Model", "Release Date", "Market Status", "Main Use",
+      #   "Cost (€)", "Type", "Location", "Weight (g)", "Size",
+      #   "Battery Life (min)", "Charging Method", "Charging Duration (min)",
+      #   "Photoplethysmogram (PPG)", "Electrocardiogram (ECG)", "Impedance Cardiography (ICG)",
+      #   "Electromyography (EMG)", "Respiration", "Electrodermal Activity (EDA)",
+      #   "Electroencephalography (EEG)", "Blood Pressure", "Accelerometer",
+      #   "Gyroscope", "GPS", "Skin Temperature"
+      # )
+
+      DT::datatable(
+        df,
+        options = list(
+          pageLength = 30,      # Show 25 entries by default
+          autoWidth = TRUE,     # Adjust column widths automatically
+          scrollX = TRUE        # Enable horizontal scrolling within DataTable
+        )
+      )
     })
+
   })
 }
