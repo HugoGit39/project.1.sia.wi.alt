@@ -9,7 +9,7 @@ mod_feat_fil_ui <- function(id) {
   ns <- NS(id)
   fluidRow(
     column(
-      width = 3,
+      width = 2,
       bs4Dash::bs4Card(
         title = "Filter Wearables",
         status = "primary",
@@ -79,7 +79,7 @@ mod_feat_fil_ui <- function(id) {
       )
     ),
     column(
-      width = 9,
+      width = 10,
       bs4Dash::bs4Card(
         title = "Filtered Results",
         status = "primary",
@@ -123,8 +123,7 @@ mod_feat_fil_server <- function(id, data) {
       updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
 
       #Validation, Reliability & Usability
-      updateSelectInput(session, "no_studies_val_rel_reviewed", choices = unique(df$no_studies_val_rel_reviewed))
-      updateSelectInput(session, "no_studies_usab_reviewed", choices = unique(df$no_studies_usab_reviewed))
+      updateSelectInput(session, "level_validation", choices = unique(df$level_validation))
 
     })
 
