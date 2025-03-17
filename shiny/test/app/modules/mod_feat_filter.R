@@ -43,12 +43,12 @@ mod_feat_fil_ui <- function(id) {
                 width = 12,
                 status = "secondary",
                 collapsible = FALSE,
-                #checkboxInput(ns("water_resistance"), "Water Resistant", choices = NULL),
+                checkboxInput(ns("water_resistance"), "Water Resistant"),
                 sliderInput(ns("battery_life"), "Battery Life (min)", min = 0, max = max(sia_df$battery_life, na.rm = TRUE), value = c(0, max(sia_df$battery_life, na.rm = TRUE))),
                 selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
-                sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000))
-                #checkboxInput(ns("bio_cueing"), "Bio Cueing", choices = NULL),
-                #checkboxInput(ns("bio_feedback"), "Bio Feedback", choices = NULL)
+                sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000)),
+                checkboxInput(ns("bio_cueing"), "Bio Cueing"),
+                checkboxInput(ns("bio_feedback"), "Bio Feedback")
         ),
         bs4Card(title = "Signals",
                 width = 12,
@@ -65,8 +65,16 @@ mod_feat_fil_ui <- function(id) {
                 checkboxInput(ns("accelerometer"), "Accelerometer"),
                 checkboxInput(ns("gyroscope"), "Gyroscope"),
                 checkboxInput(ns("gps"), "Global Positioning System (GPS)"),
-                checkboxInput(ns("skin_temperature"), "Skin Temperature")
-                #selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
+                checkboxInput(ns("skin_temperature"), "Skin Temperature"),
+                selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
+        ),
+        bs4Card(title = "Validation, Reliability & Usability",
+                width = 12,
+                status = "secondary",
+                collapsible = FALSE,
+                selectInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
+                sliderInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", min = 0, max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE))),
+                sliderInput(ns("no_studies_usab_reviewed"), "Usability Studies", min = 0, max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
         )
       )
     ),
@@ -112,7 +120,12 @@ mod_feat_fil_server <- function(id, data) {
       updateSelectInput(session, "charging_method", choices = unique(df$charging_method))
 
       #Signals
-      #updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
+      updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
+
+      #Validation, Reliability & Usability
+      updateSelectInput(session, "no_studies_val_rel_reviewed", choices = unique(df$no_studies_val_rel_reviewed))
+      updateSelectInput(session, "no_studies_usab_reviewed", choices = unique(df$no_studies_usab_reviewed))
+
     })
 
 
@@ -145,7 +158,30 @@ mod_feat_fil_server <- function(id, data) {
 
           #Technical Specifications
           is.na(battery_life) | (battery_life >= input$battery_life[1] & battery_life <= input$battery_life[2]),
-          is.na(charging_duration) | (charging_duration >= input$charging_duration[1] & charging_duration <= input$charging_duration[2])
+          is.na(charging_duration) | (charging_duration >= input$charging_duration[1] & charging_duration <= input$charging_duration[2]),
+          (is.null(input$charging_method) | charging_method %in% input$charging_method),
+          (!input$water_resistance | water_resistance == "yes") &
+          (!input$bio_cueing | bio_cueing == "yes") &
+          (!input$bio_feedback | bio_feedback == "yes"),
+
+          #Signals
+          (!input$ppg | ppg == "yes") &
+            (!input$ecg | ecg == "yes") &
+            (!input$icg | icg == "yes") &
+            (!input$emg | emg == "yes") &
+            (!input$respiration | respiration == "yes") &
+            (!input$eda | eda == "yes") &
+            (!input$eeg | eeg == "yes") &
+            (!input$bp | bp == "yes") &
+            (!input$accelerometer | accelerometer == "yes") &
+            (!input$gyroscope | gyroscope == "yes") &
+            (!input$gps | gps == "yes") &
+            (!input$skin_temperature | skin_temperature == "yes"),
+          (is.null(input$other_signals) | other_signals %in% input$other_signals),
+
+          #Validation, Reliability & Usability
+          (is.null(input$no_studies_val_rel_reviewed) | no_studies_val_rel_reviewed %in% input$no_studies_val_rel_reviewed),
+          (is.null(input$no_studies_usab_reviewed) | no_studies_usab_reviewed %in% input$no_studies_usab_reviewed)
 
         )
 
