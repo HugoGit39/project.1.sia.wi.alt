@@ -35,7 +35,6 @@ mod_app_info_ui <- function(id) {
     "))),
 
     fluidRow(
-      # App Info Card (Full width)
       bs4Card(
         title = tags$span(class = "custom-header-primary", "Welcome to the SiA Wearable Interface Web App"),
         status = "primary",
@@ -43,7 +42,7 @@ mod_app_info_ui <- function(id) {
         width = 12,
         collapsible = FALSE,
         headerBorder = FALSE,
-        class = "custom-card",  # Apply dark mode styling
+        class = "custom-card",
 
         h4("About this App"),
         p("This web application helps users compare wearable devices based on various features like
@@ -53,7 +52,6 @@ mod_app_info_ui <- function(id) {
     ),
 
     fluidRow(
-      # User Guide Card (Width 9, Fixed Height)
       bs4Card(
         title = tags$span(class = "custom-header-primary", "User Guide"),
         status = "primary",
@@ -61,8 +59,8 @@ mod_app_info_ui <- function(id) {
         width = 9,
         collapsible = FALSE,
         headerBorder = FALSE,
-        class = "custom-card",  # Apply dark mode styling
-        style = "height: 500px;",  # Fixed height
+        class = "custom-card",
+        style = "height: 500px;",
 
         p("To use this app, navigate to the 'Filters' section to explore wearables based on your
           criteria. If you have new data to add, visit the 'Submit Data' section."),
@@ -70,7 +68,6 @@ mod_app_info_ui <- function(id) {
         p("For more details, check the documentation or contact support.")
       ),
 
-      # Updates Card (Width 3, Fixed Height, Scrollable)
       bs4Card(
         title = tags$span(class = "custom-header-secondary", "Recent Updates"),
         status = "secondary",
@@ -78,8 +75,8 @@ mod_app_info_ui <- function(id) {
         width = 3,
         collapsible = FALSE,
         headerBorder = FALSE,
-        class = "custom-card",  # Apply dark mode styling
-        style = "height: 500px; overflow-y: auto;",  # Fixed height & scrollbar
+        class = "custom-card",
+        style = "height: 500px; overflow-y: auto;",
 
         p("Version 1.0 - Initial release with filtering and submission features."),
         p("Version 1.1 - Added dynamic selection to remove already chosen wearables."),
@@ -96,6 +93,7 @@ mod_app_info_ui <- function(id) {
     )
   )
 }
+
 
 # App Info Module (Server)
 mod_app_info_server <- function(id) {

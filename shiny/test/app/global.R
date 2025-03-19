@@ -17,6 +17,7 @@ library(DT)
 library(shinySearchbar)
 library(emayili)
 library(shinyjs)
+library(sever)
 
 # * 2 Load functions -----------------------------------------------------------
 

@@ -16,6 +16,10 @@ mod_feat_fil_ui <- function(id) {
         width = 12,
         collapsible = FALSE,
         solidHeader = TRUE,
+        div(
+          style = "text-align: center; margin-bottom: 10px;",
+          actionButton(ns("reset_filter"), "Reset Filter", class = "btn btn-danger")
+        ),
         bs4Card(title = "SiA Expert Score",
                 width = 12,
                 status = "secondary",
@@ -68,6 +72,19 @@ mod_feat_fil_ui <- function(id) {
                 checkboxInput(ns("skin_temperature"), "Skin Temperature"),
                 selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
         ),
+        bs4Card(title = "Data Acces",
+                width = 12,
+                status = "secondary",
+                collapsible = FALSE,
+                checkboxInput(ns("raw_data_available"), "Raw Data"),
+                checkboxInput(ns("int_storage_met"), "Internal Storage"),
+                checkboxInput(ns("server_data_storage"), "Server Storage"),
+                sliderInput(ns("dev_storage_cap_mb"), "Device Storage (size in MB)", min = 0, max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE))),
+                sliderInput(ns("dev_storage_cap_hrs"), "Device Storage (time in hrs)", min = 0, max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE))),
+                checkboxInput(ns("gdpr_comp"), "GDPR Compliant"),
+                checkboxInput(ns("fda_app_clear"), "FDA Approved"),
+                checkboxInput(ns("ce_app_label"), "CE Label")
+        ),
         bs4Card(title = "Validation, Reliability & Usability",
                 width = 12,
                 status = "secondary",
@@ -86,6 +103,25 @@ mod_feat_fil_ui <- function(id) {
         width = 12,
         collapsible = FALSE,
         solidHeader = TRUE,
+        div(
+          style = "text-align: center; margin-bottom: 10px;",
+          downloadButton(ns("download_data"), "Download Filtered Results", class = "btn btn-success")
+        ),
+        # div(
+        #   style = "text-align: center; margin-bottom: 10px;",
+        #   actionButton(
+        #     inputId = ns("bttn1"),
+        #     label = "Download Results",
+        #     status = "secondary",
+        #     outline = TRUE,
+        #     size = "lg",
+        #     flat = TRUE,
+        #     width = "20%",
+        #     icon = NULL,
+        #     block = TRUE,
+        #     style = "border-width: 2px"
+        #   )
+        # ),
         div(
           style = "overflow-x: auto;",  # Enable horizontal scrolling
           DT::DTOutput(ns("filtered_table"))
@@ -159,57 +195,148 @@ mod_feat_fil_server <- function(id, data) {
           is.na(battery_life) | (battery_life >= input$battery_life[1] & battery_life <= input$battery_life[2]),
           is.na(charging_duration) | (charging_duration >= input$charging_duration[1] & charging_duration <= input$charging_duration[2]),
           (is.null(input$charging_method) | charging_method %in% input$charging_method),
-          (!input$water_resistance | water_resistance == "yes") &
-          (!input$bio_cueing | bio_cueing == "yes") &
-          (!input$bio_feedback | bio_feedback == "yes"),
+          (!input$water_resistance | water_resistance == "Yes") &
+          (!input$bio_cueing | bio_cueing == "Yes") &
+          (!input$bio_feedback | bio_feedback == "Yes"),
 
           #Signals
-          (!input$ppg | ppg == "yes") &
-            (!input$ecg | ecg == "yes") &
-            (!input$icg | icg == "yes") &
-            (!input$emg | emg == "yes") &
-            (!input$respiration | respiration == "yes") &
-            (!input$eda | eda == "yes") &
-            (!input$eeg | eeg == "yes") &
-            (!input$bp | bp == "yes") &
-            (!input$accelerometer | accelerometer == "yes") &
-            (!input$gyroscope | gyroscope == "yes") &
-            (!input$gps | gps == "yes") &
-            (!input$skin_temperature | skin_temperature == "yes"),
+          (!input$ppg | ppg == "Yes") &
+          (!input$ecg | ecg == "Yes") &
+          (!input$icg | icg == "Yes") &
+          (!input$emg | emg == "Yes") &
+          (!input$respiration | respiration == "Yes") &
+          (!input$eda | eda == "Yes") &
+          (!input$eeg | eeg == "Yes") &
+          (!input$bp | bp == "Yes") &
+          (!input$accelerometer | accelerometer == "Yes") &
+          (!input$gyroscope | gyroscope == "Yes") &
+          (!input$gps | gps == "Yes") &
+          (!input$skin_temperature | skin_temperature == "Yes"),
           (is.null(input$other_signals) | other_signals %in% input$other_signals),
 
+          #Data Acces
+          int_storage_met == "Yes" &
+          server_data_storage == "Yes",
+          is.na(dev_storage_cap_mb) | (dev_storage_cap_mb >= input$dev_storage_cap_mb[1] & dev_storage_cap_mb <= input$dev_storage_cap_mb[2]),
+          is.na(dev_storage_cap_hrs) | (dev_storage_cap_hrs >= input$dev_storage_cap_hrs[1] & dev_storage_cap_hrs <= input$dev_storage_cap_hrs[2]),
+          (!input$raw_data_available | raw_data_available == "Yes") &
+          (!input$gdpr_comp | gdpr_comp == "Yes") &
+          (!input$ce_app_label | ce_app_label == "Yes") &
+          (!input$fda_app_clear | gps == "Yes"),
+
           #Validation, Reliability & Usability
-          (is.null(input$no_studies_val_rel_reviewed) | no_studies_val_rel_reviewed %in% input$no_studies_val_rel_reviewed),
-          (is.null(input$no_studies_usab_reviewed) | no_studies_usab_reviewed %in% input$no_studies_usab_reviewed)
+          (is.null(input$level_validation) | level_validation %in% input$level_validation),
+          is.na(no_studies_val_rel_reviewed) | (no_studies_val_rel_reviewed >= input$no_studies_val_rel_reviewed[1] & no_studies_val_rel_reviewed <= input$no_studies_val_rel_reviewed[2]),
+          is.na(no_studies_usab_reviewed) | (no_studies_usab_reviewed >= input$no_studies_usab_reviewed[1] & no_studies_usab_reviewed <= input$no_studies_usab_reviewed[2])
 
         )
 
     })
+
+    # output$filtered_table <- DT::renderDT({
+    #   df <- filtered_data()
+    #
+    #   colnames(df) <- c(
+    #     "Long-Term SiA Expert Score", "Short-Term SiA Expert Score", "Manufacturer", "Model",
+    #     "Release Date", "Market Status", "Main Use", "Cost (€)", "Type", "Location",
+    #     "Weight (g)", "Size", "Water Resistant", "Battery Life (min)", "Charging Method",
+    #     "Charging Duration (min)", "Bio Cueing", "Bio Feedback", "Photoplethysmogram (PPG)",
+    #     "Electrocardiogram (ECG)", "Impedance Cardiography (ICG)", "Electromyography (EMG)",
+    #     "Respiration", "Electrodermal Activity (EDA)", "Electroencephalography (EEG)",
+    #     "Blood Pressure", "Accelerometer", "Gyroscope", "Global Positioning System (GPS)",
+    #     "Skin Temperature", "Other Signals", "Raw Data Available", "Device Storage (MB)",
+    #     "Device Storage (hrs)", "GDPR Compliant", "FDA Approved", "CE Label",
+    #     "Validation Level", "Validation Studies Reviewed", "Usability Studies Reviewed"
+    #   )
+    #
+    #   DT::datatable(
+    #     df,
+    #     options = list(
+    #       pageLength = 35,
+    #       autoWidth = TRUE,
+    #       scrollX = TRUE
+    #     )
+    #   )
+    # })
 
     output$filtered_table <- DT::renderDT({
       df <- filtered_data()
 
-      # Define custom column names mapping
-      # colnames(df) <- c(
-      #   "Long-Term Score", "Short-Term Score",
-      #   "Manufacturer", "Model", "Release Date", "Market Status", "Main Use",
-      #   "Cost (€)", "Type", "Location", "Weight (g)", "Size",
-      #   "Battery Life (min)", "Charging Method", "Charging Duration (min)",
-      #   "Photoplethysmogram (PPG)", "Electrocardiogram (ECG)", "Impedance Cardiography (ICG)",
-      #   "Electromyography (EMG)", "Respiration", "Electrodermal Activity (EDA)",
-      #   "Electroencephalography (EEG)", "Blood Pressure", "Accelerometer",
-      #   "Gyroscope", "GPS", "Skin Temperature"
+      # # Define the column renaming map
+      # rename_map <- c(
+      #   "sia_es_long" = "Long-Term SiA Expert Score",
+      #   "sia_es_short" = "Short-Term SiA Expert Score",
+      #   "manufacturer" = "Manufacturer",
+      #   "model" = "Model",
+      #   "release_date" = "Release Date",
+      #   "market_status" = "Market Status",
+      #   "main_use" = "Main Use",
+      #   "device_cost" = "Cost (€)",
+      #   "wearable_type" = "Type",
+      #   "location" = "Location",
+      #   "weight" = "Weight (g)",
+      #   "size" = "Size",
+      #   "water_resistance" = "Water Resistant",
+      #   "battery_life" = "Battery Life (min)",
+      #   "charging_method" = "Charging Method",
+      #   "charging_duration" = "Charging Duration (min)",
+      #   "bio_cueing" = "Bio Cueing",
+      #   "bio_feedback" = "Bio Feedback",
+      #   "ppg" = "Photoplethysmogram (PPG)",
+      #   "ecg" = "Electrocardiogram (ECG)",
+      #   "icg" = "Impedance Cardiography (ICG)",
+      #   "emg" = "Electromyography (EMG)",
+      #   "respiration" = "Respiration",
+      #   "eda" = "Electrodermal Activity (EDA)",
+      #   "eeg" = "Electroencephalography (EEG)",
+      #   "bp" = "Blood Pressure",
+      #   "accelerometer" = "Accelerometer",
+      #   "gyroscope" = "Gyroscope",
+      #   "gps" = "Global Positioning System (GPS)",
+      #   "skin_temperature" = "Skin Temperature",
+      #   "other_signals" = "Other Signals",
+      #   "raw_data_available" = "Raw Data Available",
+      #   "data_trans_mehod" = "Data Transmission Method",
+      #   "int_storage_emt" = "Internal Storage",
+      #   "server_data_storage" = "Server Data Storage",
+      #   "dev_storage_cap_mb" = "Device Storage (MB)",
+      #   "dev_storage_cap_hrs" = "Device Storage (hrs)",
+      #   "gdpr_comp" = "GDPR Compliant",
+      #   "fda_app_clear" = "FDA Approved",
+      #   "ce_app_label" = "CE Label",
+      #   "level_validation" = "Validation Level",
+      #   "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
+      #   "no_studies_usab_reviewed" = "Usability Studies Reviewed"
       # )
+      #
+      # # Rename only the columns that exist in df
+      # existing_cols <- names(df)
+      # new_colnames <- rename_map[existing_cols]  # Get mapped names for existing cols
+      # names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)  # Rename safely
 
       DT::datatable(
         df,
         options = list(
-          pageLength = 30,      # Show 25 entries by default
-          autoWidth = TRUE,     # Adjust column widths automatically
-          scrollX = TRUE        # Enable horizontal scrolling within DataTable
+          pageLength = 35,
+          autoWidth = TRUE,
+          scrollX = TRUE
         )
       )
     })
+
+
+
+
+    # Download Handler for the filtered data
+    output$download_data <- downloadHandler(
+      filename = function() {
+        paste("filtered_data-", Sys.Date(), ".csv", sep = "")
+      },
+      content = function(file) {
+        # Write the filtered data to a CSV file
+        write.csv(filtered_data(), file, row.names = FALSE)
+      }
+    )
 
   })
 }

@@ -22,6 +22,15 @@ header = mod_header_ui("header"),
 
 # * * 1.3 body -----------------------------------------------------------
     body = dashboardBody(
+      tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      ),
+      tags$script(HTML("
+    Shiny.addCustomMessageHandler('triggerDownload', function(id) {
+      document.getElementById(id).click();
+    });
+  ")),
+      useShinyjs(),
     tabItems(
       tabItem(tabName = "app_info", mod_app_info_ui("app_info")),
       #tabItem(tabName = "product_filter", mod_prod_fil_ui("product_comp")),
