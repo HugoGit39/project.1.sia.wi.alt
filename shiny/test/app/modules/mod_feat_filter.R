@@ -77,6 +77,7 @@ mod_feat_fil_ui <- function(id) {
                 status = "secondary",
                 collapsible = FALSE,
                 checkboxInput(ns("raw_data_available"), "Raw Data"),
+                selectInput(ns("data_trans_method"), "Data rans_method", choices = NULL, multiple = TRUE),
                 checkboxInput(ns("int_storage_met"), "Internal Storage"),
                 checkboxInput(ns("server_data_storage"), "Server Storage"),
                 sliderInput(ns("dev_storage_cap_mb"), "Device Storage (size in MB)", min = 0, max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE))),
@@ -107,24 +108,9 @@ mod_feat_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Results", class = "btn btn-success")
         ),
-        # div(
-        #   style = "text-align: center; margin-bottom: 10px;",
-        #   actionButton(
-        #     inputId = ns("bttn1"),
-        #     label = "Download Results",
-        #     status = "secondary",
-        #     outline = TRUE,
-        #     size = "lg",
-        #     flat = TRUE,
-        #     width = "20%",
-        #     icon = NULL,
-        #     block = TRUE,
-        #     style = "border-width: 2px"
-        #   )
-        # ),
         div(
           style = "overflow-x: auto;",  # Enable horizontal scrolling
-          DT::DTOutput(ns("filtered_table"))
+          DTOutput(ns("filtered_table"))
         )
       )
     )
@@ -136,45 +122,52 @@ mod_feat_fil_server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Observe data and update selectInput choices dynamically
-    observe({
+    # Reset the filter# Main Filter
+    filtered_data <- reactive({
       df <- data()
 
-      #General Device Information
-      updateSelectInput(session, "manufacturer", choices = unique(df$manufacturer))
-      updateSelectInput(session, "model", choices = unique(df$model))
-      updateSelectInput(session, "market_status", choices = unique(df$market_status))
-      updateSelectInput(session, "main_use", choices = unique(df$main_use))
-      updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
-      updateSelectInput(session, "location", choices = unique(df$location))
-      updateSelectInput(session, "size", choices = unique(df$size))
-
-      #Technical Specifications
-      updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
-      updateSelectInput(session, "location", choices = unique(df$location))
-      updateSelectInput(session, "size", choices = unique(df$size))
-      updateSelectInput(session, "charging_method", choices = unique(df$charging_method))
-
-      #Signals
-      updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
-
-      #Validation, Reliability & Usability
-      updateSelectInput(session, "level_validation", choices = unique(df$level_validation))
-
-    })
-
-
-
-    filtered_data <- reactive({
-
-      data() %>%
+      df %>%
         filter(
-          # Expert Score Filters
-          is.na(sia_es_long) | (sia_es_long >= input$sia_es_long[1] & sia_es_long <= input$sia_es_long[2]),
-          is.na(sia_es_short) | (sia_es_short >= input$sia_es_short[1] & sia_es_short <= input$sia_es_short[2]),
+          # Sliders (Numeric Range Filters)
+          is.na(sia_es_long) | between(sia_es_long, input$sia_es_long[1], input$sia_es_long[2]),
+          is.na(sia_es_short) | between(sia_es_short, input$sia_es_short[1], input$sia_es_short[2]),
+          is.na(device_cost) | between(device_cost, input$device_cost[1], input$device_cost[2]),
+          is.na(weight) | between(weight, input$weight[1], input$weight[2]),
+          is.na(battery_life) | between(battery_life, input$battery_life[1], input$battery_life[2]),
+          is.na(charging_duration) | between(charging_duration, input$charging_duration[1], input$charging_duration[2]),
+          is.na(dev_storage_cap_mb) | between(dev_storage_cap_mb, input$dev_storage_cap_mb[1], input$dev_storage_cap_mb[2]),
+          is.na(dev_storage_cap_hrs) | between(dev_storage_cap_hrs, input$dev_storage_cap_hrs[1], input$dev_storage_cap_hrs[2]),
+          is.na(no_studies_val_rel_reviewed) | between(no_studies_val_rel_reviewed, input$no_studies_val_rel_reviewed[1], input$no_studies_val_rel_reviewed[2]),
+          is.na(no_studies_usab_reviewed) | between(no_studies_usab_reviewed, input$no_studies_usab_reviewed[1], input$no_studies_usab_reviewed[2]),
 
+          # Date Range Filter
+          is.null(input$release_date[1]) | is.null(input$release_date[2]) |
+            is.na(release_date) | between(release_date, input$release_date[1], input$release_date[2]),
 
-          # General Device Information Filters (Fixing selectInput)
+          # Checkboxes (Boolean Filters)
+          (!input$water_resistance | water_resistance == "Yes"),
+          (!input$bio_cueing | bio_cueing == "Yes"),
+          (!input$bio_feedback | bio_feedback == "Yes"),
+          (!input$ppg | ppg == "Yes"),
+          (!input$ecg | ecg == "Yes"),
+          (!input$icg | icg == "Yes"),
+          (!input$emg | emg == "Yes"),
+          (!input$respiration | respiration == "Yes"),
+          (!input$eda | eda == "Yes"),
+          (!input$eeg | eeg == "Yes"),
+          (!input$bp | bp == "Yes"),
+          (!input$accelerometer | accelerometer == "Yes"),
+          (!input$gyroscope | gyroscope == "Yes"),
+          (!input$gps | gps == "Yes"),
+          (!input$skin_temperature | skin_temperature == "Yes"),
+          (!input$int_storage_met | int_storage_met == "Yes"),
+          (!input$server_data_storage | server_data_storage == "Yes"),
+          (!input$raw_data_available | raw_data_available == "Yes"),
+          (!input$gdpr_comp | gdpr_comp == "Yes"),
+          (!input$ce_app_label | ce_app_label == "Yes"),
+          (!input$fda_app_clear | fda_app_clear == "Yes"),
+
+          # Textboxes (Dropdown & Free Text Filters)
           (is.null(input$manufacturer) | manufacturer %in% input$manufacturer),
           (is.null(input$model) | model %in% input$model),
           (is.null(input$market_status) | market_status %in% input$market_status),
@@ -182,150 +175,107 @@ mod_feat_fil_server <- function(id, data) {
           (is.null(input$wearable_type) | wearable_type %in% input$wearable_type),
           (is.null(input$location) | location %in% input$location),
           (is.null(input$size) | size %in% input$size),
-
-          # Date Range Filter
-          (is.null(input$release_date[1]) | is.null(input$release_date[2]) |
-             is.na(release_date) | (release_date >= input$release_date[1] & release_date <= input$release_date[2])),
-
-          # Numeric Range Filters
-          is.na(device_cost) | (device_cost >= input$device_cost[1] & device_cost <= input$device_cost[2]),
-          is.na(weight) | (weight >= input$weight[1] & weight <= input$weight[2]),
-
-          #Technical Specifications
-          is.na(battery_life) | (battery_life >= input$battery_life[1] & battery_life <= input$battery_life[2]),
-          is.na(charging_duration) | (charging_duration >= input$charging_duration[1] & charging_duration <= input$charging_duration[2]),
           (is.null(input$charging_method) | charging_method %in% input$charging_method),
-          (!input$water_resistance | water_resistance == "Yes") &
-          (!input$bio_cueing | bio_cueing == "Yes") &
-          (!input$bio_feedback | bio_feedback == "Yes"),
-
-          #Signals
-          (!input$ppg | ppg == "Yes") &
-          (!input$ecg | ecg == "Yes") &
-          (!input$icg | icg == "Yes") &
-          (!input$emg | emg == "Yes") &
-          (!input$respiration | respiration == "Yes") &
-          (!input$eda | eda == "Yes") &
-          (!input$eeg | eeg == "Yes") &
-          (!input$bp | bp == "Yes") &
-          (!input$accelerometer | accelerometer == "Yes") &
-          (!input$gyroscope | gyroscope == "Yes") &
-          (!input$gps | gps == "Yes") &
-          (!input$skin_temperature | skin_temperature == "Yes"),
           (is.null(input$other_signals) | other_signals %in% input$other_signals),
-
-          #Data Acces
-          int_storage_met == "Yes" &
-          server_data_storage == "Yes",
-          is.na(dev_storage_cap_mb) | (dev_storage_cap_mb >= input$dev_storage_cap_mb[1] & dev_storage_cap_mb <= input$dev_storage_cap_mb[2]),
-          is.na(dev_storage_cap_hrs) | (dev_storage_cap_hrs >= input$dev_storage_cap_hrs[1] & dev_storage_cap_hrs <= input$dev_storage_cap_hrs[2]),
-          (!input$raw_data_available | raw_data_available == "Yes") &
-          (!input$gdpr_comp | gdpr_comp == "Yes") &
-          (!input$ce_app_label | ce_app_label == "Yes") &
-          (!input$fda_app_clear | gps == "Yes"),
-
-          #Validation, Reliability & Usability
-          (is.null(input$level_validation) | level_validation %in% input$level_validation),
-          is.na(no_studies_val_rel_reviewed) | (no_studies_val_rel_reviewed >= input$no_studies_val_rel_reviewed[1] & no_studies_val_rel_reviewed <= input$no_studies_val_rel_reviewed[2]),
-          is.na(no_studies_usab_reviewed) | (no_studies_usab_reviewed >= input$no_studies_usab_reviewed[1] & no_studies_usab_reviewed <= input$no_studies_usab_reviewed[2])
-
+          (is.null(input$data_trans_method) | data_trans_method %in% input$data_trans_method),
+          (is.null(input$level_validation) | level_validation %in% input$level_validation)
         )
+    })
+
+    # Observe data and update selectInput choices dynamically
+    observe({
+      df <- filtered_data()
+
+      # Define a named vector of input IDs and corresponding dataframe column names
+      input_cols <- c(
+        "manufacturer" = "manufacturer",
+        "model" = "model",
+        "market_status" = "market_status",
+        "main_use" = "main_use",
+        "wearable_type" = "wearable_type",
+        "location" = "location",
+        "size" = "size",
+        "charging_method" = "charging_method",
+        "other_signals" = "other_signals",
+        "data_trans_method" = "data_trans_method",
+        "level_validation" = "level_validation"
+      )
+
+      # Iterate over the vector and update selectInput choices dynamically
+      lapply(names(input_cols), function(input_id) {
+        updateSelectInput(session, input_id, choices = unique(df[[input_cols[input_id]]]))
+      })
 
     })
 
-    # output$filtered_table <- DT::renderDT({
-    #   df <- filtered_data()
-    #
-    #   colnames(df) <- c(
-    #     "Long-Term SiA Expert Score", "Short-Term SiA Expert Score", "Manufacturer", "Model",
-    #     "Release Date", "Market Status", "Main Use", "Cost (€)", "Type", "Location",
-    #     "Weight (g)", "Size", "Water Resistant", "Battery Life (min)", "Charging Method",
-    #     "Charging Duration (min)", "Bio Cueing", "Bio Feedback", "Photoplethysmogram (PPG)",
-    #     "Electrocardiogram (ECG)", "Impedance Cardiography (ICG)", "Electromyography (EMG)",
-    #     "Respiration", "Electrodermal Activity (EDA)", "Electroencephalography (EEG)",
-    #     "Blood Pressure", "Accelerometer", "Gyroscope", "Global Positioning System (GPS)",
-    #     "Skin Temperature", "Other Signals", "Raw Data Available", "Device Storage (MB)",
-    #     "Device Storage (hrs)", "GDPR Compliant", "FDA Approved", "CE Label",
-    #     "Validation Level", "Validation Studies Reviewed", "Usability Studies Reviewed"
-    #   )
-    #
-    #   DT::datatable(
-    #     df,
-    #     options = list(
-    #       pageLength = 35,
-    #       autoWidth = TRUE,
-    #       scrollX = TRUE
-    #     )
-    #   )
-    # })
-
-    output$filtered_table <- DT::renderDT({
+    # Output table
+    output$filtered_table <- renderDT({
       df <- filtered_data()
 
-      # # Define the column renaming map
-      # rename_map <- c(
-      #   "sia_es_long" = "Long-Term SiA Expert Score",
-      #   "sia_es_short" = "Short-Term SiA Expert Score",
-      #   "manufacturer" = "Manufacturer",
-      #   "model" = "Model",
-      #   "release_date" = "Release Date",
-      #   "market_status" = "Market Status",
-      #   "main_use" = "Main Use",
-      #   "device_cost" = "Cost (€)",
-      #   "wearable_type" = "Type",
-      #   "location" = "Location",
-      #   "weight" = "Weight (g)",
-      #   "size" = "Size",
-      #   "water_resistance" = "Water Resistant",
-      #   "battery_life" = "Battery Life (min)",
-      #   "charging_method" = "Charging Method",
-      #   "charging_duration" = "Charging Duration (min)",
-      #   "bio_cueing" = "Bio Cueing",
-      #   "bio_feedback" = "Bio Feedback",
-      #   "ppg" = "Photoplethysmogram (PPG)",
-      #   "ecg" = "Electrocardiogram (ECG)",
-      #   "icg" = "Impedance Cardiography (ICG)",
-      #   "emg" = "Electromyography (EMG)",
-      #   "respiration" = "Respiration",
-      #   "eda" = "Electrodermal Activity (EDA)",
-      #   "eeg" = "Electroencephalography (EEG)",
-      #   "bp" = "Blood Pressure",
-      #   "accelerometer" = "Accelerometer",
-      #   "gyroscope" = "Gyroscope",
-      #   "gps" = "Global Positioning System (GPS)",
-      #   "skin_temperature" = "Skin Temperature",
-      #   "other_signals" = "Other Signals",
-      #   "raw_data_available" = "Raw Data Available",
-      #   "data_trans_mehod" = "Data Transmission Method",
-      #   "int_storage_emt" = "Internal Storage",
-      #   "server_data_storage" = "Server Data Storage",
-      #   "dev_storage_cap_mb" = "Device Storage (MB)",
-      #   "dev_storage_cap_hrs" = "Device Storage (hrs)",
-      #   "gdpr_comp" = "GDPR Compliant",
-      #   "fda_app_clear" = "FDA Approved",
-      #   "ce_app_label" = "CE Label",
-      #   "level_validation" = "Validation Level",
-      #   "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
-      #   "no_studies_usab_reviewed" = "Usability Studies Reviewed"
-      # )
-      #
-      # # Rename only the columns that exist in df
-      # existing_cols <- names(df)
-      # new_colnames <- rename_map[existing_cols]  # Get mapped names for existing cols
-      # names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)  # Rename safely
+      # Define the column renaming map
+      rename_map <- c(
+        "sia_es_long" = "Long-Term SiA Score",
+        "sia_es_short" = "Short-Term SiA Score",
+        "manufacturer" = "Manufacturer",
+        "model" = "Model",
+        "release_date" = "Release Date",
+        "market_status" = "Market Status",
+        "main_use" = "Main Use",
+        "device_cost" = "Cost (€)",
+        "wearable_type" = "Type",
+        "location" = "Location",
+        "weight" = "Weight (g)",
+        "size" = "Size",
+        "water_resistance" = "Water Resistant",
+        "battery_life" = "Battery Life (min)",
+        "charging_method" = "Charging Method",
+        "charging_duration" = "Charging Duration (min)",
+        "bio_cueing" = "Bio Cueing",
+        "bio_feedback" = "Bio Feedback",
+        "ppg" = "PPG",
+        "ecg" = "ECG",
+        "icg" = "ICG",
+        "emg" = "EMG",
+        "respiration" = "Respiration",
+        "eda" = "EDA",
+        "eeg" = "EEG",
+        "bp" = "Blood Pressure",
+        "accelerometer" = "Accelerometer",
+        "gyroscope" = "Gyroscope",
+        "gps" = "GPS",
+        "skin_temperature" = "Skin Temperature",
+        "other_signals" = "Other Signals",
+        "raw_data_available" = "Raw Data Available",
+        "data_trans_method" = "Data Transmission Method",
+        "int_storage_met" = "Internal Storage",
+        "server_data_storage" = "Server Data Storage",
+        "dev_storage_cap_hrs" = "Device Storage (hrs)",
+        "dev_storage_cap_mb" = "Device Storage (MB)",
+        "gdpr_comp" = "GDPR Compliant",
+        "fda_app_clear" = "FDA Approved",
+        "ce_app_label" = "CE Label",
+        "level_validation" = "Validation Level",
+        "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
+        "no_studies_usab_reviewed" = "Usability Studies Reviewed"
+      )
 
-      DT::datatable(
+      # Rename only the columns that exist in df
+      existing_cols <- names(df)
+      new_colnames <- rename_map[existing_cols]  # Get mapped names for existing cols
+      names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)  # Rename safely
+
+      datatable(
         df,
         options = list(
-          pageLength = 35,
+          pageLength = 40,
           autoWidth = TRUE,
-          scrollX = TRUE
+          #scrollX = TRUE,
+          columnDefs = list(
+            list(width = "150px", targets = "_all")  # Set all columns to 150px width
+          )
         )
       )
     })
-
-
-
 
     # Download Handler for the filtered data
     output$download_data <- downloadHandler(
@@ -340,3 +290,47 @@ mod_feat_fil_server <- function(id, data) {
 
   })
 }
+
+
+################
+
+# div(
+#   style = "text-align: center; margin-bottom: 10px;",
+#   actionButton(
+#     inputId = ns("bttn1"),
+#     label = "Download Results",
+#     status = "secondary",
+#     outline = TRUE,
+#     size = "lg",
+#     flat = TRUE,
+#     width = "20%",
+#     icon = NULL,
+#     block = TRUE,
+#     style = "border-width: 2px"
+#   )
+# ),
+
+# updateSelectInput(session, "manufacturer", choices = unique(df$manufacturer))
+# updateSelectInput(session, "model", choices = unique(df$model))
+# updateSelectInput(session, "market_status", choices = unique(df$market_status))
+# updateSelectInput(session, "main_use", choices = unique(df$main_use))
+# updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
+# updateSelectInput(session, "location", choices = unique(df$location))
+# updateSelectInput(session, "size", choices = unique(df$size))
+#
+# #Technical Specifications
+# updateSelectInput(session, "wearable_type", choices = unique(df$wearable_type))
+# updateSelectInput(session, "location", choices = unique(df$location))
+# updateSelectInput(session, "size", choices = unique(df$size))
+# updateSelectInput(session, "charging_method", choices = unique(df$charging_method))
+#
+# #Signals
+# updateSelectInput(session, "other_signals", choices = unique(df$other_signals))
+#
+# #Data Acces
+# updateSelectInput(session, "data_trans_method", choices = unique(df$data_trans_method))
+#
+# #Validation, Reliability & Usability
+# updateSelectInput(session, "level_validation", choices = unique(df$level_validation))
+
+
