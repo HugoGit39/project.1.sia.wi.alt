@@ -18,6 +18,7 @@ library(shinySearchbar)
 library(emayili)
 library(shinyjs)
 library(sever)
+library(shinycssloaders)
 
 # * 2 Load functions -----------------------------------------------------------
 
@@ -36,5 +37,8 @@ source(here("shiny", "test", "app", "modules", "mod_contact.R"))
 
 # * 4 Load data -----------------------------------------------------------
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
+
+#  * 5 set spinner table -----------------------------------------------
+options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5)
 
 
