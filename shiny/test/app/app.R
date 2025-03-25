@@ -4,34 +4,7 @@
 #
 #############################################################################################
 
-CSS <- "
-.doubleScroll-scroll-wrapper {
-  clear: both;
-}
-"
 
-js <- "
-$(document).ready(function(){
-  $('#dtable').on('shiny:value', function(e){
-    setTimeout(function(){
-      $('#dtable table').wrap('<div id=\"scrolldiv\"></div>');
-      $('#scrolldiv').doubleScroll({
-        contentElement: $('table'),
-          scrollCss: {
-              'overflow-x': 'scroll',
-              'overflow-y': 'hidden'
-          },
-          contentCss: {
-              'overflow-x': 'scroll',
-              'overflow-y': 'hidden'
-          },
-        resetOnWindowResize: true
-      });
-      setTimeout(function(){$(window).resize();}, 100);
-    }, 0);
-  });
-});
-"
 
 # * 1 ui -----------------------------------------------------------
 ui <- dashboardPage(
@@ -54,9 +27,6 @@ header = mod_header_ui("header"),
       id = "body_app",
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
-      tags$script(src = "jquery.doubleScroll.js"),
-      tags$script(HTML(js)),
-      tags$style(HTML(CSS)),
       useShinyjs(),
     tabItems(
       tabItem(tabName = "app_info", mod_app_info_ui("app_info")),
