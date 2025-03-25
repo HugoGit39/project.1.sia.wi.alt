@@ -115,9 +115,6 @@ mod_app_info_ui <- function(id) {
   )
 }
 
-
-
-
 # App Info Module (Server)
 mod_app_info_server <- function(id) {
   moduleServer(id, function(input, output, session) {

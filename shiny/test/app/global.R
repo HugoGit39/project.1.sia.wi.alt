@@ -4,8 +4,26 @@
 #
 #############################################################################################
 
-# * 1 Load packages -----------------------------------------------------------
+# * 1 Load libraries ----------------------- -------------------------------
 
+# list of required packages
+required_packages <- c(
+  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "data.table", "DT",
+  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders"
+)
+
+# install missing packages
+install_missing <- function(package) {
+  if (!require(package, character.only = TRUE)) {
+    install.packages(package)
+    library(package, character.only = TRUE)
+  }
+}
+
+# apply function to list of required packages
+sapply(required_packages, install_missing)
+
+# load libraries
 library(shiny)
 library(bs4Dash)
 library(here)

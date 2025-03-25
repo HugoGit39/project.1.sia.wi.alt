@@ -16,10 +16,21 @@ mod_feat_fil_ui <- function(id) {
         width = 12,
         collapsible = FALSE,
         solidHeader = TRUE,
-        # div(
-        #   style = "text-align: center; margin-bottom: 10px;",
-        #   actionButton(ns("reset_filter"), "Reset Filter", class = "btn btn-danger")
-        # ),
+        div(
+          style = "text-align: center; margin-bottom: 10px;",
+          actionButton(
+            inputId = ns("reset_filter"),
+            label = "Reset Filter",
+            status = "danger",
+            outline = TRUE,
+            size = "sm",
+            flat = TRUE,
+            icon = NULL,
+            block = TRUE,
+            width = "50%",
+            style = "border-width: 2px"
+          )
+        ),
         bs4Card(title = "SiA Expert Score",
                 width = 12,
                 status = "secondary",
@@ -218,10 +229,99 @@ mod_feat_fil_server <- function(id, data) {
         )
     })
 
+    # Observe Reset Filter button
+    observeEvent(input$reset_filter, {
+      # Reset sliders
+      updateSliderInput(session, "sia_es_long", value = c(0, 10))
+      updateSliderInput(session, "sia_es_short", value = c(0, 10))
+      updateSliderInput(session, "device_cost", value = c(0, max(sia_df$device_cost, na.rm = TRUE)))
+      updateSliderInput(session, "weight", value = c(0, max(sia_df$weight, na.rm = TRUE)))
+      updateSliderInput(session, "battery_life", value = c(0, max(sia_df$battery_life, na.rm = TRUE)))
+      updateSliderInput(session, "charging_duration", value = c(0, 10000))
+      updateSliderInput(session, "dev_storage_cap_mb", value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)))
+      updateSliderInput(session, "dev_storage_cap_hrs", value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)))
+      updateSliderInput(session, "no_studies_val_rel_reviewed", value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
+      updateSliderInput(session, "no_studies_usab_reviewed", value = c(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)))
+
+      # Reset date
+      updateDateRangeInput(session, "release_date",
+                           start = min(sia_df$release_date, na.rm = TRUE),
+                           end = max(sia_df$release_date, na.rm = TRUE)
+      )
+
+      # Reset checkboxInputs
+      checkbox_inputs <- c("water_resistance", "bio_cueing", "bio_feedback", "ppg", "ecg", "icg",
+                           "emg", "respiration", "eda", "eeg", "bp", "accelerometer", "gyroscope",
+                           "gps", "skin_temperature", "raw_data_available", "int_storage_met",
+                           "server_data_storage", "gdpr_comp", "fda_app_clear", "ce_app_label")
+      lapply(checkbox_inputs, function(id) updateCheckboxInput(session, id, value = FALSE))
+
+      # Reset selectInputs
+      select_inputs <- c("manufacturer", "model", "market_status", "main_use",
+                         "wearable_type", "location", "size", "charging_method",
+                         "other_signals", "data_trans_method", "level_validation")
+      lapply(select_inputs, function(id) updateSelectInput(session, id, selected = character(0)))
+    })
+
     # Step 4: Render filtered table
     output$filtered_table <- renderDT({
+
+      df <- filtered_data()
+
+      # Define the column renaming map
+      rename_map <- c(
+        "sia_es_long" = "Long-Term SiA Score",
+        "sia_es_short" = "Short-Term SiA Score",
+        "manufacturer" = "Manufacturer",
+        "model" = "Model",
+        "release_date" = "Release Date",
+        "market_status" = "Market Status",
+        "main_use" = "Main Use",
+        "device_cost" = "Cost (€)",
+        "wearable_type" = "Type",
+        "location" = "Location",
+        "weight" = "Weight (g)",
+        "size" = "Size",
+        "water_resistance" = "Water Resistant",
+        "battery_life" = "Battery Life (min)",
+        "charging_method" = "Charging Method",
+        "charging_duration" = "Charging Duration (min)",
+        "bio_cueing" = "Bio Cueing",
+        "bio_feedback" = "Bio Feedback",
+        "ppg" = "PPG",
+        "ecg" = "ECG",
+        "icg" = "ICG",
+        "emg" = "EMG",
+        "respiration" = "Respiration",
+        "eda" = "EDA",
+        "eeg" = "EEG",
+        "bp" = "Blood Pressure",
+        "accelerometer" = "Accelerometer",
+        "gyroscope" = "Gyroscope",
+        "gps" = "GPS",
+        "skin_temperature" = "Skin Temperature",
+        "other_signals" = "Other Signals",
+        "raw_data_available" = "Raw Data Available",
+        "data_trans_method" = "Data Transmission Method",
+        "int_storage_met" = "Internal Storage",
+        "server_data_storage" = "Server Data Storage",
+        "dev_storage_cap_hrs" = "Device Storage (hrs)",
+        "dev_storage_cap_mb" = "Device Storage (MB)",
+        "gdpr_comp" = "GDPR Compliant",
+        "fda_app_clear" = "FDA Approved",
+        "ce_app_label" = "CE Label",
+        "level_validation" = "Validation Level",
+        "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
+        "no_studies_usab_reviewed" = "Usability Studies Reviewed"
+      )
+
+      # Rename only the columns that exist in df
+      existing_cols <- names(df)
+      new_colnames <- rename_map[existing_cols]  # Get mapped names for existing cols
+      names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)  # Rename safely
+
       datatable(
-        filtered_data(),
+        df,
         options = list(
           pageLength = 40,
           autoWidth = TRUE,
