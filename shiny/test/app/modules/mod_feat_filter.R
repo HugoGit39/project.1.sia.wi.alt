@@ -1,8 +1,8 @@
-#' ############################################################################################
-#' #
-#' #  Function nodule for nfeauture filter (extensive)
-#' #
-#' #############################################################################################
+############################################################################################
+#
+#  Function nodule for nfeauture filter (extensive)
+#
+#############################################################################################
 
 #' Module UI for Filtering Wearables
 mod_feat_fil_ui <- function(id) {
@@ -10,8 +10,8 @@ mod_feat_fil_ui <- function(id) {
   fluidRow(
     column(
       width = 2,
-      bs4Dash::bs4Card(
-        title = "Filter Wearables",
+      bs4Card(
+        title = "Feature Filter",
         status = "primary",
         width = 12,
         collapsible = FALSE,
@@ -120,10 +120,7 @@ mod_feat_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
         ),
-        div(
-          style = "overflow-x: auto;",  # Enable horizontal scrolling
-          DTOutput(ns("filtered_table")) %>% withSpinner()
-        )
+        DTOutput(ns("filtered_table")) %>% withSpinner()
       )
     )
   )
@@ -325,6 +322,7 @@ mod_feat_fil_server <- function(id, data) {
         options = list(
           pageLength = 40,
           autoWidth = TRUE,
+          scrollX = TRUE,
           columnDefs = list(
             list(width = "150px", targets = "_all")
           )

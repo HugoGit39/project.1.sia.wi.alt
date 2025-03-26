@@ -1,13 +1,12 @@
-#' @import fresh
-
-#create custom SiA colours
+############################################################################################
+#
+#  Function for SiA colours
+#
+#############################################################################################
 
 colours_fresh <- function() {
 
   create_theme(
-    bs4dash_layout(
-      control_sidebar_width = "500px"
-    ),
     bs4dash_status(
       primary = "#1c75bc", #official SiA colour
       secondary = "#f15a29", #official SiA colour

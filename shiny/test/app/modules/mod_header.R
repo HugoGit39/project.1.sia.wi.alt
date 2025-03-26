@@ -11,7 +11,7 @@ mod_header_ui <- function(id) {
   bs4DashNavbar(
     titleWidth = 220,
     tagList(
-      tags$style(".main-header {min-height: 75px}"),
+      tags$style(".main-header {min-height: 80px}"),
       tags$style(HTML("
         .dropdown-menu {
           min-width: 250px !important;  /* Adjust width as needed */
