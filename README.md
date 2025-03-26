@@ -53,7 +53,7 @@ project.1.sia.wi::run_app()
 
 ## Live version
 
-`Live Wearable Shiny App` website: [https://wearables.stress-in-action.nl](https://stress-in-action.nl) - Available at the end of 2024 
+`Live Wearable Shiny App` website: [https://wd.stress-in-action.nl](https://stress-in-action.nl) - Available middle 2025 
 
 ## Support
 
