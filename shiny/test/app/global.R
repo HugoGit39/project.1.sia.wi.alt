@@ -43,6 +43,7 @@ library(shinycssloaders)
 source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
+source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 

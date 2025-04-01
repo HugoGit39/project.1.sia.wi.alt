@@ -13,18 +13,17 @@ appCSS <- "
 "
 
 # Function to add red star (*) to mandatory labels
-labelMandatory <- function(label) {
-  tagList(
-    label,
-    span("*", class = "mandatory_star")
-  )
-}
+# labelMandatory <- function(label) {
+#   tagList(
+#     label,
+#     span("*", class = "mandatory_star")
+#   )
+# }
 
 # Contact UI
 mod_contact_ui <- function(id) {
   ns <- NS(id)
   tagList(
-    useShinyjs(),  # Enable shinyjs for dynamic form controls
     tags$head(tags$style(HTML(appCSS))),  # Add CSS for red stars
     fluidRow(
       column(width = 4,
@@ -53,11 +52,12 @@ mod_contact_server <- function(id) {
 
     # Observe if all mandatory fields are filled
     observe({
-      mandatory_filled <- all(sapply(fieldsMandatory, function(x) {
-        !is.null(input[[x]]) && input[[x]] != ""
-      }))
+      # mandatory_filled <- all(sapply(fieldsMandatory, function(x) {
+      #   !is.null(input[[x]]) && input[[x]] != ""
 
-      shinyjs::toggleState(id = "submit", condition = mandatory_filled)  # Enable/disable submit button
+      mandatoryfields_check(fieldsMandatory)
+
+      toggleState(id = "submit", condition = mandatory_filled)  # Enable/disable submit button
     })
 
     # Call `send_email()` when Submit button is clicked
