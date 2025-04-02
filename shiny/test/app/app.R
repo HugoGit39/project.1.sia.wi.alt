@@ -26,23 +26,19 @@ header = mod_header_ui("header"),
       tags$head(
         tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
       useShinyjs(),
+      useSever(),
     tabItems(
       tabItem(tabName = "app_info", mod_app_info_ui("app_info")),
       tabItem(tabName = "product_filter", mod_prod_fil_ui("product_comp")),
       tabItem(tabName = "feature_filter", mod_feat_fil_ui("feature_comp")),
       tabItem(tabName = "submit_data", mod_sub_data_ui("add_data")),
+      tabItem(tabName = "article", mod_sub_data_ui("art")),
       tabItem(tabName = "contact_us", mod_contact_ui("contact"))
     )
   ),
 
 # * * 1.4 controlbar -----------------------------------------------------------
-  controlbar = dashboardControlbar(
-    tags$style(HTML(".control-sidebar { overflow-y: auto;}")),
-    skin = "light",
-    pinned = FALSE,
-    collapsed = TRUE,
-    overlay = TRUE
-  ),
+  controlbar = mod_control_ui("controlbar"),
 
 # * * 1.5 footer -----------------------------------------------------------
   footer = mod_footer_ui("footer"),
@@ -59,8 +55,8 @@ server <- function(input, output, session) {
   mod_header_server("header")
   mod_prod_fil_server("product_comp", sia_df_reactive)
   mod_feat_fil_server("feature_comp", sia_df_reactive )
-  #mod_sub_data_server("add_data")
   mod_contact_server("contact")
+  mod_timeout_server("timeout")
 
 # * * 2.2 additional -----------------------------------------------------------
 

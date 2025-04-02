@@ -23,10 +23,9 @@ mod_app_info_ui <- function(id) {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('iStock.jpg');
+        background-image: url('iStock_app_info.jpg');
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         z-index: -999;
       }
 

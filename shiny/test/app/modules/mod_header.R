@@ -29,10 +29,13 @@ mod_header_ui <- function(id) {
         }
       "))
     ),
-    title = tags$img(
-      src = "SiA_Logo_png.png",
-      height = "55px",
-      style = "margin-top: 10px; margin-bottom: 10px; margin-left: 15px; margin-right: 15px;"
+    title = tags$a(
+      href = "https://www.stressinaction.nl", target = "_blank",
+      tags$img(
+        src = "SiA_Logo_png.png",
+        height = "55px",
+        style = "margin-top: 10px; margin-bottom: 10px; margin-left: 15px; margin-right: 15px;"
+      )
     ),
     rightUi = tagList(
       tags$li(class = "dropdown", searchbar(inputId = ns("Search"), placeholder = "Search text here...", contextId = "body_app"))

@@ -47,17 +47,35 @@ source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 
+source(here("shiny", "test", "app", "modules", "mod_controlbar.R"))
 source(here("shiny", "test", "app", "modules", "mod_header.R"))
 source(here("shiny", "test", "app", "modules", "mod_app_info.R"))
 source(here("shiny", "test", "app", "modules", "mod_prod_filter.R"))
 source(here("shiny", "test", "app", "modules", "mod_feat_filter.R"))
 source(here("shiny", "test", "app", "modules", "mod_sub_data.R"))
+source(here("shiny", "test", "app", "modules", "mod_article.R"))
 source(here("shiny", "test", "app", "modules", "mod_contact.R"))
+source(here("shiny", "test", "app", "modules", "mod_footer.R"))
+source(here("shiny", "test", "app", "modules", "mod_timeout.R"))
 
 # * 4 Load data -----------------------------------------------------------
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
 
 #  * 5 set spinner table -----------------------------------------------
 options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5)
+
+#  * 6 Time-out message -----------------------------------------------
+disconnected <- tagList(
+  p(strong("Time Out!", style = "color: #1c75bc; font-size:30px")),
+  p(tags$img(src = "favicon.ico", height = 100, width = 100)),
+  p("You haven't been active for over 1 hour", br(),
+    "or your system went into sleep mode.", br(),
+    "To help", strong("De-Stress", style = "color: #f15a29; font-size:18px"), "the server", br(),
+    "your session has ended.", style = "font-size:16px"),
+  p(reload_button("Refresh")),
+  p("Just hit refresh to continue", br(),
+    "where you left off!", style = "font-size:16px")
+)
+
 
 

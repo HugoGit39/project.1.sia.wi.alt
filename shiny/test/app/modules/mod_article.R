@@ -1,11 +1,11 @@
 ############################################################################################
 #
-#  Function nodule for add data
+#  Function nodule  for Article
 #
 #############################################################################################
 
 # ui
-mod_sub_data_ui <- function(id) {
+mod_article_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
@@ -23,7 +23,7 @@ mod_sub_data_ui <- function(id) {
 }
 
 #server
-mod_sub_data__server <- function(id) {
+mod_article_server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
 
