@@ -33,6 +33,7 @@ header = mod_header_ui("header"),
       tabItem(tabName = "feature_filter", mod_feat_fil_ui("feature_comp")),
       tabItem(tabName = "submit_data", mod_sub_data_ui("add_data")),
       tabItem(tabName = "article", mod_sub_data_ui("art")),
+      tabItem(tabName = "about", mod_about_ui("about")),
       tabItem(tabName = "contact_us", mod_contact_ui("contact"))
     )
   ),
