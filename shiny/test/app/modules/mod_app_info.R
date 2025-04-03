@@ -51,7 +51,6 @@ mod_app_info_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           headerBorder = FALSE,
-          class = "custom-card",
           h4("About this App"),
           p("The Stress in Action Wearables Database (SiA-WD) is a new, comprehensive, well-sustained database of physiological wearable devices that have application potential in behavioral research, in particular stress research. It provides a large amount of information that a researcher would look for such as the general device information, recorded signals, technical specifications and data access, combined with a systematic validity, reliability and usability review of the available literature on a device. The SiA-WD will be iteratively expanded and the information, including that for devices already existing in the database, updated for an period of at least ten years. The user-friendly tool enables researchers to conveniently select the most suitable wearable for their study. ")
         )
@@ -71,7 +70,6 @@ mod_app_info_ui <- function(id) {
               width = 12,
               collapsible = FALSE,
               headerBorder = FALSE,
-              class = "custom-card",
               style = "height: 300px; overflow-y: auto;",
               p("To use this app, navigate to the 'Filters' section to explore wearables based on your
                 criteria. If you have new data to add, visit the 'Submit Data' section."),
@@ -92,7 +90,6 @@ mod_app_info_ui <- function(id) {
             width = 12,
             collapsible = FALSE,
             headerBorder = FALSE,
-            class = "custom-card",
             style = "height: 300px; overflow-y: auto;",
             p("Version 1.0 - Initial release with filtering and submission features."),
             p("Version 1.1 - Added dynamic selection to remove already chosen wearables."),

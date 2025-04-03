@@ -22,16 +22,16 @@ mod_about_ui <- function(id) {
         width = 1
       ),
       column(
-        width = 4,
+        width = 5,
         bs4Card(
           title = "Stress in Action",
-          style = "font-size: 18px; height: 450px; overflow-y: auto;",
+          style = "font-size: 18px; height: 350px; overflow-y: auto;",
           status = "primary",
           solidHeader = TRUE,
           width = 12,
           collapsible = FALSE,
           headerBorder = FALSE,
-          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors, 2) how daily life stress can be reliably measured in a specific individual in real-time, and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact."),
+          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors, 2) how daily life stress can be reliably measured in a specific individual in real-time", "(RT2)", ", and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact."),
           div(
             style = "text-align: center; margin-bottom: 10px;",
             actionButton(
@@ -65,21 +65,167 @@ mod_about_ui <- function(id) {
               tags$img(src = "EMC_logo.png", height = "40px")
             )
           )
-      )
-    ),
+        )
+      ),
     column(
       width = 1
     ),
     column(
-      width = 3,
+      width = 2,
       div(
         style = "display: flex; align-items: center; justify-content: center; height: 100%;",
         tags$img(src = "SiA_measurements.jpg", style = "max-width: 100%; max-height: 100%;")
       )
     )
+  ),
+  fluidRow(
+    column(width = 4,
+           div(
+           style = "margin-top: 125px;",
+             bs4Card(
+               title = "App Maintenance",
+               status = "secondary",
+               solidHeader = TRUE,
+               width = 12,
+               collapsible = FALSE,
+               headerBorder = FALSE,
+               p("This application is a publication of the department of Biological Psychology at the VU University Amsterdam."),
+               p(
+                 a(
+                   href = "https://stress-in-action.nl/hugo-klarenberg/",
+                   target = "_blank",
+                   img(
+                     src = "favicon.ico",
+                     style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                   )
+                 ),
+                 "Hugo Klarenberg, POst Doc VU University"
+               ),
+               p(" Faculty of Behavioural and Human Movement Sciences", br(),
+                 "Department of Biological Psychology", br(),
+                 "Van der Boechorststraat 7", br(),
+                 "1081 BT Amsterdam.", br(),
+                 "Email: disc[at]stress-in-action.nl", br(),
+                 "Website: ",
+                   a(
+                     href = "https://vu.nl/en/about-vu/faculties/faculty-of-behavioural-and-movement-sciences/departments/biological-psychology",
+                     target = "_blank",
+                     "Department of Biological Psychology"
+                   )
+                 ),
+               p("We kindly ask you to report bugs or function requests via email.")
+               )
+           )
+    ),
+    column(width = 1),
+    column(width = 2,
+           div(
+             style = "margin-top: 350px;",
+               bs4Card(
+                 title = "Image Credits",
+                 status = "primary",
+                 solidHeader = TRUE,
+                 width = 12,
+                 collapsible = FALSE,
+                 headerBorder = FALSE,
+                 p("All background images used in this application are sourced from iStock under a paid license."),
+                 p("Photographer:", br(),
+                   "filadendron"),
+                 p("Website: ",
+                   a(
+                     href = "https://www.istockphoto.com/nl/portfolio/filadendron",
+                     target = "_blank",
+                     "iStock - filadendron profile"
+                   )
+                 )
+               )
+             )
+           ),
+    column(width = 1),
+    column(width = 4,
+           div(
+             style = "margin-top: 50px;",
+               bs4Card(
+                 title = "Research Theme 2 (RT2) Wearbale Team",
+                 status = "secondary",
+                 solidHeader = TRUE,
+                 width = 12,
+                 collapsible = FALSE,
+                 headerBorder = FALSE,
+                 p("The goal of RT2 is to develop increasingly sophisticated versions of a cutting-edge, low-burden, ecologically valid ambulatory assessment toolkit to quantify stress in daily life, and to design, test, and iteratively improve stress interventions using that toolkit."),
+                 tagList(
+                   p(
+                     a(
+                       href = "https://stress-in-action.nl/myrte-schoenmakers/",
+                       target = "_blank",
+                       img(
+                         src = "favicon.ico",
+                         style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                       )
+                     ),
+                     "Myrte Schoenmakers, PhD student VU University"
+                   ),
+                 p(
+                   a(
+                     href = "https://stress-in-action.nl/melisa-saygin/",
+                     target = "_blank",
+                     img(
+                       src = "favicon.ico",
+                       style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                     )
+                   ),
+                   "Melisa Saygin, PhD student VU University"
+                 ),
+                 p(
+                   a(
+                     href = "https://stress-in-action.nl/magdalena-sikora/",
+                     target = "_blank",
+                     img(
+                       src = "favicon.ico",
+                       style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                     )
+                   ),
+                   "Magdalena Sikora, PhD student Twente University"
+                 ),
+                 p(
+                   a(
+                     href = "https://stress-in-action.nl/artemis-stefani/",
+                     target = "_blank",
+                     img(
+                       src = "favicon.ico",
+                       style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                     )
+                   ),
+                   "Artemis Stefani, PhD - Post Doc VU University"
+                 ),
+                 p(
+                   a(
+                     href = "https://stress-in-action.nl/matthijs-noordzij/",
+                     target = "_blank",
+                     img(
+                       src = "favicon.ico",
+                       style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                     )
+                   ),
+                   "Matthijs Noordzij, Professor in Health Psychology and Technology Twente University"
+                 ),
+                 p(
+                   a(
+                     href = "https://stress-in-action.nl/eco-de-geus/",
+                     target = "_blank",
+                     img(
+                       src = "favicon.ico",
+                       style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
+                     )
+                   ),
+                   "Eco de Geus, Professor of Biological Psychology VU University"
+                 )
+               )
+             )
+           )
+    )
   )
   )
-
 }
 
 # App Info Module (Server)

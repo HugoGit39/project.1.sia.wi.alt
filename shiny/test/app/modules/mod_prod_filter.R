@@ -48,7 +48,7 @@ mod_prod_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
         ),
-        DTOutput(ns("comparison_table"))
+        DTOutput(ns("prod_filtered_table"))
       )
     )
   )
@@ -82,7 +82,6 @@ mod_prod_fil_server <- function(id, sia_df) {
       )
     })
 
-    # Handle product3 updates and enable/disable model3
     # Handle product3 updates and enable/disable model3
     observeEvent(input$product3, {
       df <- sia_df()
@@ -139,7 +138,7 @@ mod_prod_fil_server <- function(id, sia_df) {
     })
 
     # Output: Comparison table
-    output$comparison_table <- renderDT({
+    output$prod_filtered_table <- renderDT({
       df <- selected_products()
 
       if (nrow(df) == 0) return(NULL)
@@ -150,7 +149,7 @@ mod_prod_fil_server <- function(id, sia_df) {
       # Transpose selected data
       df_t <- as.data.frame(t(df %>% select(-manufacturer, -model)))
       colnames(df_t) <- col_labels
-      df_t <- tibble::rownames_to_column(df_t, var = "Variable")
+      df_t <- rownames_to_column(df_t, var = "Variable")
 
       datatable(df_t, options = list(pageLength = nrow(df_t)))
     })

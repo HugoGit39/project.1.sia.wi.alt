@@ -7,10 +7,10 @@
 # Fields that are mandatory
 fieldsMandatory <- c("name", "email", "message")
 
-# CSS to style mandatory stars
-appCSS <- "
-  .mandatory_star { color: #CC6677; font-size: 16px; }
-"
+# # CSS to style mandatory stars
+# appCSS <- "
+#   .mandatory_star { color: #CC6677; font-size: 16px; }
+# "
 
 # Function to add red star (*) to mandatory labels
 labelMandatory <- function(label) {
@@ -55,7 +55,8 @@ mod_contact_ui <- function(id) {
 
     div(id = "app_contact_us_bg"),
 
-    tags$head(tags$style(HTML(appCSS))),  # Add CSS for red stars
+    #tags$head(tags$style(HTML(appCSS))),  # Add CSS for red stars
+    tags$label("Name", span("*", class = "mandatory_star")),
     fluidRow(
       column(width = 4,
              bs4Card(title = "Contact Us",
@@ -65,6 +66,7 @@ mod_contact_ui <- function(id) {
                      solidHeader = TRUE,
                      id = "contact",
                      height = "auto",
+                     p("Feel free to contact us with any questions about the project!"),
                      div(
                        textInput(ns("name"), labelMandatory("Name"), ""),
                        textInput(ns("email"), labelMandatory("Email"), ""),

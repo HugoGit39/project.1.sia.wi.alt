@@ -4,11 +4,13 @@
 #
 #############################################################################################
 
+#source("global.R", local = TRUE)
+
 # * 1 ui -----------------------------------------------------------
 ui <- dashboardPage(
   dark = NULL,
   freshTheme = colours_fresh(),
-  title = "SiA Wearable Interface Web App",
+  title = "Stress in Action Wearables Database App",
   fullscreen = FALSE,
   skin = "light",
   help = NULL,
@@ -24,7 +26,8 @@ header = mod_header_ui("header"),
     body = dashboardBody(
       id = "body_app",
       tags$head(
-        tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")),
+        tags$link(rel = "stylesheet", type = "text/css", href = "www/custom.css")
+      ),
       useShinyjs(),
       useSever(),
     tabItems(

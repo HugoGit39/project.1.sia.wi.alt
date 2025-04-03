@@ -7,120 +7,123 @@
 #' Module UI for Filtering Wearables
 mod_feat_fil_ui <- function(id) {
   ns <- NS(id)
-  fluidRow(
-    column(
-      width = 2,
-      bs4Card(
-        title = "Feature Filter",
-        status = "primary",
-        width = 12,
-        collapsible = FALSE,
-        solidHeader = TRUE,
-        div(
-          style = "text-align: center; margin-bottom: 10px;",
-          actionButton(
-            inputId = ns("reset_filter"),
-            label = "Reset Filter",
-            status = "danger",
-            outline = TRUE,
-            size = "sm",
-            flat = TRUE,
-            icon = NULL,
-            block = TRUE,
-            width = "50%",
-            style = "border-width: 2px"
+
+  tagList(
+    fluidRow(
+      column(
+        width = 3,
+        bs4Card(
+          title = "Feature Filter",
+          status = "primary",
+          width = 12,
+          collapsible = FALSE,
+          solidHeader = TRUE,
+          div(
+            style = "text-align: center; margin-bottom: 10px;",
+            actionButton(
+              inputId = ns("reset_filter"),
+              label = "Reset Filter",
+              status = "danger",
+              outline = TRUE,
+              size = "sm",
+              flat = TRUE,
+              icon = NULL,
+              block = TRUE,
+              width = "50%",
+              style = "border-width: 2px"
+            )
+          ),
+          bs4Card(title = "SiA Expert Score",
+                  width = 12,
+                  status = "secondary",
+                  solidHeader = TRUE,
+                  collapsible = FALSE,
+                  sliderInput(ns("sia_es_long"), "Long-Term", min = 0, max = 10, value = c(0,10)),
+                  sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10))
+          ),
+          bs4Card(title = "General Device Information",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
+                  uiOutput(ns("manufacturer_ui")),
+                  selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
+                  dateRangeInput(ns("release_date"), "Release Date", start = min(sia_df$release_date, na.rm = TRUE), end = max(sia_df$release_date, na.rm = TRUE), format = "yyyy"),
+                  selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
+                  selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
+                  sliderInput(ns("device_cost"), "Cost (€)", min = 0, max = max(sia_df$device_cost, na.rm = TRUE), value = c(0, max(sia_df$device_cost, na.rm = TRUE))),
+                  selectInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
+                  selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
+                  sliderInput(ns("weight"), "Weight (g)", min=0, max = max(sia_df$weight, na.rm = TRUE), value = c(0,max(sia_df$weight, na.rm = TRUE))),
+                  selectInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
+          ),
+          bs4Card(title = "Technical Specifications",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  checkboxInput(ns("water_resistance"), "Water Resistant"),
+                  sliderInput(ns("battery_life"), "Battery Life (min)", min = 0, max = max(sia_df$battery_life, na.rm = TRUE), value = c(0, max(sia_df$battery_life, na.rm = TRUE))),
+                  selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
+                  sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000)),
+                  checkboxInput(ns("bio_cueing"), "Bio Cueing"),
+                  checkboxInput(ns("bio_feedback"), "Bio Feedback")
+          ),
+          bs4Card(title = "Signals",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  checkboxInput(ns("ppg"), "Photoplethysmogram (PPG)"),
+                  checkboxInput(ns("ecg"), "Electrocardiogram (ECG)"),
+                  checkboxInput(ns("icg"), "Impedance cardiography (ICG)"),
+                  checkboxInput(ns("emg"), "Electromyography (EMG)"),
+                  checkboxInput(ns("respiration"), "Respiration"),
+                  checkboxInput(ns("eda"), "Electrodermal activity (EDA)"),
+                  checkboxInput(ns("eeg"), "Electroencephalography (EEG)"),
+                  checkboxInput(ns("bp"), "Blood Pressure"),
+                  checkboxInput(ns("accelerometer"), "Accelerometer"),
+                  checkboxInput(ns("gyroscope"), "Gyroscope"),
+                  checkboxInput(ns("gps"), "Global Positioning System (GPS)"),
+                  checkboxInput(ns("skin_temperature"), "Skin Temperature"),
+                  selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
+          ),
+          bs4Card(title = "Data Acces",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  checkboxInput(ns("raw_data_available"), "Raw Data"),
+                  selectInput(ns("data_trans_method"), "Data rans_method", choices = NULL, multiple = TRUE),
+                  checkboxInput(ns("int_storage_met"), "Internal Storage"),
+                  checkboxInput(ns("server_data_storage"), "Server Storage"),
+                  sliderInput(ns("dev_storage_cap_mb"), "Device Storage (size in MB)", min = 0, max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE))),
+                  sliderInput(ns("dev_storage_cap_hrs"), "Device Storage (time in hrs)", min = 0, max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE))),
+                  checkboxInput(ns("gdpr_comp"), "GDPR Compliant"),
+                  checkboxInput(ns("fda_app_clear"), "FDA Approved"),
+                  checkboxInput(ns("ce_app_label"), "CE Label")
+          ),
+          bs4Card(title = "Validation, Reliability & Usability",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  selectInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
+                  sliderInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", min = 0, max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE))),
+                  sliderInput(ns("no_studies_usab_reviewed"), "Usability Studies", min = 0, max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
           )
-        ),
-        bs4Card(title = "SiA Expert Score",
-                width = 12,
-                status = "secondary",
-                solidHeader = TRUE,
-                collapsible = FALSE,
-                sliderInput(ns("sia_es_long"), "Long-Term", min = 0, max = 10, value = c(0,10)),
-                sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10))
-        ),
-        bs4Card(title = "General Device Information",
-                width = 12,
-                status = "secondary",
-                collapsible = FALSE,
-                selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
-                uiOutput(ns("manufacturer_ui")),
-                selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
-                dateRangeInput(ns("release_date"), "Release Date", start = min(sia_df$release_date, na.rm = TRUE), end = max(sia_df$release_date, na.rm = TRUE), format = "yyyy"),
-                selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
-                selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
-                sliderInput(ns("device_cost"), "Cost (€)", min = 0, max = max(sia_df$device_cost, na.rm = TRUE), value = c(0, max(sia_df$device_cost, na.rm = TRUE))),
-                selectInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
-                selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
-                sliderInput(ns("weight"), "Weight (g)", min=0, max = max(sia_df$weight, na.rm = TRUE), value = c(0,max(sia_df$weight, na.rm = TRUE))),
-                selectInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
-        ),
-        bs4Card(title = "Technical Specifications",
-                width = 12,
-                status = "secondary",
-                collapsible = FALSE,
-                checkboxInput(ns("water_resistance"), "Water Resistant"),
-                sliderInput(ns("battery_life"), "Battery Life (min)", min = 0, max = max(sia_df$battery_life, na.rm = TRUE), value = c(0, max(sia_df$battery_life, na.rm = TRUE))),
-                selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
-                sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000)),
-                checkboxInput(ns("bio_cueing"), "Bio Cueing"),
-                checkboxInput(ns("bio_feedback"), "Bio Feedback")
-        ),
-        bs4Card(title = "Signals",
-                width = 12,
-                status = "secondary",
-                collapsible = FALSE,
-                checkboxInput(ns("ppg"), "Photoplethysmogram (PPG)"),
-                checkboxInput(ns("ecg"), "Electrocardiogram (ECG)"),
-                checkboxInput(ns("icg"), "Impedance cardiography (ICG)"),
-                checkboxInput(ns("emg"), "Electromyography (EMG)"),
-                checkboxInput(ns("respiration"), "Respiration"),
-                checkboxInput(ns("eda"), "Electrodermal activity (EDA)"),
-                checkboxInput(ns("eeg"), "Electroencephalography (EEG)"),
-                checkboxInput(ns("bp"), "Blood Pressure"),
-                checkboxInput(ns("accelerometer"), "Accelerometer"),
-                checkboxInput(ns("gyroscope"), "Gyroscope"),
-                checkboxInput(ns("gps"), "Global Positioning System (GPS)"),
-                checkboxInput(ns("skin_temperature"), "Skin Temperature"),
-                selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
-        ),
-        bs4Card(title = "Data Acces",
-                width = 12,
-                status = "secondary",
-                collapsible = FALSE,
-                checkboxInput(ns("raw_data_available"), "Raw Data"),
-                selectInput(ns("data_trans_method"), "Data rans_method", choices = NULL, multiple = TRUE),
-                checkboxInput(ns("int_storage_met"), "Internal Storage"),
-                checkboxInput(ns("server_data_storage"), "Server Storage"),
-                sliderInput(ns("dev_storage_cap_mb"), "Device Storage (size in MB)", min = 0, max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE))),
-                sliderInput(ns("dev_storage_cap_hrs"), "Device Storage (time in hrs)", min = 0, max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE))),
-                checkboxInput(ns("gdpr_comp"), "GDPR Compliant"),
-                checkboxInput(ns("fda_app_clear"), "FDA Approved"),
-                checkboxInput(ns("ce_app_label"), "CE Label")
-        ),
-        bs4Card(title = "Validation, Reliability & Usability",
-                width = 12,
-                status = "secondary",
-                collapsible = FALSE,
-                selectInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
-                sliderInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", min = 0, max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE))),
-                sliderInput(ns("no_studies_usab_reviewed"), "Usability Studies", min = 0, max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
         )
-      )
-    ),
-    column(
-      width = 10,
-      bs4Dash::bs4Card(
-        title = "Filtered Results",
-        status = "primary",
-        width = 12,
-        collapsible = FALSE,
-        solidHeader = TRUE,
-        div(
-          style = "text-align: center; margin-bottom: 10px;",
-          downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
-        ),
-        DTOutput(ns("filtered_table")) %>% withSpinner()
+      ),
+      column(
+        width = 9,
+        bs4Card(
+          title = "Filtered Results",
+          status = "primary",
+          width = 12,
+          collapsible = FALSE,
+          solidHeader = TRUE,
+          div(
+            style = "text-align: center; margin-bottom: 10px;",
+            downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
+          ),
+          DTOutput(ns("feat_filtered_table")) %>% withSpinner()
+        )
       )
     )
   )
@@ -261,7 +264,7 @@ mod_feat_fil_server <- function(id, data) {
     })
 
     # Step 4: Render filtered table
-    output$filtered_table <- renderDT({
+    output$feat_filtered_table <- renderDT({
 
       df <- filtered_data()
 

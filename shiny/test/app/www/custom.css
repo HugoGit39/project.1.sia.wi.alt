@@ -1,9 +1,16 @@
 
+/* CSS to style fonts */
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
 
 * {
     font-family: 'Work Sans';
+}
+
+/* CSS to style mandatory stars */
+.mandatory_star {
+  color: #CC6677;
+  font-size: 16px;
 }
 
 tableyscroll <- HTML(
@@ -14,6 +21,11 @@ tableyscroll <- HTML(
   transform:rotateX(180deg);
    }"
   )
+
+
+
+
+
 
 
 
