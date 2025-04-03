@@ -99,7 +99,7 @@ mod_about_ui <- function(id) {
                      style = "width:25px; height:25px; vertical-align:middle; margin-right:5px;"
                    )
                  ),
-                 "Hugo Klarenberg, POst Doc VU University"
+                 "Hugo Klarenberg, PhD - Post Doc VU University"
                ),
                p(" Faculty of Behavioural and Human Movement Sciences", br(),
                  "Department of Biological Psychology", br(),
@@ -130,10 +130,10 @@ mod_about_ui <- function(id) {
                  headerBorder = FALSE,
                  p("All background images used in this application are sourced from iStock under a paid license."),
                  p("Photographer:", br(),
-                   "filadendron"),
+                   "Daniel de la Hoz"),
                  p("Website: ",
                    a(
-                     href = "https://www.istockphoto.com/nl/portfolio/filadendron",
+                     href = "https://www.istockphoto.com/nl/portfolio/Hoverphoto",
                      target = "_blank",
                      "iStock - filadendron profile"
                    )
