@@ -59,7 +59,7 @@ source(here("shiny", "test", "app", "modules", "mod_contact.R"))
 source(here("shiny", "test", "app", "modules", "mod_footer.R"))
 source(here("shiny", "test", "app", "modules", "mod_timeout.R"))
 
-# * 4 Load data -----------------------------------------------------------
+#  * 4 load data -----------------------------------------------
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
 
 #  * 5 set spinner table -----------------------------------------------
@@ -77,6 +77,9 @@ disconnected <- tagList(
   p("Just hit refresh to continue", br(),
     "where you left off!", style = "font-size:16px")
 )
+
+#  * 7 Fields that are mandatory for email ---------------------------
+fieldsMandatory <- c("name", "email", "message")
 
 
 

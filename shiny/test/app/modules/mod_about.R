@@ -12,14 +12,13 @@ mod_about_ui <- function(id) {
 
     fluidRow(
       column(
-        width = 3,
+        width = 4,
         div(
-          style = "display: flex; align-items: center; justify-content: center; height: 100%;",
-          tags$img(src = "SiA_lab.jpg", style = "max-width: 100%; max-height: 100%;")
+          tags$img(
+            src = "SiA_lab.jpg",
+            style = "max-width: 100%; max-height: 100%; margin-top: 50%;"
+          )
         )
-      ),
-      column(
-        width = 1
       ),
       column(
         width = 5,
@@ -31,7 +30,7 @@ mod_about_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           headerBorder = FALSE,
-          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors, 2) how daily life stress can be reliably measured in a specific individual in real-time", "(RT2)", ", and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact."),
+          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors (RT1), 2) how daily life stress can be reliably measured in a specific individual in real-time", strong("(RT2)", style = "color: #f15a29; font-size:18px"), ", and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact (RT3)."),
           div(
             style = "text-align: center; margin-bottom: 10px;",
             actionButton(
@@ -68,13 +67,12 @@ mod_about_ui <- function(id) {
         )
       ),
     column(
-      width = 1
-    ),
-    column(
-      width = 2,
+      width = 3,
       div(
-        style = "display: flex; align-items: center; justify-content: center; height: 100%;",
-        tags$img(src = "SiA_measurements.jpg", style = "max-width: 100%; max-height: 100%;")
+        tags$img(
+          src = "SiA_measurements.jpg",
+          style = "max-width: 100%; max-height: 100%; margin-top: 15%;"
+        )
       )
     )
   ),
@@ -120,7 +118,8 @@ mod_about_ui <- function(id) {
     column(width = 1),
     column(width = 2,
            div(
-             style = "margin-top: 350px;",
+             style = "margin-top: 50px;",
+             p(img(src = "iStock_about.jpg", style = "max-width: 100%; height: auto;")),
                bs4Card(
                  title = "Image Credits",
                  status = "primary",
@@ -135,7 +134,7 @@ mod_about_ui <- function(id) {
                    a(
                      href = "https://www.istockphoto.com/nl/portfolio/Hoverphoto",
                      target = "_blank",
-                     "iStock - filadendron profile"
+                     "iStock profile"
                    )
                  )
                )

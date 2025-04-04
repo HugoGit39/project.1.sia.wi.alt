@@ -4,22 +4,6 @@
 #
 #############################################################################################
 
-# Fields that are mandatory
-fieldsMandatory <- c("name", "email", "message")
-
-# # CSS to style mandatory stars
-# appCSS <- "
-#   .mandatory_star { color: #CC6677; font-size: 16px; }
-# "
-
-# Function to add red star (*) to mandatory labels
-labelMandatory <- function(label) {
-  tagList(
-    label,
-    span("*", class = "mandatory_star")
-  )
-}
-
 # Contact UI
 mod_contact_ui <- function(id) {
   ns <- NS(id)
@@ -55,7 +39,6 @@ mod_contact_ui <- function(id) {
 
     div(id = "app_contact_us_bg"),
 
-    #tags$head(tags$style(HTML(appCSS))),  # Add CSS for red stars
     tags$label("Name", span("*", class = "mandatory_star")),
     fluidRow(
       column(width = 4,
@@ -71,7 +54,7 @@ mod_contact_ui <- function(id) {
                        textInput(ns("name"), labelMandatory("Name"), ""),
                        textInput(ns("email"), labelMandatory("Email"), ""),
                        textInput(ns("telephone"), "Telephone"),
-                       textInput(ns("institution"), "Institution"),  # New optional field
+                       textInput(ns("institution"), "Institution"),
                        textAreaInput(ns("message"), labelMandatory("Message"), ""),
 
                        # Submit button (starts disabled)
@@ -88,22 +71,18 @@ mod_contact_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Observe if all mandatory fields are filled
-    # observe({
-    #   # mandatory_filled <- all(sapply(fieldsMandatory, function(x) {
-    #   #   !is.null(input[[x]]) && input[[x]] != ""
-    #
-    #   #mandatoryfields_check(fieldsMandatory)
-    #
-    #   toggleState(id = "submit", condition = mandatory_filled)  # Enable/disable submit button
-    # })
+      observe({
+
+        toggleState(id = "submit", condition = mandatoryfields_check(fieldsMandatory, input))
+
+      })
 
     # Call `send_email()` when Submit button is clicked
     observeEvent(input$submit, {
       send_email(name = input$name,
                  email = input$email,
                  telephone = input$telephone,
-                 institution = input$institution,  # Include Institution in email
+                 institution = input$institution,
                  message = input$message)
 
       showModal(

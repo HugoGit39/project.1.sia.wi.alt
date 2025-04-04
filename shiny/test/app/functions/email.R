@@ -6,14 +6,16 @@
 
 # Function to send email
 send_email <- function(name, email, telephone, message, subject = "Wearable Shiny App message") {
+
   # Create email body
   body <- paste("Name: ", name,
                 "\nEmail: ", email,
                 "\nTelephone: ", telephone,
+                "\n\nInstitution: ", institution,
                 "\nMessage: ", message)
 
   # SMTP settings (use environment variables for security)
-  smtp <- emayili::server(
+  smtp <- server(
     host = Sys.getenv("SMTP_HOST"),
     port = Sys.getenv("SMTP_PORT"),
     username = Sys.getenv("MAIL_NAME_ID"),

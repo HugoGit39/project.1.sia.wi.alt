@@ -13,8 +13,21 @@ labelMandatory <- function(label) {
 }
 
 # function to check if all mandatory fields are filled
-mandatoryfields_check <- function(input, fieldsMandatory) {
-  all(sapply(fieldsMandatory, function(x) {
-    !is.null(input[[x]]) && input[[x]] != ""
-  }))
+mandatoryfields_check <- function(fields, input) {
+  mandatoryFilled <- vapply(
+    fields,
+    function(x) {
+      value <- input[[x]]
+      if (is.null(value) || value == "") {
+        FALSE
+      } else if (x == "email") {
+        grepl("@", value)
+      } else {
+        TRUE
+      }
+    },
+    logical(1)
+  )
+  all(mandatoryFilled)
 }
+
