@@ -120,7 +120,7 @@ mod_feat_fil_ui <- function(id) {
           solidHeader = TRUE,
           div(
             style = "text-align: center; margin-bottom: 10px;",
-            downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
+            downloadButton(ns("download_data"), "Download Filtered Results")
           ),
           DTOutput(ns("feat_filtered_table")) %>% withSpinner()
         )

@@ -40,6 +40,7 @@ library(shinycssloaders)
 
 # * 2 Load functions -----------------------------------------------------------
 
+source(here("shiny", "test", "app", "functions", "accordion.R"))
 source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
@@ -78,7 +79,7 @@ disconnected <- tagList(
     "where you left off!", style = "font-size:16px")
 )
 
-#  * 7 Fields that are mandatory for email ---------------------------
+#  * 7 Mandatory email fields ---------------------------
 fieldsMandatory <- c("name", "email", "message")
 
 

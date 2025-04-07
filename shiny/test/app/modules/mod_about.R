@@ -16,12 +16,12 @@ mod_about_ui <- function(id) {
         div(
           tags$img(
             src = "SiA_lab.jpg",
-            style = "max-width: 100%; max-height: 100%; margin-top: 50%;"
+            style = "max-width: 40%; max-height: 40%; margin-top: 10%; margin-left: 25%"
           )
         )
       ),
       column(
-        width = 5,
+        width = 4,
         bs4Card(
           title = "Stress in Action",
           style = "font-size: 18px; height: 350px; overflow-y: auto;",
@@ -67,11 +67,11 @@ mod_about_ui <- function(id) {
         )
       ),
     column(
-      width = 3,
+      width = 4,
       div(
         tags$img(
           src = "SiA_measurements.jpg",
-          style = "max-width: 100%; max-height: 100%; margin-top: 15%;"
+          style = "max-width: 75%; max-height: 75%; margin-top: 20%; margin-left: 15%;"
         )
       )
     )

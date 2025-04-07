@@ -4,10 +4,8 @@
 /* CSS to style fonts */
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
-
 * {
     font-family: 'Work Sans';
-    font-size: 14px;
 }
 
 /* Global body style */
@@ -73,6 +71,41 @@ html, body {
   background-repeat: no-repeat;
   z-index: -999;
 }
+
+/* 7. Controlbar*/
+
+ /* Padding controlbar */
+.control-sidebar {
+  overflow-y: auto;
+  padding-top: 25px !important;
+}
+
+/* Default pill style - square edges */
+.control-sidebar .nav-pills .nav-link {
+  background-color: white !important;
+  color: #f15a29 !important;
+  border: 1px solid #f15a29 !important;
+  border-radius: 0px !important;
+}
+
+/* Active (selected) pill style */
+.control-sidebar .nav-pills .nav-link.active {
+  background-color: white !important;
+  color: #f15a29 !important;
+  font-weight: bold;
+  box-shadow: inset 0 0 0 2px #f15a29 !important;
+  border-radius: 0px !important;
+}
+
+/* Center the nav-pills in the controlbar */
+.control-sidebar .nav-pills {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* spacing between pills if multiple */
+}
+
+
 
 
 
