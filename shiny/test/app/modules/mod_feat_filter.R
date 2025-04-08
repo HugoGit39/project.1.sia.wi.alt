@@ -218,9 +218,9 @@ mod_feat_fil_server <- function(id, data) {
     # Step 5: Render table
     output$feat_filtered_table <- renderDT({
       df <- filtered_data()
-      existing_cols <- names(df)
-      new_colnames <- rename_map[existing_cols]
-      names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)
+
+      #rename columns
+      names(df) <- rename_map[names(df)]
 
       datatable(df,
                 options = list(
