@@ -1,6 +1,6 @@
 ############################################################################################
 #
-#  Function nodule for nfeauture filter (extensive)
+#  Function nodule for feauture filter (extensive)
 #
 #############################################################################################
 
@@ -336,7 +336,7 @@ mod_feat_fil_server <- function(id, data) {
     # Step 5: Download Handler
     output$download_data <- downloadHandler(
       filename = function() {
-        paste0("filtered_data-", Sys.Date(), ".csv")
+        paste0("sia_filtered_data_", Sys.Date(), ".csv")
       },
       content = function(file) {
         write.csv(filtered_data(), file, row.names = FALSE)

@@ -46,7 +46,7 @@ mod_prod_fil_ui <- function(id) {
         solidHeader = TRUE,
         div(
           style = "text-align: center; margin-bottom: 10px;",
-          downloadButton(ns("download_data"), "Download Filtered Results", class = "btn-secondary")
+          downloadButton(ns("download_data"), "Download Filtered Products")
         ),
         DTOutput(ns("prod_filtered_table"))
       )
@@ -153,5 +153,16 @@ mod_prod_fil_server <- function(id, sia_df) {
 
       datatable(df_t, options = list(pageLength = nrow(df_t)))
     })
+
+    #Download data
+    output$download_data <- downloadHandler(
+      filename = function() {
+        paste0("sia_filtered_products_", Sys.Date(), ".csv")
+      },
+      content = function(file) {
+        write.csv(selected_products(), file, row.names = FALSE)
+      }
+    )
+
   })
 }

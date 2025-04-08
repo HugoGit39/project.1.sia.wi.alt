@@ -102,7 +102,7 @@ mod_about_ui <- function(id) {
                p(" Faculty of Behavioural and Human Movement Sciences", br(),
                  "Department of Biological Psychology", br(),
                  "Van der Boechorststraat 7", br(),
-                 "1081 BT Amsterdam.", br(),
+                 "1081 BT Amsterdam", br(),
                  "Email: disc[at]stress-in-action.nl", br(),
                  "Website: ",
                    a(
