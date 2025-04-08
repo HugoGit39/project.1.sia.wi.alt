@@ -64,7 +64,7 @@ source(here("shiny", "test", "app", "modules", "mod_timeout.R"))
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
 
 #  * 5 set spinner table -----------------------------------------------
-options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5)
+options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5, hide.ui = FALSE)
 
 #  * 6 Time-out message -----------------------------------------------
 disconnected <- tagList(
@@ -82,5 +82,52 @@ disconnected <- tagList(
 #  * 7 Mandatory email fields ---------------------------
 fieldsMandatory <- c("name", "email", "message")
 
+# * 8 Rename table variables ---------------------------
+rename_map <- c(
+  "sia_es_long" = "Long-Term SiA Score",
+  "sia_es_short" = "Short-Term SiA Score",
+  "manufacturer" = "Manufacturer",
+  "model" = "Model",
+  "website" = "Website",
+  "release_date" = "Release Date",
+  "market_status" = "Market Status",
+  "main_use" = "Main Use",
+  "device_cost" = "Cost (€)",
+  "wearable_type" = "Type",
+  "location" = "Location",
+  "weight" = "Weight (g)",
+  "size" = "Size",
+  "water_resistance" = "Water Resistant",
+  "battery_life" = "Battery Life (min)",
+  "charging_method" = "Charging Method",
+  "charging_duration" = "Charging Duration (min)",
+  "bio_cueing" = "Bio Cueing",
+  "bio_feedback" = "Bio Feedback",
+  "ppg" = "PPG",
+  "ecg" = "ECG",
+  "icg" = "ICG",
+  "emg" = "EMG",
+  "respiration" = "Respiration",
+  "eda" = "EDA",
+  "eeg" = "EEG",
+  "bp" = "Blood Pressure",
+  "accelerometer" = "Accelerometer",
+  "gyroscope" = "Gyroscope",
+  "gps" = "GPS",
+  "skin_temperature" = "Skin Temperature",
+  "other_signals" = "Other Signals",
+  "raw_data_available" = "Raw Data Available",
+  "data_trans_method" = "Data Transmission Method",
+  "int_storage_met" = "Internal Storage",
+  "server_data_storage" = "Server Data Storage",
+  "dev_storage_cap_hrs" = "Device Storage (hrs)",
+  "dev_storage_cap_mb" = "Device Storage (MB)",
+  "gdpr_comp" = "GDPR Compliant",
+  "fda_app_clear" = "FDA Approved",
+  "ce_app_label" = "CE Label",
+  "level_validation" = "Validation Level",
+  "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
+  "no_studies_usab_reviewed" = "Usability Studies Reviewed"
+)
 
 

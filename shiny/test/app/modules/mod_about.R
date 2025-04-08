@@ -99,7 +99,7 @@ mod_about_ui <- function(id) {
                  ),
                  "Hugo Klarenberg, PhD - Post Doc VU University"
                ),
-               p(" Faculty of Behavioural and Human Movement Sciences", br(),
+               p("Faculty of Behavioural and Human Movement Sciences", br(),
                  "Department of Biological Psychology", br(),
                  "Van der Boechorststraat 7", br(),
                  "1081 BT Amsterdam", br(),

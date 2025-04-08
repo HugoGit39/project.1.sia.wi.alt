@@ -48,7 +48,7 @@ mod_prod_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Products")
         ),
-        DTOutput(ns("prod_filtered_table"))
+        DTOutput(ns("prod_filtered_table")) %>% withSpinner()
       )
     )
   )
@@ -87,10 +87,10 @@ mod_prod_fil_server <- function(id, sia_df) {
       df <- sia_df()
 
       if (input$product3 == "None" || input$product3 == "") {
-        shinyjs::disable("model3")
+        disable("model3")
         updateSelectInput(session, "model3", choices = character(0), selected = "")
       } else {
-        shinyjs::enable("model3")
+        enable("model3")
         updateSelectInput(
           session,
           "model3",
@@ -113,45 +113,45 @@ mod_prod_fil_server <- function(id, sia_df) {
     # Reactive: Selected products
     selected_products <- reactive({
       df <- sia_df()
-      req(input$model1, input$model2)
-      df %>% filter(
-        (manufacturer == input$product1 & model == input$model1) |
-          (manufacturer == input$product2 & model == input$model2)
-      )
-    })
 
-    # Reactive: Selected products
-    selected_products <- reactive({
-      df <- sia_df()
-      req(input$model1, input$model2)
+      # Always include product1/model1 first
+      row1 <- df %>%
+        filter(manufacturer == input$product1, model == input$model1)
 
-      filters <-
-        (df$manufacturer == input$product1 & df$model == input$model1) |
-        (df$manufacturer == input$product2 & df$model == input$model2)
+      # Always include product2/model2 second
+      row2 <- df %>%
+        filter(manufacturer == input$product2, model == input$model2)
 
-      # Add product3/model3 filter if chosen
+      # Optionally include product3/model3 third
+      row3 <- NULL
       if (!is.null(input$model3) && nzchar(input$model3)) {
-        filters <- filters | (df$manufacturer == input$product3 & df$model == input$model3)
+        row3 <- df %>%
+          filter(manufacturer == input$product3, model == input$model3)
       }
 
-      df %>% filter(filters)
+      # Combine in fixed order
+      bind_rows(row1, row2, row3)
     })
+
 
     # Output: Comparison table
     output$prod_filtered_table <- renderDT({
       df <- selected_products()
 
-      if (nrow(df) == 0) return(NULL)
-
-      # Create column labels
-      col_labels <- paste0(df$manufacturer, " - ", df$model)
-
       # Transpose selected data
       df_t <- as.data.frame(t(df %>% select(-manufacturer, -model)))
-      colnames(df_t) <- col_labels
+      colnames(df_t) <- paste0(df$manufacturer, " - ", df$model)
       df_t <- rownames_to_column(df_t, var = "Variable")
 
-      datatable(df_t, options = list(pageLength = nrow(df_t)))
+      #Rename rows
+      df_t$Variable <- rename_map[df_t$Variable]
+
+      datatable(df_t,
+                options = list(
+                  pageLength = nrow(df_t),
+                  autoWidth = TRUE,
+                  scrollX = TRUE,
+                  processing = FALSE))
     })
 
     #Download data
