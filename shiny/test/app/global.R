@@ -8,35 +8,15 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "data.table", "DT",
-  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "tibble"
+  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble",
+  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders"
 )
 
-# install missing packages
-install_missing <- function(package) {
-  if (!require(package, character.only = TRUE)) {
-    install.packages(package)
-    library(package, character.only = TRUE)
-  }
-}
-
-# apply function to list of required packages
-sapply(required_packages, install_missing)
-
-# load libraries
-library(shiny)
-library(bs4Dash)
-library(here)
-library(dplyr)
-library(readxl)
-library(fresh)
-library(data.table)
-library(DT)
-library(shinySearchbar)
-library(emayili)
-library(shinyjs)
-library(sever)
-library(shinycssloaders)
+#check if installed and load
+lapply(required_packages, function(pkg) {
+  if (!require(pkg, character.only = TRUE)) install.packages(pkg)
+  library(pkg, character.only = TRUE)
+})
 
 # * 2 Load functions -----------------------------------------------------------
 
@@ -79,8 +59,23 @@ disconnected <- tagList(
     "where you left off!", style = "font-size:16px")
 )
 
-#  * 7 Mandatory email fields ---------------------------
-fieldsMandatory <- c("name", "email", "message")
+#  * 7 Mandatory fields ---------------------------
+
+# * * 7.1 data
+fieldsMandatory_data <- c("manufacturer", "model", "website", "release_date", "market_status", "main_use",
+                     "device_cost", "wearable_type", "location", "weight", "size")
+
+char_only_fields <- list(
+  market_status = "Market Status",
+  main_use = "Main Use",
+  wearable_type = "Type",
+  location = "Location",
+  other_signals = "Other Signals",
+  data_trans_method = "Data Transmission Method"
+)
+
+# * * 7.2 email
+fieldsMandatory_email <- c("name", "email", "message")
 
 # * 8 Rename table variables ---------------------------
 rename_map <- c(
