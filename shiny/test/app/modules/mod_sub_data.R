@@ -127,7 +127,7 @@ mod_sub_data_ui <- function(id) {
             status = "secondary",
             solidHeader = TRUE,
             collapsible = FALSE,
-            dataTableOutput(ns("draft_table"))
+            dataTableOutput(ns("draft_table"))  %>% withSpinner()
           )
         )
       ),
@@ -153,8 +153,6 @@ mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
     ns <- session$ns
-
-    disable("draft_table")
 
     #create reactive data frame
     draft_data <- reactiveVal()
@@ -198,6 +196,8 @@ mod_sub_data__server <- function(id) {
         draft_data(),
         rownames = FALSE,
         options = list(
+          scrollX = TRUE,
+          processing = FALSE,
           pageLength = nrow(draft_data()),
           dom = 't'
         )
@@ -206,7 +206,7 @@ mod_sub_data__server <- function(id) {
 
     observeEvent(input$create_draft, {
       # Start with the original NA-filled template
-      updated_form <- form_template
+      updated_form <- draft_data()
 
       # Loop through each field and fill it in if a value was provided
       for (i in seq_len(nrow(updated_form))) {
