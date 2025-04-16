@@ -30,7 +30,7 @@ mod_about_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           headerBorder = FALSE,
-          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors (RT1), 2) how daily life stress can be reliably measured in a specific individual in real-time", strong("(RT2)", style = "color: #f15a29; font-size:18px"), ", and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact (RT3)."),
+          p("Stress in Action capitalizes on the fast advances in technology and big data analytics to move stress research from the lab to daily life. The Consortium enables synergistic collaborations to discover 1) how responses to daily life stress arise from the temporal, dynamic interplay between context and person-specific factors (RT1), 2) how daily life stress can be reliably measured in a specific individual in real-time", strong("(RT2)", style = "color: #f15a29; font-size:18px"), ", and 3) how and when potential beneficial stress-response mechanisms turn into detrimental effects on mental and cardiometabolic health. This enables the development of novel monitoring and intervention strategies to track and reduce daily life stress and its health impact (RT3)."), style = "text-align: justify;",
           div(
             style = "text-align: center; margin-bottom: 10px;",
             actionButton(
@@ -87,7 +87,7 @@ mod_about_ui <- function(id) {
                width = 12,
                collapsible = FALSE,
                headerBorder = FALSE,
-               p("This application is a publication of the department of Biological Psychology at the VU University Amsterdam."),
+               p("This application is a publication of the department of Biological Psychology at the VU University Amsterdam.", style = "text-align: justify;"),
                p(
                  a(
                    href = "https://stress-in-action.nl/hugo-klarenberg/",
@@ -111,7 +111,7 @@ mod_about_ui <- function(id) {
                      "Department of Biological Psychology"
                    )
                  ),
-               p("We kindly ask you to report bugs or function requests via email.")
+               p("We kindly ask you to report bugs or function requests via email.", style = "text-align: justify;")
                )
            )
     ),
@@ -127,7 +127,7 @@ mod_about_ui <- function(id) {
                  width = 12,
                  collapsible = FALSE,
                  headerBorder = FALSE,
-                 p("All background images used in this application are sourced from iStock under a paid license."),
+                 p("All background images used in this application are sourced from iStock under a paid license.", style = "text-align: justify;"),
                  p("Photographer:", br(),
                    "Daniel de la Hoz"),
                  p("Website: ",
@@ -151,7 +151,7 @@ mod_about_ui <- function(id) {
                  width = 12,
                  collapsible = FALSE,
                  headerBorder = FALSE,
-                 p("The goal of RT2 is to develop increasingly sophisticated versions of a cutting-edge, low-burden, ecologically valid ambulatory assessment toolkit to quantify stress in daily life, and to design, test, and iteratively improve stress interventions using that toolkit."),
+                 p("The goal of RT2 is to develop increasingly sophisticated versions of a cutting-edge, low-burden, ecologically valid ambulatory assessment toolkit to quantify stress in daily life, and to design, test, and iteratively improve stress interventions using that toolkit."), style = "text-align: justify;",
                  tagList(
                    p(
                      a(

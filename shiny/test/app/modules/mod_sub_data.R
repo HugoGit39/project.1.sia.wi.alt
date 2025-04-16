@@ -13,16 +13,26 @@ mod_sub_data_ui <- function(id) {
       column(
         width = 4,
         bs4Card(
-          title = "Create Draft Form",
+          title = "1. Create Draft Form",
           status = "primary",
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
           div(
-            p("Fill in at least all mandatory fields", strong("*", style = "color: #CC6677;"), "and create a draft version before sending out to us."),
+            p("Make sure to complete at least the mandatory fields ", strong("*", style = "color: #CC6677;"), " to create a draft before submitting.", style = "text-align: justify;"),
             p(actionButton(ns("create_draft"), "Create", disabled = TRUE))
           ),
           textOutput(ns("status")),
+          bs4Card(
+            title = "Your Information",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            textInput(ns("name"), labelMandatory("Name")),
+            textInput(ns("email"), labelMandatory("Email")),
+            textInput(ns("telephone"), "Telephone"),
+            textInput(ns("institution"), "Institution")
+            ),
           bs4Card(
             title = "General Device Information",
             status = "secondary",
@@ -91,18 +101,25 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("gdpr_comp"), "GDPR Compliant", value = FALSE),
             checkboxInput(ns("fda_app_clear"), "FDA Approved", value = FALSE),
             checkboxInput(ns("ce_app_label"), "CE Label", value = FALSE)
+          ),
+          bs4Card(
+            title = "Further Details",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            textAreaInput(ns("additional_information "), "Additional Information", rows = 4)
           )
         )
       ),
       column(
         width = 4,
         bs4Card(
-          title = "Check Draft Form",
+          title = "2. Check Draft Form",
           status = "primary",
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-          p("If everything is correct, slide the button to the right to be ready to send out to us."),
+          p("Please verify that all fields are completed, then slide the toggle to enable submission.", style = "text-align: justify;"),
           p(materialSwitch(inputId = ns("draft_ok"), status = "success")),
           bs4Card(
             title = "Draft Form Output",
@@ -112,6 +129,19 @@ mod_sub_data_ui <- function(id) {
             collapsible = FALSE,
             dataTableOutput(ns("draft_table"))
           )
+        )
+      ),
+      column(
+        width = 4,
+        bs4Card(
+          title = "3. Send Final Form",
+          status = "primary",
+          width = 12,
+          collapsible = FALSE,
+          solidHeader = TRUE,
+            p("When you approve your draft, the option to send it to us will become available.", style = "text-align: justify;"),
+            p(actionButton(ns("submit_final"), "Submit", disabled = TRUE)),
+            p("A copy of your submission will be sent to the email address you provided. We will reach out to you to discuss it in more detail.", style = "text-align: justify;")
         )
       )
     )
@@ -124,6 +154,8 @@ mod_sub_data__server <- function(id) {
 
     ns <- session$ns
 
+    disable("draft_table")
+
     #create reactive data frame
     draft_data <- reactiveVal()
 
@@ -134,7 +166,7 @@ mod_sub_data__server <- function(id) {
     )
 
     #Fill reactive value
-    draft_data(formData_template)
+    draft_data(form_template)
 
     # Check char fields correct
     invalid_char_fields <- reactive({
@@ -153,7 +185,7 @@ mod_sub_data__server <- function(id) {
       })
     })
 
-    # Correct Filled in Fileds & Mandatory fields
+    # Correct Filled in fields & Mandatory fields
     observe({
 
       toggleState("create_draft", condition = mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields()))
@@ -165,68 +197,32 @@ mod_sub_data__server <- function(id) {
       datatable(
         draft_data(),
         rownames = FALSE,
-        options = list(dom = 't', ordering = FALSE)
+        options = list(
+          pageLength = nrow(draft_data()),
+          dom = 't'
+        )
       )
     })
-
 
     observeEvent(input$create_draft, {
-      formData <- data.frame(
-        manufacturer = input$manufacturer,
-        model = input$model,
-        website = input$website,
-        release_date = as.character(input$release_date),
-        market_status = input$market_status,
-        main_use = input$main_use,
-        device_cost = input$device_cost,
-        wearable_type = input$wearable_type,
-        location = input$location,
-        weight = input$weight,
-        size = input$size,
-        water_resistance = ifelse(input$water_resistance, "Yes", ""),
-        battery_life = input$battery_life,
-        charging_method = input$charging_method,
-        charging_duration = input$charging_duration,
-        bio_cueing = ifelse(input$bio_cueing, "Yes", ""),
-        bio_feedback = ifelse(input$bio_feedback, "Yes", ""),
-        ppg = ifelse(input$ppg, "Yes", ""),
-        ecg = ifelse(input$ecg, "Yes", ""),
-        icg = ifelse(input$icg, "Yes", ""),
-        emg = ifelse(input$emg, "Yes", ""),
-        respiration = input$respiration,
-        eda = ifelse(input$eda, "Yes", ""),
-        eeg = ifelse(input$eeg, "Yes", ""),
-        bp = ifelse(input$bp, "Yes", ""),
-        accelerometer = ifelse(input$accelerometer, "Yes", ""),
-        gyroscope = ifelse(input$gyroscope, "Yes", ""),
-        gps = ifelse(input$gps, "Yes", ""),
-        skin_temperature = ifelse(input$skin_temperature, "Yes", ""),
-        other_signals = input$other_signals,
-        raw_data_available = ifelse(input$raw_data_available, "Yes", ""),
-        data_trans_method = input$data_trans_method,
-        int_storage_met = input$int_storage_met,
-        server_data_storage = ifelse(input$server_data_storage, "Yes", ""),
-        dev_storage_cap_hrs = input$dev_storage_cap_hrs,
-        dev_storage_cap_mb = input$dev_storage_cap_mb,
-        gdpr_comp = ifelse(input$gdpr_comp, "Yes", ""),
-        fda_app_clear = ifelse(input$fda_app_clear, "Yes", ""),
-        ce_app_label = ifelse(input$ce_app_label, "Yes", ""),
-        stringsAsFactors = FALSE
-      )
+      # Start with the original NA-filled template
+      updated_form <- form_template
 
-      tmpfile <- tempfile(fileext = ".csv")
-      write.csv(formData, tmpfile, row.names = FALSE)
+      # Loop through each field and fill it in if a value was provided
+      for (i in seq_len(nrow(updated_form))) {
+        varname <- updated_form$Variable[i]
+        val <- input[[varname]]
+        if (isTRUE(!is.null(val) && !is.na(val) && val != "")) {
+          updated_form$Value[i] <- val
+        }
+      }
 
-      send_email_with_attachment(
-        name = input$manufacturer,
-        email = "disc@stress-in-action.nl",
-        institution = input$model,
-        message = paste("Form submission for", input$model),
-        csv_path = tmpfile
-      )
-
-      output$status <- renderText("Form submitted! Thank you.")
+      # Update the reactive draft data
+      draft_data(updated_form)
     })
+
+
+
 
   }
   )
