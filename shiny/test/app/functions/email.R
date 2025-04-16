@@ -5,14 +5,7 @@
 #############################################################################################
 
 # Function to send email
-send_email <- function(name, email, telephone, message, subject = "Wearable Shiny App message") {
-
-  # Create email body
-  body <- paste("Name: ", name,
-                "\nEmail: ", email,
-                "\nTelephone: ", telephone,
-                "\n\nInstitution: ", institution,
-                "\nMessage: ", message)
+send_email <- function(body, subject, attachment = NULL) {
 
   # SMTP settings (use environment variables for security)
   smtp <- server(
@@ -30,6 +23,11 @@ send_email <- function(name, email, telephone, message, subject = "Wearable Shin
   ) %>%
     subject(subject) %>%
     text(body)
+
+  # Add attachment only if provided
+  if (!is.null(attachment) && file.exists(attachment)) {
+    msg <- msg %>% attachment(attachment)
+  }
 
   # Send email
   smtp(msg, verbose = FALSE)

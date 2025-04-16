@@ -78,11 +78,17 @@ mod_contact_server <- function(id) {
 
     # Call `send_email()` when Submit button is clicked
     observeEvent(input$submit, {
-      send_email(name = input$name,
-                 email = input$email,
-                 telephone = input$telephone,
-                 institution = input$institution,
-                 message = input$message)
+
+      # Create email body
+      body <- paste("Name: ", input$name,
+                    "\nEmail: ", input$email,
+                    "\nTelephone: ", input$telephone,
+                    "\n\nInstitution: ", input$institution,
+                    "\nMessage: ", input$message)
+
+      subject <- "Wearable Shiny App message"
+
+      send_email(body, subject)
 
       showModal(
         modalDialog(

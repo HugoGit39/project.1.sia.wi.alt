@@ -154,6 +154,10 @@ mod_sub_data__server <- function(id) {
 
     ns <- session$ns
 
+    create_clicked <- reactiveVal(FALSE)
+
+    disable("draft_ok")
+
     #create reactive data frame
     draft_data <- reactiveVal()
 
@@ -205,10 +209,9 @@ mod_sub_data__server <- function(id) {
     })
 
     observeEvent(input$create_draft, {
-      # Start with the original NA-filled template
-      updated_form <- draft_data()
+      create_clicked(TRUE)  # mark that draft was created
 
-      # Loop through each field and fill it in if a value was provided
+      updated_form <- draft_data()
       for (i in seq_len(nrow(updated_form))) {
         varname <- updated_form$Variable[i]
         val <- input[[varname]]
@@ -216,11 +219,49 @@ mod_sub_data__server <- function(id) {
           updated_form$Value[i] <- val
         }
       }
-
-      # Update the reactive draft data
       draft_data(updated_form)
     })
 
+    observe({
+      valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields())
+
+      # Enable or disable toggle based on validity + if Create was clicked
+      toggleState("draft_ok", condition = create_clicked() && valid_form)
+
+      # If form becomes invalid, also reset the toggle switch to OFF
+      if (!valid_form) {
+        updateMaterialSwitch(session = session, inputId = "draft_ok", value = FALSE)
+      }
+    })
+
+    #check if toggle is switched
+    observe({
+      toggleState("submit_final", condition = isTRUE(input$draft_ok))
+    })
+
+    observeEvent(input$submit_final, {
+
+      # Save to a temporary CSV
+      tmp_file <- tempfile(fileext = ".csv")
+      write.csv(draft_data(), tmp_file, row.names = FALSE)
+
+      # Create email body
+      body <- paste("Name: ", input$name,
+                    "\nEmail: ", input$email,
+                    "\nTelephone: ", input$telephone,
+                    "\n\nInstitution: ", input$institution)
+
+      subject <- "Wearable Shiny App new data submission"
+
+      send_email(body, subject, tmp_file)
+
+      showModal(
+        modalDialog(
+          title = "Data Submitted",
+          "Thank you for your data submission! We will get back to you soon."
+        )
+      )
+    })
 
 
 
