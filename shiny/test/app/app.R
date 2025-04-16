@@ -67,6 +67,7 @@ server <- function(input, output, session) {
   mod_header_server("header")
   mod_prod_fil_server("product_comp", sia_df_reactive)
   mod_feat_fil_server("feature_comp", sia_df_reactive )
+  mod_sub_data__server("add_data")
   mod_contact_server("contact")
   mod_timeout_server("timeout")
 

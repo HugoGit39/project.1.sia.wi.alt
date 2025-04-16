@@ -72,7 +72,7 @@ mod_contact_server <- function(id) {
 
       observe({
 
-        toggleState(id = "submit", condition = mandatoryfields_check(fieldsMandatory, input))
+        toggleState(id = "submit", condition = mandatoryfields_check(fieldsMandatory_email, input))
 
       })
 

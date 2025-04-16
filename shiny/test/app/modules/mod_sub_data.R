@@ -13,82 +13,105 @@ mod_sub_data_ui <- function(id) {
       column(
         width = 4,
         bs4Card(
-          title = "Fill In Form",
+          title = "Create Draft Form",
           status = "primary",
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-          uiOutput("submit_ui"),
-          textOutput("status"),
-            bs4Card(
-              title = "General Device Information",
-              status = "secondary",
-              width = 12,
-              collapsible = FALSE,
-              textInput("manufacturer", labelMandatory("Manufacturer")),
-              textInput("model", labelMandatory("Model")),
-              textInput("website", labelMandatory("Website")),
-              dateInput("release_date", labelMandatory("Release Date")),
-              textInput("market_status", labelMandatory("Market Status")),
-              uiOutput("market_status_error"),
-              textInput("main_use", labelMandatory("Main Use")),
-              uiOutput("main_use_error"),
-              numericInput("device_cost", labelMandatory("Cost (€)"), value = NA),
-              textInput("wearable_type", labelMandatory("Type")),
-              uiOutput("wearable_type_error"),
-              textInput("location", labelMandatory("Location")),
-              uiOutput("location_error"),
-              numericInput("weight", labelMandatory("Weight (g)"), value = NA),
-              numericInput("size", labelMandatory("Size"), value = NA)
-            ),
-            bs4Card(
-              title = "Technical Specifications",
-              status = "secondary",
-              width = 12,
-              collapsible = FALSE,
-              checkboxInput("water_resistance", "Water Resistant"),
-              numericInput("battery_life", "Battery Life (min)", value = NA),
-              textInput("charging_method", "Charging Method"),
-              numericInput("charging_duration", "Charging Duration (min)", value = NA),
-              checkboxInput("bio_cueing", "Bio Cueing"),
-              checkboxInput("bio_feedback", "Bio Feedback")
-            ),
-            bs4Card(
-              title = "Signals",
-              status = "secondary",
-              width = 12,
-              collapsible = FALSE,
-              checkboxInput("ppg", "PPG"),
-              checkboxInput("ecg", "ECG"),
-              checkboxInput("icg", "ICG"),
-              checkboxInput("emg", "EMG"),
-              textInput("respiration", "Respiration"),
-              checkboxInput("eda", "EDA"),
-              checkboxInput("eeg", "EEG"),
-              checkboxInput("bp", "Blood Pressure"),
-              checkboxInput("accelerometer", "Accelerometer"),
-              checkboxInput("gyroscope", "Gyroscope"),
-              checkboxInput("gps", "GPS"),
-              checkboxInput("skin_temperature", "Skin Temperature"),
-              textInput("other_signals", "Other Signals"),
-              uiOutput("other_signals_error")
-            ),
-            bs4Card(
-              title = "Data Access",
-              status = "secondary",
-              width = 12,
-              collapsible = FALSE,
-              checkboxInput("raw_data_available", "Raw Data Available"),
-              textInput("data_trans_method", "Data Transmission Method"),
-              uiOutput("data_trans_method_error"),
-              numericInput("int_storage_met", "Internal Storage (MB)", value = NA),
-              checkboxInput("server_data_storage", "Server Data Storage"),
-              numericInput("dev_storage_cap_hrs", "Device Storage (hrs)", value = NA),
-              numericInput("dev_storage_cap_mb", "Device Storage (MB)", value = NA),
-              checkboxInput("gdpr_comp", "GDPR Compliant"),
-              checkboxInput("fda_app_clear", "FDA Approved"),
-              checkboxInput("ce_app_label", "CE Label")
-            )
+          div(
+            p("Fill in at least all mandatory fields", strong("*", style = "color: #CC6677;"), "and create a draft version before sending out to us."),
+            p(actionButton(ns("create_draft"), "Create", disabled = TRUE))
+          ),
+          textOutput(ns("status")),
+          bs4Card(
+            title = "General Device Information",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            textInput(ns("manufacturer"), labelMandatory("Manufacturer")),
+            textInput(ns("model"), labelMandatory("Model")),
+            textInput(ns("website"), labelMandatory("Website")),
+            dateInput(ns("release_date"), labelMandatory("Release Date")),
+            textInput(ns("market_status"), labelMandatory("Market Status")),
+            uiOutput(ns("market_status_error")),
+            textInput(ns("main_use"), labelMandatory("Main Use")),
+            uiOutput(ns("main_use_error")),
+            numericInput(ns("device_cost"), labelMandatory("Cost (€)"), value = NA),
+            textInput(ns("wearable_type"), labelMandatory("Type")),
+            uiOutput(ns("wearable_type_error")),
+            textInput(ns("location"), labelMandatory("Location")),
+            uiOutput(ns("location_error")),
+            numericInput(ns("weight"), labelMandatory("Weight (g)"), value = NA),
+            numericInput(ns("size"), labelMandatory("Size"), value = NA)
+          ),
+          bs4Card(
+            title = "Technical Specifications",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            checkboxInput(ns("water_resistance"), "Water Resistant", value = FALSE),
+            numericInput(ns("battery_life"), "Battery Life (min)", value = NA),
+            textInput(ns("charging_method"), "Charging Method"),
+            numericInput(ns("charging_duration"), "Charging Duration (min)", value = NA),
+            checkboxInput(ns("bio_cueing"), "Bio Cueing", value = FALSE),
+            checkboxInput(ns("bio_feedback"), "Bio Feedback", value = FALSE)
+          ),
+          bs4Card(
+            title = "Signals",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            checkboxInput(ns("ppg"), "PPG", value = FALSE),
+            checkboxInput(ns("ecg"), "ECG", value = FALSE),
+            checkboxInput(ns("icg"), "ICG", value = FALSE),
+            checkboxInput(ns("emg"), "EMG", value = FALSE),
+            textInput(ns("respiration"), "Respiration"),
+            checkboxInput(ns("eda"), "EDA", value = FALSE),
+            checkboxInput(ns("eeg"), "EEG", value = FALSE),
+            checkboxInput(ns("bp"), "Blood Pressure", value = FALSE),
+            checkboxInput(ns("accelerometer"), "Accelerometer", value = FALSE),
+            checkboxInput(ns("gyroscope"), "Gyroscope", value = FALSE),
+            checkboxInput(ns("gps"), "GPS", value = FALSE),
+            checkboxInput(ns("skin_temperature"), "Skin Temperature", value = FALSE),
+            textInput(ns("other_signals"), "Other Signals"),
+            uiOutput(ns("other_signals_error"))
+          ),
+          bs4Card(
+            title = "Data Access",
+            status = "secondary",
+            width = 12,
+            collapsible = FALSE,
+            checkboxInput(ns("raw_data_available"), "Raw Data Available", value = FALSE),
+            textInput(ns("data_trans_method"), "Data Transmission Method"),
+            uiOutput(ns("data_trans_method_error")),
+            numericInput(ns("int_storage_met"), "Internal Storage (MB)", value = NA),
+            checkboxInput(ns("server_data_storage"), "Server Data Storage", value = FALSE),
+            numericInput(ns("dev_storage_cap_hrs"), "Device Storage (hrs)", value = NA),
+            numericInput(ns("dev_storage_cap_mb"), "Device Storage (MB)", value = NA),
+            checkboxInput(ns("gdpr_comp"), "GDPR Compliant", value = FALSE),
+            checkboxInput(ns("fda_app_clear"), "FDA Approved", value = FALSE),
+            checkboxInput(ns("ce_app_label"), "CE Label", value = FALSE)
+          )
+        )
+      ),
+      column(
+        width = 4,
+        bs4Card(
+          title = "Check Draft Form",
+          status = "primary",
+          width = 12,
+          collapsible = FALSE,
+          solidHeader = TRUE,
+          p("If everything is correct, slide the button to the right to be ready to send out to us."),
+          p(materialSwitch(inputId = ns("draft_ok"), status = "success")),
+          bs4Card(
+            title = "Draft Form Output",
+            width = 12,
+            status = "secondary",
+            solidHeader = TRUE,
+            collapsible = FALSE,
+            dataTableOutput(ns("draft_table"))
+          )
         )
       )
     )
@@ -99,6 +122,21 @@ mod_sub_data_ui <- function(id) {
 mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
 
+    ns <- session$ns
+
+    #create reactive data frame
+    draft_data <- reactiveVal()
+
+    # Create empty form
+    form_template <- data.frame(
+      Variable = names(rename_map),
+      Value = rep(NA, length(rename_map))
+    )
+
+    #Fill reactive value
+    draft_data(formData_template)
+
+    # Check char fields correct
     invalid_char_fields <- reactive({
       sapply(names(char_only_fields), function(field) {
         val <- input[[field]]
@@ -106,24 +144,33 @@ mod_sub_data__server <- function(id) {
       })
     })
 
-    observe({
-      isFilled <- mandatoryfields_check(fieldsMandatory, input)
-      charValid <- !any(invalid_char_fields())
-      output$submit_ui <- renderUI({
-        if (isFilled && charValid) actionButton("submit", "Submit") else NULL
-      })
-    })
-
     # Character field validation UI outputs with friendly labels
     lapply(names(char_only_fields), function(field) {
       output[[paste0(field, "_error")]] <- renderUI({
         if (invalid_char_fields()[[field]]) {
-          div(style = "color:red;", paste(char_only_fields[[field]], "should not be a number."))
+          div(style = "color:#CC6677;", paste(char_only_fields[[field]], "should not contain a number."))
         }
       })
     })
 
-    observeEvent(input$submit, {
+    # Correct Filled in Fileds & Mandatory fields
+    observe({
+
+      toggleState("create_draft", condition = mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields()))
+
+    })
+
+    #Render draft table
+    output$draft_table <- renderDataTable({
+      datatable(
+        draft_data(),
+        rownames = FALSE,
+        options = list(dom = 't', ordering = FALSE)
+      )
+    })
+
+
+    observeEvent(input$create_draft, {
       formData <- data.frame(
         manufacturer = input$manufacturer,
         model = input$model,

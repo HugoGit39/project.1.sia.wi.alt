@@ -9,7 +9,7 @@
 # list of required packages
 required_packages <- c(
   "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble",
-  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders"
+  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets"
 )
 
 #check if installed and load
