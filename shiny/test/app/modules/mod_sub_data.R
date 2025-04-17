@@ -102,12 +102,20 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("fda_app_clear"), "FDA Approved", value = FALSE),
             checkboxInput(ns("ce_app_label"), "CE Label", value = FALSE)
           ),
+          bs4Card(title = "Validation, Reliability & Usability",
+                  width = 12,
+                  status = "secondary",
+                  collapsible = FALSE,
+                  textInput(ns("level_validation"), "Validation Level"),
+                  numericInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", value = NA),
+                  numericInput(ns("no_studies_usab_reviewed"), "Usability Studies", value = NA)
+          ),
           bs4Card(
             title = "Further Details",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
-            textAreaInput(ns("additional_information "), "Additional Information", rows = 4)
+            textAreaInput(ns("additional_information"), "Additional Information", rows = 4)
           )
         )
       ),
@@ -222,12 +230,27 @@ mod_sub_data__server <- function(id) {
       for (i in seq_len(nrow(updated_form))) {
         varname <- updated_form$Variable[i]
         val <- input[[varname]]
-        if (isTRUE(!is.null(val) && !is.na(val) && val != "")) {
-          updated_form$Value[i] <- val
+
+        if (!is.null(val) && !is.na(val) && !(is.character(val) && val == "")) {
+          # Convert logicals to "Yes"/"No"
+          if (is.logical(val)) {
+            updated_form$Value[i] <- ifelse(val, "Yes", "No")
+          }
+          # Format dates as string
+          else if (inherits(val, "Date")) {
+            updated_form$Value[i] <- format(val, "%Y-%m-%d")
+          }
+          # Otherwise just store value
+          else {
+            updated_form$Value[i] <- val
+          }
         }
       }
+
       draft_data(updated_form)
     })
+
+
 
     observe({
       valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields())
