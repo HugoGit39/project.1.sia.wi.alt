@@ -130,10 +130,10 @@ rename_map <- c(
 
 # * * 8.1 Submit data ---------------------------
 
-subm_form_vars <- names(rename_map)
+rename_subm<- names(rename_map)
 
-subm_form_vars <- subm_form_vars[!subm_form_vars %in% c("sia_es_long", "sia_es_short")]
+rename_subm <- rename_subm[!rename_subm %in% c("sia_es_long", "sia_es_short")]
 
-subm_form_vars <- c("name", "email", "telephone", "institution", subm_form_vars, "additional_information")
+rename_subm <- c("name", "email", "telephone", "institution", rename_subm, "additional_information")
 
 

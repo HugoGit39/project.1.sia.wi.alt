@@ -170,8 +170,8 @@ mod_sub_data__server <- function(id) {
 
     # Create empty form
     form_template <- data.frame(
-      Variable = subm_form_vars,
-      Value = rep(NA, length(rename_map))
+      Variable = rename_subm,
+      Value = rep(NA, length(rename_subm))
     )
 
     #Fill reactive value

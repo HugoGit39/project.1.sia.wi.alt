@@ -149,7 +149,6 @@ mod_prod_fil_server <- function(id, sia_df) {
       datatable(df_t,
                 options = list(
                   pageLength = nrow(df_t),
-                  autoWidth = TRUE,
                   scrollX = TRUE,
                   processing = FALSE))
     })
