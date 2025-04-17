@@ -70,6 +70,7 @@ mod_app_info_ui <- function(id) {
               collapsible = FALSE,
               headerBorder = FALSE,
               style = "height: 300px; overflow-y: auto;",
+              p("Terms of citation", style = "text-align: justify;"),
               p("To use this app, navigate to the 'Filters' section to explore wearables based on your
                 criteria. If you have new data to add, visit the 'Submit Data' section.", style = "text-align: justify;"),
               p("For more details, check the documentation or contact support.", style = "text-align: justify;")

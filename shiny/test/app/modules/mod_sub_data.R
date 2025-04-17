@@ -119,8 +119,8 @@ mod_sub_data_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-          p("Please verify that all fields are completed, then slide the toggle to enable submission.", style = "text-align: justify;"),
-          p(materialSwitch(inputId = ns("draft_ok"), status = "success")),
+          p("Please verify that prvided fields are correct, then slide the toggle to enable submission.", style = "text-align: justify;"),
+          p(materialSwitch(inputId = ns("draft_ok"), label = "Slide to the right when ready!", right = TRUE, status = "success")),
           bs4Card(
             title = "Draft Form Output",
             width = 12,
@@ -142,6 +142,13 @@ mod_sub_data_ui <- function(id) {
             p("When you approve your draft, the option to send it to us will become available.", style = "text-align: justify;"),
             p(actionButton(ns("submit_final"), "Submit", disabled = TRUE)),
             p("A copy of your submission will be sent to the email address you provided. We will reach out to you to discuss it in more detail.", style = "text-align: justify;")
+        ),
+        div(
+          style = "text-align: center;",
+          tags$img(
+            src = "iStock_submit_data.jpg",
+            style = "width: 75%; height: auto; margin-top: 100px; border-radius: 5px;"
+          )
         )
       )
     )
@@ -163,7 +170,7 @@ mod_sub_data__server <- function(id) {
 
     # Create empty form
     form_template <- data.frame(
-      Variable = names(rename_map),
+      Variable = subm_form_vars,
       Value = rep(NA, length(rename_map))
     )
 

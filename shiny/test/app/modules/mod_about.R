@@ -119,7 +119,7 @@ mod_about_ui <- function(id) {
     column(width = 2,
            div(
              style = "margin-top: 50px;",
-             p(img(src = "iStock_about.jpg", style = "max-width: 100%; height: auto;")),
+             p(img(src = "iStock_about.jpg", style = "max-width: 100%; height: auto; border-radius: 5px;")),
                bs4Card(
                  title = "Image Credits",
                  status = "primary",

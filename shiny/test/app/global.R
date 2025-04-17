@@ -78,6 +78,9 @@ char_only_fields <- list(
 fieldsMandatory_email <- c("name", "email", "message")
 
 # * 8 Rename table variables ---------------------------
+
+# * * 8.1 Filters ---------------------------
+
 rename_map <- c(
   "sia_es_long" = "Long-Term SiA Score",
   "sia_es_short" = "Short-Term SiA Score",
@@ -124,5 +127,13 @@ rename_map <- c(
   "no_studies_val_rel_reviewed" = "Validation Studies Reviewed",
   "no_studies_usab_reviewed" = "Usability Studies Reviewed"
 )
+
+# * * 8.1 Submit data ---------------------------
+
+subm_form_vars <- names(rename_map)
+
+subm_form_vars <- subm_form_vars[!subm_form_vars %in% c("sia_es_long", "sia_es_short")]
+
+subm_form_vars <- c("name", "email", "telephone", "institution", subm_form_vars, "additional_information")
 
 
