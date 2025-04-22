@@ -17,37 +17,35 @@ mod_control_ui <- function(id) {
     #   }
     # ")),
     #   ),
-      tags$head(
-        tags$style(HTML("
-    /* Default pill style - square edges */
-    .control-sidebar .nav-pills .nav-link {
-      background-color: white !important;
-      color: #f15a29 !important;
-      border: 1px solid #f15a29 !important;
-      border-radius: 0px !important;
-    }
-
-    /* Active (selected) pill style */
-    .control-sidebar .nav-pills .nav-link.active {
-      background-color: white !important;
-      color: #f15a29 !important;
-      font-weight: bold;
-      box-shadow: inset 0 0 0 2px #f15a29 !important;
-      border-radius: 0px !important;
-    }
-
-    /* Center the nav-pills in the controlbar */
-    .control-sidebar .nav-pills {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px; /* spacing between pills if multiple */
-    }
-
-  "))
-      )
-
-      ,
+  #     tags$head(
+  #       tags$style(HTML("
+  #   /* Default pill style - square edges */
+  #   .control-sidebar .nav-pills .nav-link {
+  #     background-color: white !important;
+  #     color: #f15a29 !important;
+  #     border: 1px solid #f15a29 !important;
+  #     border-radius: 0px !important;
+  #   }
+  #
+  #   /* Active (selected) pill style */
+  #   .control-sidebar .nav-pills .nav-link.active {
+  #     background-color: white !important;
+  #     color: #f15a29 !important;
+  #     font-weight: bold;
+  #     box-shadow: inset 0 0 0 2px #f15a29 !important;
+  #     border-radius: 0px !important;
+  #   }
+  #
+  #   /* Center the nav-pills in the controlbar */
+  #   .control-sidebar .nav-pills {
+  #     display: flex;
+  #     justify-content: center;
+  #     align-items: center;
+  #     gap: 10px; /* spacing between pills if multiple */
+  #   }
+  #
+  # "))
+  #     ),
       skin = "light",
       pinned = FALSE,
       collapsed = TRUE,
@@ -86,15 +84,39 @@ mod_control_ui <- function(id) {
             accordionI(div("Y", style='color:#1c75bc; font-size:14px;'), "white", T, ""),
             accordionI(div("Z", style='color:#1c75bc; font-size:14px;'), "white", T, "")
           )
+        ),
+        controlbarItem(
+          title = "Wearables",
+          DTOutput(ns("wearables_table")) %>% withSpinner()
         )
       )
     )
 }
 
 #server
-mod_control__server <- function(id) {
+mod_control__server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
+    output$wearables_table <- renderDT({
+      df <- data()
+
+      datatable(
+        data.frame(
+          manufacturer = df$manufacturer,
+          model = df$model,
+          stringsAsFactors = FALSE
+        ),
+        options = list(pageLength = 10,
+                       autoWidth = TRUE,
+                       scrollX = TRUE,
+                       processing = FALSE)
+      )
+    })
 
   })
 }
+
+
+
+
+

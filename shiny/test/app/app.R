@@ -70,6 +70,7 @@ server <- function(input, output, session) {
   mod_sub_data__server("add_data")
   mod_article_server("art")
   mod_contact_server("contact")
+  mod_control__server("controlbar", sia_df_reactive)
   mod_timeout_server("timeout")
 
 }

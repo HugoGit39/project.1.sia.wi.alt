@@ -203,7 +203,11 @@ mod_feat_fil_server <- function(id, data) {
     # Step 4: Reset filters
     observeEvent(input$reset_filter, {
       for (var in range_vars) {
-        updateSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
+        if (var %in% c("sia_es_long", "sia_es_short")) {
+          updateSliderInput(session, var, value = c(0, 10))
+        } else {
+          updateSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
+        }
       }
 
       updateDateRangeInput(session, "release_date",
