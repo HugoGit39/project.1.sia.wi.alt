@@ -61,7 +61,8 @@ mod_control__server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
     output$wearables_table <- renderDT({
-      df <- data()
+      df <- data() %>%
+        arrange(manufacturer)
 
       datatable(
         data.frame(
