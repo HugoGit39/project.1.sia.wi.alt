@@ -9,43 +9,6 @@ mod_control_ui <- function(id) {
   ns <- NS(id)
 
     dashboardControlbar(
-    #   tags$head(
-    #     tags$style(HTML("
-    #   .control-sidebar {
-    #     overflow-y: auto;
-    #     padding-top: 25px !important; /* This moves everything inside 10px lower */
-    #   }
-    # ")),
-    #   ),
-  #     tags$head(
-  #       tags$style(HTML("
-  #   /* Default pill style - square edges */
-  #   .control-sidebar .nav-pills .nav-link {
-  #     background-color: white !important;
-  #     color: #f15a29 !important;
-  #     border: 1px solid #f15a29 !important;
-  #     border-radius: 0px !important;
-  #   }
-  #
-  #   /* Active (selected) pill style */
-  #   .control-sidebar .nav-pills .nav-link.active {
-  #     background-color: white !important;
-  #     color: #f15a29 !important;
-  #     font-weight: bold;
-  #     box-shadow: inset 0 0 0 2px #f15a29 !important;
-  #     border-radius: 0px !important;
-  #   }
-  #
-  #   /* Center the nav-pills in the controlbar */
-  #   .control-sidebar .nav-pills {
-  #     display: flex;
-  #     justify-content: center;
-  #     align-items: center;
-  #     gap: 10px; /* spacing between pills if multiple */
-  #   }
-  #
-  # "))
-  #     ),
       skin = "light",
       pinned = FALSE,
       collapsed = TRUE,

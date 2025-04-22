@@ -29,7 +29,26 @@ html, body {
   font-size: 16px;
 }
 
-/* 1. App info*/
+/* 2. Header*/
+
+.main-header {min-height: 80px}
+
+.dropdown-menu {
+          min-width: 250px !important;  /* Adjust width as needed */
+        }
+        .dropdown-menu .dropdown-header {
+          white-space: nowrap !important;  /* Prevents wrapping */
+        }
+        /* Custom styles for navbar menu */
+        .nav-item .nav-link {
+          font-size: 18px !important;  /* Set font size */
+          color: #1c75bc !important;  /* Set text color */
+        }
+        .nav-item .nav-link:hover {
+          color: #f15a29 !important;  /* Set hover color */
+        }
+
+/* 3. App info*/
 
 /* Background image */
 
@@ -45,19 +64,19 @@ html, body {
   z-index: -999;
 }
 
-/* 2. Filters*/
+/* 4. Filters*/
 
-/* 2.1 Product filter*/
+/* 4.1 Product filter*/
 
-/* 2.2 Feauture filter*/
+/* 4.2 Feauture filter*/
 
-/* 3. Add data*/
+/* 5. Add data*/
 
-/* 4. Paper*/
+/* 6. Paper*/
 
-/* 5. About*/
+/* 7. About*/
 
-/* 6. Contact*/
+/* 8. Contact*/
 
 #app_contact_us_bg {
   position: fixed;
@@ -72,7 +91,7 @@ html, body {
   z-index: -999;
 }
 
-/* 7. Controlbar*/
+/* 9. Controlbar*/
 
  /* Padding controlbar */
 .control-sidebar {

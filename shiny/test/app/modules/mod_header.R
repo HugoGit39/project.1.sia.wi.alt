@@ -10,25 +10,6 @@ mod_header_ui <- function(id) {
 
   bs4DashNavbar(
     titleWidth = 220,
-    tagList(
-      tags$style(".main-header {min-height: 80px}"),
-      tags$style(HTML("
-        .dropdown-menu {
-          min-width: 250px !important;  /* Adjust width as needed */
-        }
-        .dropdown-menu .dropdown-header {
-          white-space: nowrap !important;  /* Prevents wrapping */
-        }
-        /* Custom styles for navbar menu */
-        .nav-item .nav-link {
-          font-size: 18px !important;  /* Set font size */
-          color: #1c75bc !important;  /* Set text color */
-        }
-        .nav-item .nav-link:hover {
-          color: #f15a29 !important;  /* Set hover color */
-        }
-      "))
-    ),
     title = tags$a(
       href = "https://www.stressinaction.nl", target = "_blank",
       tags$img(

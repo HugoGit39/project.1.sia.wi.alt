@@ -9,32 +9,6 @@ mod_app_info_ui <- function(id) {
   ns <- NS(id)
 
   tagList(
-    # tags$head(tags$style(HTML("
-    #   html, body {
-    #     height: 100%;
-    #     margin: 0;
-    #     padding: 0;
-    #     overflow-x: hidden;
-    #   }
-    #
-    #   #app_info_bg {
-    #     position: fixed;
-    #     top: 0;
-    #     left: 0;
-    #     width: 100%;
-    #     height: 100%;
-    #     background-image: url('iStock_app_info.jpg');
-    #     background-size: cover;
-    #     background-position: center;
-    #     z-index: -999;
-    #   }
-    #
-    #   .content-wrapper, .tab-content, .content {
-    #     background: transparent !important;
-    #     padding: 0 !important;
-    #     margin: 0 !important;
-    #   }
-    # "))),
 
     div(id = "app_info_bg"),
 
