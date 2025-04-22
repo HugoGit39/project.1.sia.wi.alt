@@ -5,7 +5,7 @@
 #############################################################################################
 
 # Function to send email
-send_email <- function(body, subject, attachment = NULL) {
+send_email <- function(body, subject, receiver = "disc@stress-in-action.nl", attachment = NULL) {
 
   # SMTP settings (use environment variables for security)
   smtp <- server(
@@ -13,12 +13,12 @@ send_email <- function(body, subject, attachment = NULL) {
     port = Sys.getenv("SMTP_PORT"),
     username = Sys.getenv("MAIL_NAME_ID"),
     password = Sys.getenv("MAIL_KEY_ID"),
-    tls = TRUE  # Enable TLS for security
+    tls = TRUE
   )
 
   # Create email message
   msg <- envelope(
-    to = "disc@stress-in-action.nl",
+    to = receiver,
     from = "disc@stress-in-action.nl"
   ) %>%
     subject(subject) %>%

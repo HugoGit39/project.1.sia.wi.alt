@@ -283,7 +283,9 @@ mod_sub_data__server <- function(id) {
 
       subject <- "Wearable Shiny App new data submission"
 
-      send_email(body, subject, tmp_file)
+      receiver_email <- input$email
+
+      send_email(body, subject, receiver_email, tmp_file)
 
       showModal(
         modalDialog(
