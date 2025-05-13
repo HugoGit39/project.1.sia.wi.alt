@@ -145,7 +145,7 @@ mod_about_ui <- function(id) {
            div(
              style = "margin-top: 50px;",
                bs4Card(
-                 title = "Research Theme 2 (RT2) Wearbale Team",
+                 title = "Research Theme 2 (RT2) Wearabale Team",
                  status = "secondary",
                  solidHeader = TRUE,
                  width = 12,
