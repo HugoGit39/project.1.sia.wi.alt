@@ -23,7 +23,7 @@ mod_article_ui <- function(id) {
                        downloadButton(ns("download_pdf"), "Download PDF", class = "btn-primary")
                      ),
                      tags$iframe(
-                       src = "s13428-025-02685-4.pdf",
+                       src = "wearables_database_paper.pdf",
                        style = "width:100%; height:842px; border:none;"
                      )
              )
@@ -36,10 +36,10 @@ mod_article_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     output$download_pdf <- downloadHandler(
       filename = function() {
-        "s13428-025-02685-4.pdf"
+        "wearables_database_paper.pdf"
       },
       content = function(file) {
-        file.copy("www/s13428-025-02685-4.pdf", file)
+        file.copy("www/wearables_database_paper.pdf", file)
       }
     )
   })
