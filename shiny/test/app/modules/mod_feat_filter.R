@@ -20,6 +20,10 @@ mod_feat_fil_ui <- function(id) {
           solidHeader = TRUE,
           div(
             style = "text-align: center; margin-bottom: 10px;",
+            downloadButton(ns("download_filter_settings"), "Download Filter Settings")
+          ),
+          div(
+            style = "text-align: center; margin-bottom: 10px;",
             actionButton(
               inputId = ns("reset_filter"),
               label = "Reset Filter",
@@ -39,7 +43,8 @@ mod_feat_fil_ui <- function(id) {
                   solidHeader = TRUE,
                   collapsible = FALSE,
                   sliderInput(ns("sia_es_long"), "Long-Term", min = 0, max = 10, value = c(0,10)),
-                  sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10))
+                  sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10)),
+                  checkboxInput(ns("exclude_na_sia"), "Exclude missing SiA scores", value = FALSE)
           ),
           bs4Card(title = "General Device Information",
                   width = 12,
@@ -169,8 +174,14 @@ mod_feat_fil_server <- function(id, data) {
         df <- checkbox_filter(df, var, input[[var]])
       }
 
+      # Exclude rows with missing SIA scores if checkbox is ticked
+      if (isTRUE(input$exclude_na_sia)) {
+        df <- df %>% filter(!is.na(sia_es_short), !is.na(sia_es_long))
+      }
+
       df
     })
+
 
     # Step 2: Update selectInput options
     observe({
@@ -242,6 +253,60 @@ mod_feat_fil_server <- function(id, data) {
       filename = function() paste0("sia_filtered_data_", Sys.Date(), ".csv"),
       content = function(file) write.csv(filtered_data(), file, row.names = FALSE)
     )
+
+    # Step 7: Download filter settings
+    output$download_filter_settings <- downloadHandler(
+      filename = function() paste0("sia_filter_settings_", Sys.Date(), ".csv"),
+      content = function(file) {
+        settings <- list()
+
+        # Sliders (rounded to integers)
+        for (var in range_vars) {
+          range_vals <- as.integer(round(input[[var]]))
+          settings[[var]] <- paste(range_vals[1], range_vals[2], sep = "|")
+        }
+
+        # Checkboxes
+        for (var in checkbox_vars) {
+          settings[[var]] <- if (isTRUE(input[[var]])) "YES" else "YES|NO"
+        }
+
+        # SelectInputs
+        for (var in select_inputs) {
+          settings[[var]] <- paste(input[[var]], collapse = "|")
+        }
+
+        # Date range
+        settings[["release_date"]] <- paste(
+          format(input$release_date[1], "%Y-%m-%d"),
+          format(input$release_date[2], "%Y-%m-%d"),
+          sep = "|"
+        )
+
+        # Exclude NA SiA scores
+        settings[["exclude_na_sia"]] <- if (isTRUE(input$exclude_na_sia)) "YES" else "YES|NO"
+
+        # Convert list to data frame
+        df <- data.frame(t(unlist(settings)), check.names = FALSE)
+        names(df) <- names(settings)
+
+        # Define order: sia_es_long, sia_es_short, exclude_na_sia, then the rest
+        ordered_vars <- c(
+          "sia_es_long",
+          "sia_es_short",
+          "exclude_na_sia",
+          setdiff(c(names(rename_map), "release_date"), c("sia_es_long", "sia_es_short"))
+        )
+
+        # Filter only existing variables
+        ordered_vars <- ordered_vars[ordered_vars %in% names(df)]
+        df <- df[ordered_vars]
+
+        # Keep column names as internal variable names
+        write.table(df, file, sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
+      }
+    )
+
   })
 }
 
