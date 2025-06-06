@@ -8,15 +8,15 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble",
+  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble", "lubridate",
   "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets"
 )
 
 #check if installed and load
-lapply(required_packages, function(pkg) {
+invisible(lapply(required_packages, function(pkg) {
   if (!require(pkg, character.only = TRUE)) install.packages(pkg)
   library(pkg, character.only = TRUE)
-})
+}))
 
 # * 2 Load functions -----------------------------------------------------------
 

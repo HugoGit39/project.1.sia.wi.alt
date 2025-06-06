@@ -53,7 +53,7 @@ mod_feat_fil_ui <- function(id) {
                   selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
                   uiOutput(ns("manufacturer_ui")),
                   selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
-                  dateRangeInput(ns("release_date"), "Release Date", start = min(sia_df$release_date, na.rm = TRUE), end = max(sia_df$release_date, na.rm = TRUE), format = "yyyy"),
+                  airDatepickerInput(ns("release_year"), "Release Year Range", range = TRUE, view = "years", minView = "years", dateFormat = "yyyy", value = c(min(sia_df$release_date, na.rm = TRUE), max(sia_df$release_date, na.rm = TRUE))),
                   selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
                   selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
                   sliderInput(ns("device_cost"), "Cost (€)", min = 0, max = max(sia_df$device_cost, na.rm = TRUE), value = c(0, max(sia_df$device_cost, na.rm = TRUE))),
@@ -167,7 +167,12 @@ mod_feat_fil_server <- function(id, data) {
 
       # Release date range
       if (!is.null(input$release_date[1]) && !is.null(input$release_date[2])) {
-        df <- filter(df, is.na(release_date) | between(release_date, input$release_date[1], input$release_date[2]))
+        df <- df %>%
+          filter(
+            is.na(release_date) |
+              (year(release_date) >= year(input$release_date[1]) &
+                 year(release_date) <= year(input$release_date[2]))
+          )
       }
 
       for (var in checkbox_vars) {
