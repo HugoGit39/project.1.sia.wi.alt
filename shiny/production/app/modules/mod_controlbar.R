@@ -17,6 +17,10 @@ mod_control_ui <- function(id) {
         id = "controlbarmenu",
         type = "pills",
         controlbarItem(
+          title = "Wearables",
+          DTOutput(ns("wearables_table")) %>% withSpinner()
+        ),
+        controlbarItem(
           title = "Glossery",
           accordion(
             id = "accordion_glossary",
@@ -47,10 +51,6 @@ mod_control_ui <- function(id) {
             accordionI(div("Y", style='color:#1c75bc; font-size:14px;'), "white", T, ""),
             accordionI(div("Z", style='color:#1c75bc; font-size:14px;'), "white", T, "")
           )
-        ),
-        controlbarItem(
-          title = "Wearables",
-          DTOutput(ns("wearables_table")) %>% withSpinner()
         )
       )
     )
