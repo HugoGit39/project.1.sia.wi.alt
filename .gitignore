@@ -48,14 +48,8 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# R folder
-r/
-
 # temp folder
 temp/
-
-# df csv file
-shiny/test/app/data
 
 # shinyserver prod folder
 shiny/shinyserver
