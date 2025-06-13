@@ -42,77 +42,126 @@ mod_feat_fil_ui <- function(id) {
                   status = "secondary",
                   solidHeader = TRUE,
                   collapsible = FALSE,
-                  sliderInput(ns("sia_es_long"), "Long-Term", min = 0, max = 10, value = c(0,10)),
-                  sliderInput(ns("sia_es_short"), "Short-Term", min = 0, max = 10, value = c(0,10)),
-                  checkboxInput(ns("exclude_na_sia"), "Exclude missing SiA scores", value = FALSE)
+                  noUiSliderInput(ns("sia_es_long"), label = "Long-Term Expert Score", min = 0, max = 10, value = c(0,10),
+                                  pips = list(mode = "values", values = list(0, 10), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                  noUiSliderInput(ns("sia_es_short"), label = "Short-Term Expert Score", min = 0, max = 10, value = c(0, 10),
+                                  pips = list(mode = "values", values = list(0, 10), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                  tags$div(
+                    tags$label("Exclude missing SiA scores"),
+                    switchInput(inputId = ns("exclude_na_sia"), onLabel = "YES", offLabel = "NO",
+                                value = FALSE, size = "sm", onStatus = "secondary", offStatus = "primary")
+                  )
           ),
           bs4Card(title = "General Device Information",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
-                  uiOutput(ns("manufacturer_ui")),
-                  selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
-                  airDatepickerInput(ns("release_year"), "Release Year Range", range = TRUE, view = "years", minView = "years", dateFormat = "yyyy", value = c(min(sia_df$release_date, na.rm = TRUE), max(sia_df$release_date, na.rm = TRUE))),
-                  selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
-                  selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
-                  sliderInput(ns("device_cost"), "Cost (€)", min = 0, max = max(sia_df$device_cost, na.rm = TRUE), value = c(0, max(sia_df$device_cost, na.rm = TRUE))),
-                  selectInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
-                  selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
-                  sliderInput(ns("weight"), "Weight (g)", min=0, max = max(sia_df$weight, na.rm = TRUE), value = c(0,max(sia_df$weight, na.rm = TRUE))),
-                  selectInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
+                  pickerInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
+                  pickerInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
+                  airDatepickerInput(ns("release_date"), "Release Year Range",
+                                     range = TRUE, view = "years", minView = "years",
+                                     dateFormat = "yyyy",
+                                     value = c(min(sia_df$release_date, na.rm = TRUE),
+                                               max(sia_df$release_date, na.rm = TRUE))),
+                  pickerInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
+                  pickerInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
+                  noUiSliderInput(ns("device_cost"), label = "Device Cost (€)", min = 0,
+                                  max = max(sia_df$device_cost, na.rm = TRUE),
+                                  value = c(0, max(sia_df$device_cost, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$device_cost, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  pickerInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
+                  pickerInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
+                  noUiSliderInput(ns("weight"), label = "Weight (g)", min = 0,
+                                  max = max(sia_df$weight, na.rm = TRUE),
+                                  value = c(0, max(sia_df$weight, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$weight, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  pickerInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
           ),
           bs4Card(title = "Technical Specifications",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  checkboxInput(ns("water_resistance"), "Water Resistant"),
-                  sliderInput(ns("battery_life"), "Battery Life (min)", min = 0, max = max(sia_df$battery_life, na.rm = TRUE), value = c(0, max(sia_df$battery_life, na.rm = TRUE))),
-                  selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
-                  sliderInput(ns("charging_duration"), "Charging Duration (min)", min = 0, max = max(sia_df$charging_duration, na.rm = TRUE), value = c(0, 10000)),
-                  checkboxInput(ns("bio_cueing"), "Bio Cueing"),
-                  checkboxInput(ns("bio_feedback"), "Bio Feedback")
+                  prettyCheckbox(ns("water_resistance"), label = "Water Resistant", icon = icon("check"), status = "primary"),
+                  noUiSliderInput(ns("battery_life"), label = "Battery Life (min)", min = 0,
+                                  max = max(sia_df$battery_life, na.rm = TRUE),
+                                  value = c(0, max(sia_df$battery_life, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$battery_life, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  pickerInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
+                  noUiSliderInput(ns("charging_duration"), label = "Charging Duration (min)", min = 0,
+                                  max = max(sia_df$charging_duration, na.rm = TRUE),
+                                  value = c(0, max(sia_df$charging_duration, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$charging_duration, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  prettyCheckbox(ns("bio_cueing"), label = "Bio Cueing", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("bio_feedback"), label = "Bio Feedback", icon = icon("check"), status = "primary")
           ),
           bs4Card(title = "Signals",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  checkboxInput(ns("ppg"), "Photoplethysmogram (PPG)"),
-                  checkboxInput(ns("ecg"), "Electrocardiogram (ECG)"),
-                  checkboxInput(ns("icg"), "Impedance cardiography (ICG)"),
-                  checkboxInput(ns("emg"), "Electromyography (EMG)"),
-                  checkboxInput(ns("respiration"), "Respiration"),
-                  checkboxInput(ns("eda"), "Electrodermal activity (EDA)"),
-                  checkboxInput(ns("eeg"), "Electroencephalography (EEG)"),
-                  checkboxInput(ns("bp"), "Blood Pressure"),
-                  checkboxInput(ns("accelerometer"), "Accelerometer"),
-                  checkboxInput(ns("gyroscope"), "Gyroscope"),
-                  checkboxInput(ns("gps"), "Global Positioning System (GPS)"),
-                  checkboxInput(ns("skin_temperature"), "Skin Temperature"),
-                  selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
+                  prettyCheckbox(ns("ppg"), label = "Photoplethysmogram (PPG)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("ecg"), label = "Electrocardiogram (ECG)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("icg"), label = "Impedance cardiography (ICG)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("emg"), label = "Electromyography (EMG)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("respiration"), label = "Respiration", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("eda"), label = "Electrodermal activity (EDA)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("eeg"), label = "Electroencephalography (EEG)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("bp"), label = "Blood Pressure", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("accelerometer"), label = "Accelerometer", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("gyroscope"), label = "Gyroscope", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("gps"), label = "Global Positioning System (GPS)", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("skin_temperature"), label = "Skin Temperature", icon = icon("check"), status = "primary"),
+                  pickerInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
           ),
-          bs4Card(title = "Data Acces",
+          bs4Card(title = "Data Access",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  checkboxInput(ns("raw_data_available"), "Raw Data"),
-                  selectInput(ns("data_trans_method"), "Data Transmission Method", choices = NULL, multiple = TRUE),
-                  checkboxInput(ns("int_storage_met"), "Internal Storage"),
-                  checkboxInput(ns("server_data_storage"), "Server Storage"),
-                  sliderInput(ns("dev_storage_cap_mb"), "Device Storage (size in MB)", min = 0, max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE))),
-                  sliderInput(ns("dev_storage_cap_hrs"), "Device Storage (time in hrs)", min = 0, max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE), value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE))),
-                  checkboxInput(ns("gdpr_comp"), "GDPR Compliant"),
-                  checkboxInput(ns("fda_app_clear"), "FDA Approved"),
-                  checkboxInput(ns("ce_app_label"), "CE Label")
+                  prettyCheckbox(ns("raw_data_available"), label = "Raw Data", icon = icon("check"), status = "primary"),
+                  pickerInput(ns("data_trans_method"), "Data Transmission Method", choices = NULL, multiple = TRUE),
+                  prettyCheckbox(ns("int_storage_met"), label = "Internal Storage", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("server_data_storage"), label = "Server Storage", icon = icon("check"), status = "primary"),
+                  noUiSliderInput(ns("dev_storage_cap_mb"), label = "Storage Capacity (MB)", min = 0,
+                                  max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE),
+                                  value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  noUiSliderInput(ns("dev_storage_cap_hrs"), label = "Storage Capacity (hrs)", min = 0,
+                                  max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE),
+                                  value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  prettyCheckbox(ns("gdpr_comp"), label = "GDPR Compliant", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("fda_app_clear"), label = "FDA Approved", icon = icon("check"), status = "primary"),
+                  prettyCheckbox(ns("ce_app_label"), label = "CE Label", icon = icon("check"), status = "primary")
           ),
           bs4Card(title = "Validation, Reliability & Usability",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  selectInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
-                  sliderInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", min = 0, max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE))),
-                  sliderInput(ns("no_studies_usab_reviewed"), "Usability Studies", min = 0, max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE), value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
+                  pickerInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
+                  noUiSliderInput(ns("no_studies_val_rel_reviewed"), label = "# Validation/Reliability Studies", min = 0,
+                                  max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE),
+                                  value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  noUiSliderInput(ns("no_studies_usab_reviewed"), label = "# Usability Studies", min = 0,
+                                  max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE),
+                                  value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
+                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0))
           )
+
+
+
+
+
+
         )
       ),
       column(
@@ -187,8 +236,7 @@ mod_feat_fil_server <- function(id, data) {
       df
     })
 
-
-    # Step 2: Update selectInput options
+    # Step 2: Update pickerInput options
     observe({
       df <- filtered_for_dropdowns()
       for (input_id in select_inputs) {
@@ -201,7 +249,7 @@ mod_feat_fil_server <- function(id, data) {
         }
         valid_choices <- sort(unique(df_filtered[[input_id]]))
         selected_now <- input[[input_id]]
-        updateSelectInput(session, input_id,
+        updatePickerInput(session, input_id,
                           choices = valid_choices,
                           selected = selected_now[selected_now %in% valid_choices])
       }
@@ -232,12 +280,17 @@ mod_feat_fil_server <- function(id, data) {
 
       lapply(checkbox_vars, function(id) updateCheckboxInput(session, id, value = FALSE))
 
-      lapply(select_inputs, function(id) updateSelectInput(session, id, selected = character(0)))
+      lapply(select_inputs, function(id) updatePickerInput(session, id, selected = character(0)))
     })
 
     # Step 5: Render table
     output$feat_filtered_table <- renderDT({
       df <- filtered_data()
+
+      #only show years
+      if ("release_date" %in% names(df)) {
+        df$release_date <- format(df$release_date, "%Y")
+      }
 
       #rename columns
       names(df) <- rename_map[names(df)]
@@ -255,13 +308,13 @@ mod_feat_fil_server <- function(id, data) {
 
     # Step 6: Download
     output$download_data <- downloadHandler(
-      filename = function() paste0("sia_filtered_data_", Sys.Date(), ".csv"),
+      filename = function() paste0("sia_feature_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),
       content = function(file) write.csv(filtered_data(), file, row.names = FALSE)
     )
 
     # Step 7: Download filter settings
     output$download_filter_settings <- downloadHandler(
-      filename = function() paste0("sia_filter_settings_", Sys.Date(), ".csv"),
+      filename = function() paste0("sia_filter_settings_", format(Sys.Date(), "%Y%m%d"), ".csv"),
       content = function(file) {
         settings <- list()
 
@@ -314,6 +367,7 @@ mod_feat_fil_server <- function(id, data) {
 
   })
 }
+
 
 
 # mod_feat_fil_server <- function(id, data) {

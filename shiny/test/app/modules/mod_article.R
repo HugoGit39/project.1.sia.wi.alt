@@ -10,9 +10,41 @@ mod_article_ui <- function(id) {
 
   tagList(
     fluidRow(
+      column(
+        width = 6,
+        bs4Card(
+          title = "Poster Stress in Action Wearables Database",
+          status = "secondary",
+          maximizable = TRUE,
+          solidHeader = TRUE,
+          width = 12,
+          collapsible = FALSE,
+          tags$div(
+            style = "width: 100%; overflow-y: auto; overflow-x: hidden;",
+            tags$iframe(
+              src = "wearables_database_poster_SAA2025.pdf#toolbar=0&navpanes=0&scrollbar=0",
+              style = "width: 100%; height: 800px; border: none;"
+            )
+          )
+        )
+      ),
+      column(
+        width = 6,
+        bs4Card(
+          title = "Journal of Open Source Software Paper: Shiny App Details",
+          height = "800px",
+          status = "primary",
+          solidHeader = TRUE,
+          width = 12,
+          collapsible = FALSE,
+          tags$p("Coming soon")
+        )
+      )
+    ),
+    fluidRow(
       column(width = 12,
              bs4Card(
-               title = "Original Paper",
+               title = "Behavior Research Methods: Original Paper",
                width = 12,
                collapsible = FALSE,
                headerBorder = FALSE,
