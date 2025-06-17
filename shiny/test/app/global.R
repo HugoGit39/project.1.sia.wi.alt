@@ -9,7 +9,8 @@
 # list of required packages
 required_packages <- c(
   "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble", "lubridate",
-  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets"
+  "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets",
+  "reactablefmtr", "reactable", "htmltools", "htmlwidgets"
 )
 
 #check if installed and load
@@ -25,6 +26,7 @@ source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
 source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
+source(here("shiny", "test", "app", "functions", "cells_yes_no.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 
@@ -137,3 +139,27 @@ rename_subm <- rename_subm[!rename_subm %in% c("sia_es_long", "sia_es_short")]
 rename_subm <- c("name", "email", "telephone", "institution", rename_subm, "additional_information")
 
 
+# # List variables to exclude from fill color scaling
+# exclude_vars <- c("sia_es_long", "sia_es_short")
+#
+# # Identify numeric columns (excluding the bar-based ones)
+# numeric_vars <- setdiff(
+#   names(sia_df)[sapply(sia_df, is.numeric)],
+#   exclude_vars
+# )
+#
+# # Store global min/max per numeric column
+# numeric_var_ranges <- lapply(numeric_vars, function(var) {
+#   vals <- sia_df[[var]]
+#   c(min = min(vals, na.rm = TRUE), max = max(vals, na.rm = TRUE))
+# })
+# names(numeric_var_ranges) <- numeric_vars
+
+# 1. Identify numeric variables and compute ranges
+numeric_vars <- setdiff(names(sia_df)[sapply(sia_df, is.numeric)], c("sia_es_long", "sia_es_short"))
+
+numeric_var_ranges <- lapply(numeric_vars, function(var) {
+  vals <- sia_df[[var]]
+  c(min = min(vals, na.rm = TRUE), max = max(vals, na.rm = TRUE))
+})
+names(numeric_var_ranges) <- numeric_vars

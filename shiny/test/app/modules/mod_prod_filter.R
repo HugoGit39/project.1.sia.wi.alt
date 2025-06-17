@@ -46,7 +46,25 @@ mod_prod_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Products")
         ),
-        DTOutput(ns("prod_filtered_table")) %>% withSpinner()
+        reactableOutput(ns("prod_filtered_table")) %>% withSpinner(),
+        footer = tags$div(
+          "Source: Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. ",
+          "Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. ",
+          tags$em("Behav Res Methods."),
+          " 2025 May 13;57(6):171. doi: ",
+          tags$a(
+            href = "https://link.springer.com/article/10.3758/s13428-025-02685-4",
+            target = "_blank",
+            "10.3758/s13428-025-02685-4"
+          ),
+          "; PMID: 40360861; PMCID: ",
+          tags$a(
+            href = "https://pmc.ncbi.nlm.nih.gov/articles/PMC12075381/",
+            target = "_blank",
+            "PMC12075381"
+          ),
+          style = "font-family: sans-serif; font-size: 10pt; color: #8C8C8C;"
+        )
       )
     )
   )
@@ -132,28 +150,103 @@ mod_prod_fil_server <- function(id, sia_df) {
     })
 
     # Output: Comparison table
-    output$prod_filtered_table <- renderDT({
+    output$prod_filtered_table <- reactable::renderReactable({
       df <- selected_products()
 
-      # Only show years
+      # Format year
       if ("release_date" %in% names(df)) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      # Transpose selected data
+      # Transpose and rename
       df_t <- as.data.frame(t(df %>% select(-manufacturer, -model)))
-      colnames(df_t) <- paste0(df$manufacturer, " - ", df$model)
-      df_t <- rownames_to_column(df_t, var = "Variable")
-
-      # Rename rows
+      colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
+      df_t <- tibble::rownames_to_column(df_t, var = "Variable")
       df_t$Variable <- rename_map[df_t$Variable]
 
-      datatable(df_t,
-                options = list(
-                  pageLength = nrow(df_t),
-                  scrollX = TRUE,
-                  processing = FALSE))
+      # Define which rows get which formatting
+      bar_rows <- c("Long-Term SiA Score", "Short-Term SiA Score")
+
+      yes_no_rows <- df_t$Variable[apply(df_t[, -1], 1, function(x) all(na.omit(x) %in% c("Yes", "No")))]
+
+      numeric_rows <- df_t$Variable[
+        apply(df_t[, -1], 1, function(x) all(!is.na(suppressWarnings(as.numeric(x)))))
+      ]
+
+      numeric_fill_rows <- setdiff(numeric_rows, c(bar_rows, yes_no_rows))
+
+      # Define custom palette
+      pal_scale <- c(
+        "#1c75bc00",  # fully transparent
+        "#1c75bc22",  # ~13% opacity
+        "#1c75bc44",  # ~27%
+        "#1c75bc66",  # ~40%
+        "#1c75bc88",  # ~53%
+        "#1c75bcb3",  # ~70%
+        "#1c75bcdd",  # ~87%
+        "#1c75bc"   # fully opaque
+      )
+
+
+      # Cell renderer
+      # Cell renderer
+      custom_cell <- function(value, index, col_name) {
+        var_label <- df_t$Variable[index]
+        orig_var <- names(rename_map)[rename_map == var_label]
+
+        # Bars for SiA scores
+        if (var_label %in% bar_rows) {
+          val <- suppressWarnings(as.numeric(value))
+          if (!is.na(val)) {
+            width <- paste0(round(scales::rescale(val, from = c(0, 10), to = c(0, 100))), "%")
+            return(htmltools::tags$div(
+              style = "background: transparent; display: flex; align-items: center;",
+              htmltools::tags$div(style = paste0("background-color:#f15a29; height:10px; width:", width, ";")),
+              htmltools::tags$div(style = "margin-left: 8px;", format(val, digits = 2))
+            ))
+          }
+        }
+
+        # Yes/No icons
+        if (var_label %in% yes_no_rows) {
+          if (is.na(value)) return("")
+          if (value == "Yes") {
+            return(htmltools::div(style = "color: #44AA99; font-weight: bold;", "✔ Yes"))
+          } else if (value == "No") {
+            return(htmltools::div(style = "color: #882255; font-weight: bold;", "✖ No"))
+          }
+        }
+
+        # Numeric fill gradient (based on global min/max
+
+        # Default fallback
+        value
+      }
+
+
+
+      # Column definitions
+      col_defs <- lapply(names(df_t)[-1], function(col) {
+        reactable::colDef(cell = function(value, index) {
+          custom_cell(value, index, col)
+        })
+      }) |> setNames(names(df_t)[-1])
+
+      # Render table
+      reactable(
+        df_t,
+        columns = col_defs,
+        height = (nrow(df_t)*0.5) * 40,
+        bordered = TRUE,
+        highlight = TRUE,
+        pagination = FALSE,
+        searchable = TRUE
+      )
+
     })
+
+
+
 
     # Download data
     output$download_data <- downloadHandler(
