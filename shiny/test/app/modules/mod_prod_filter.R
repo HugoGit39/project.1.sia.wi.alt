@@ -175,20 +175,6 @@ mod_prod_fil_server <- function(id, sia_df) {
 
       numeric_fill_rows <- setdiff(numeric_rows, c(bar_rows, yes_no_rows))
 
-      # Define custom palette
-      pal_scale <- c(
-        "#1c75bc00",  # fully transparent
-        "#1c75bc22",  # ~13% opacity
-        "#1c75bc44",  # ~27%
-        "#1c75bc66",  # ~40%
-        "#1c75bc88",  # ~53%
-        "#1c75bcb3",  # ~70%
-        "#1c75bcdd",  # ~87%
-        "#1c75bc"   # fully opaque
-      )
-
-
-      # Cell renderer
       # Cell renderer
       custom_cell <- function(value, index, col_name) {
         var_label <- df_t$Variable[index]
@@ -201,8 +187,8 @@ mod_prod_fil_server <- function(id, sia_df) {
             width <- paste0(round(scales::rescale(val, from = c(0, 10), to = c(0, 100))), "%")
             return(htmltools::tags$div(
               style = "background: transparent; display: flex; align-items: center;",
-              htmltools::tags$div(style = paste0("background-color:#f15a29; height:10px; width:", width, ";")),
-              htmltools::tags$div(style = "margin-left: 8px;", format(val, digits = 2))
+              tags$div(style = paste0("background-color:#f15a29; height:10px; width:", width, ";")),
+              tags$div(style = "margin-left: 8px;", format(val, digits = 2))
             ))
           }
         }
@@ -211,9 +197,9 @@ mod_prod_fil_server <- function(id, sia_df) {
         if (var_label %in% yes_no_rows) {
           if (is.na(value)) return("")
           if (value == "Yes") {
-            return(htmltools::div(style = "color: #44AA99; font-weight: bold;", "✔ Yes"))
+            return(div(style = "color: #44AA99; font-weight: bold;", "✔ Yes"))
           } else if (value == "No") {
-            return(htmltools::div(style = "color: #882255; font-weight: bold;", "✖ No"))
+            return(div(style = "color: #882255; font-weight: bold;", "✖ No"))
           }
         }
 

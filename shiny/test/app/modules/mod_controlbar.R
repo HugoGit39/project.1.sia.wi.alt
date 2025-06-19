@@ -18,7 +18,7 @@ mod_control_ui <- function(id) {
         type = "pills",
         controlbarItem(
           title = "Wearables",
-          DTOutput(ns("wearables_table")) %>% withSpinner()
+          reactableOutput(ns("wearables_table")) %>% withSpinner()
         ),
         controlbarItem(
           title = "Glossery",
@@ -60,20 +60,25 @@ mod_control_ui <- function(id) {
 mod_control__server <- function(id, data) {
   moduleServer(id, function(input, output, session) {
 
-    output$wearables_table <- renderDT({
+    output$wearables_table <- renderReactable({
       df <- data() %>%
         arrange(manufacturer)
 
-      datatable(
+      reactable(
         data.frame(
           manufacturer = df$manufacturer,
           model = df$model,
-          stringsAsFactors = FALSE
-        ),
-        options = list(pageLength = 10,
-                       autoWidth = TRUE,
-                       scrollX = TRUE,
-                       processing = FALSE)
+          stringsAsFactors = FALSE),
+        columns = list(manufacturer = colDef(name = "Manufacturer", width = 200),
+                       model = colDef(name = "Model")),
+        searchable = TRUE,
+        sortable = TRUE,
+        defaultPageSize = 10,
+        pagination = TRUE,
+        bordered = TRUE,
+        highlight = TRUE,
+        resizable = TRUE,
+        fullWidth = TRUE
       )
     })
 

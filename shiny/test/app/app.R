@@ -11,7 +11,8 @@ ui <-
 
   tagList(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+      tags$script(src = "custom.js")
     ),
     dashboardPage(
     dark = NULL,

@@ -12,9 +12,27 @@ mod_app_info_ui <- function(id) {
 
     div(id = "app_info_bg"),
 
-    # First fluidRow: Welcome card (aligned right)
     fluidRow(
-      column(width = 7), # spacer
+      column(
+        width = 3,
+        bs4Card(
+          title = "Papers to Cite",
+          status = "secondary",
+          solidHeader = TRUE,
+          width = 12,
+          collapsible = FALSE,
+          tags$img(src = "info_app_beh_paper.png", width = "100%", style = "margin-top: 10px;"),
+          footer = tagList(
+            actionButton(
+              inputId = "copy_citation_btn",
+              label = "Copy Citations",
+              icon = icon("copy"),
+              style = "background-color: #f15a29; color: white; margin-top: 5px;"
+            )
+          )
+        )
+      ),
+      column(width = 4),
       column(
         width = 5,
         bs4Card(
@@ -28,13 +46,10 @@ mod_app_info_ui <- function(id) {
           p("The Stress in Action Wearables Database (SiA-WD) is a new, comprehensive, well-sustained database of physiological wearable devices that have application potential in behavioral research, in particular stress research. It provides a large amount of information that a researcher would look for such as the general device information, recorded signals, technical specifications and data access, combined with a systematic validity, reliability and usability review of the available literature on a device. The SiA-WD will be iteratively expanded and the information, including that for devices already existing in the database, updated for an period of at least ten years. The user-friendly tool enables researchers to conveniently select the most suitable wearable for their study. ", style = "text-align: justify;"),
           footer = div(
             style = "padding-top: 10px;",
-            div(
-              style = "text-align: center; font-size: 18px;",
-              p(
-                strong("54 Wearables included", style = "color: #f15a29;"), br(),
-                "see the controlbar ",
-                tags$img(src = "controlbar.png", width = "15px", height = "15px"),
-                " for an overview"
+            div(style = "text-align: center; font-size: 18px;",
+              p(strong(paste(n_wearables, "Wearables included"), style = "color: #f15a29;"),
+                br(),
+                "see the controlbar ", tags$img(src = "controlbar.png", width = "15px", height = "15px"), " for an overview"
               )
             )
           )
@@ -71,7 +86,7 @@ mod_app_info_ui <- function(id) {
           style = "margin-top: 100px;",
           bs4Card(
             title = "Recent Updates",
-            status = "secondary",
+            status = "primary",
             solidHeader = TRUE,
             width = 12,
             collapsible = FALSE,

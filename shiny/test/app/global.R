@@ -45,10 +45,25 @@ source(here("shiny", "test", "app", "modules", "mod_timeout.R"))
 #  * 4 load data -----------------------------------------------
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
 
-#  * 5 set spinner table -----------------------------------------------
+#  * 5 calculate no of wearables for home page -----------------------------------------------
+n_wearables <- nrow(sia_df)
+
+#  * 6 set spinner table -----------------------------------------------
 options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5, hide.ui = FALSE)
 
-#  * 6 Time-out message -----------------------------------------------
+#  * 7 table layout -----------------------------------------------
+pal_scale <- c(
+  "#1c75bc00",  # fully transparent
+  "#1c75bc22",  # ~13% opacity
+  "#1c75bc44",  # ~27%
+  "#1c75bc66",  # ~40%
+  "#1c75bc88",  # ~53%
+  "#1c75bcb3",  # ~70%
+  "#1c75bcdd",  # ~87%
+  "#1c75bc"   # fully opaque
+)
+
+#  * 7 Time-out message -----------------------------------------------
 disconnected <- tagList(
   p(strong("Time Out!", style = "color: #1c75bc; font-size:30px")),
   p(tags$img(src = "favicon.ico", height = 100, width = 100)),
@@ -61,9 +76,9 @@ disconnected <- tagList(
     "where you left off!", style = "font-size:16px")
 )
 
-#  * 7 Mandatory fields ---------------------------
+#  * 8 Mandatory fields ---------------------------
 
-# * * 7.1 data
+# * * 8.1 data
 fieldsMandatory_data <- c("manufacturer", "model", "website", "release_date", "market_status", "main_use",
                      "device_cost", "wearable_type", "location", "weight", "size")
 
@@ -76,12 +91,12 @@ char_only_fields <- list(
   data_trans_method = "Data Transmission Method"
 )
 
-# * * 7.2 email
+# * * 8.2 email
 fieldsMandatory_email <- c("name", "email", "message")
 
-# * 8 Rename table variables ---------------------------
+# * 9 Rename table variables ---------------------------
 
-# * * 8.1 Filters ---------------------------
+# * * 9.1 Filters ---------------------------
 
 rename_map <- c(
   "sia_es_long" = "Long-Term SiA Score",
@@ -130,7 +145,7 @@ rename_map <- c(
   "no_studies_usab_reviewed" = "Usability Studies Reviewed"
 )
 
-# * * 8.1 Submit data ---------------------------
+# * * 9.1 Submit data ---------------------------
 
 rename_subm<- names(rename_map)
 
