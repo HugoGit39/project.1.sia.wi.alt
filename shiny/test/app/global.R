@@ -26,7 +26,7 @@ source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
 source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
-source(here("shiny", "test", "app", "functions", "cells_yes_no.R"))
+source(here("shiny", "test", "app", "functions", "reactable_layout.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 
@@ -51,36 +51,73 @@ n_wearables <- nrow(sia_df)
 #  * 6 set spinner table -----------------------------------------------
 options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5, hide.ui = FALSE)
 
-#  * 7 table layout -----------------------------------------------
-pal_scale <- c(
-  "#1c75bc00",  # fully transparent
-  "#1c75bc22",  # ~13% opacity
-  "#1c75bc44",  # ~27%
-  "#1c75bc66",  # ~40%
-  "#1c75bc88",  # ~53%
-  "#1c75bcb3",  # ~70%
-  "#1c75bcdd",  # ~87%
-  "#1c75bc"   # fully opaque
-)
+#  * 7 reactable layout -----------------------------------------------
 
-#  * 7 Time-out message -----------------------------------------------
-disconnected <- tagList(
-  p(strong("Time Out!", style = "color: #1c75bc; font-size:30px")),
-  p(tags$img(src = "favicon.ico", height = 100, width = 100)),
-  p("You haven't been active for over 1 hour", br(),
-    "or your system went into sleep mode.", br(),
-    "To help", strong("Un-Stress", style = "color: #f15a29; font-size:18px"), "the server", br(),
-    "your session has ended.", style = "font-size:16px"),
-  p(reload_button("Refresh")),
-  p("Just hit refresh to continue", br(),
-    "where you left off!", style = "font-size:16px")
-)
+# Create base color palette
+pal_num_scale <- generate_alpha_palette("#1c75bc", 100)
+
+# Vars
+score_vars <- c("sia_es_long", "sia_es_short")
+numeric_vars <- names(sia_df)[sapply(sia_df, is.numeric) & !names(sia_df) %in% score_vars]
+signal_vars <- names(sia_df)[sapply(sia_df, is.character) & names(sia_df) != "release_date" & sapply(sia_df, function(x) any(x %in% c("Yes", "No"), na.rm = TRUE))]
+
+# Precompute numeric color values
+numeric_cell_colors <- list()
+
+for (var in numeric_vars) {
+  vals <- sia_df[[var]]
+  names(vals) <- sia_df$model  # name values by model
+  colors <- map_to_colors(vals, pal_num_scale)
+  names(colors) <- sia_df$model
+  numeric_cell_colors[[var]] <- colors
+}
+
+# Final layout
+reactable_layout <- list()
+
+for (model in unique(sia_df$model)) {
+  row <- list()
+
+  # Add numeric color vars
+  for (var in numeric_vars) {
+    if (!is.null(numeric_cell_colors[[var]]) && model %in% names(numeric_cell_colors[[var]])) {
+      color <- numeric_cell_colors[[var]][[model]]
+      if (!is.na(color)) {
+        row[[var]] <- color
+      }
+    }
+  }
+
+  # Add expert score percentages
+  for (var in score_vars) {
+    val <- sia_df[sia_df$model == model, var][1]
+    if (!is.na(val)) {
+      row[[var]] <- paste0(round(val / 10 * 100), "%")
+    }
+  }
+
+  # Add signal Yes/No icons as plain text (✔ / ✖)
+  for (var in signal_vars) {
+    val <- sia_df[sia_df$model == model, var][1]
+    if (!is.na(val)) {
+      if (val == "Yes") {
+        row[[var]] <- 'color: #44AA99; font-weight: bold;, ✔ Yes'
+      } else if (val == "No") {
+        row[[var]] <- 'color: #882255; font-weight: bold;, ✖ No'
+      }
+    }
+  }
+
+  if (length(row) > 0) {
+    reactable_layout[[model]] <- row
+  }
+}
 
 #  * 8 Mandatory fields ---------------------------
 
 # * * 8.1 data
 fieldsMandatory_data <- c("manufacturer", "model", "website", "release_date", "market_status", "main_use",
-                     "device_cost", "wearable_type", "location", "weight", "size")
+                          "device_cost", "wearable_type", "location", "weight", "size")
 
 char_only_fields <- list(
   market_status = "Market Status",
@@ -153,28 +190,23 @@ rename_subm <- rename_subm[!rename_subm %in% c("sia_es_long", "sia_es_short")]
 
 rename_subm <- c("name", "email", "telephone", "institution", rename_subm, "additional_information")
 
+#  * 10 Time-out message -----------------------------------------------
+disconnected <- tagList(
+  p(strong("Time Out!", style = "color: #1c75bc; font-size:30px")),
+  p(tags$img(src = "favicon.ico", height = 100, width = 100)),
+  p("You haven't been active for over 1 hour", br(),
+    "or your system went into sleep mode.", br(),
+    "To help", strong("Un-Stress", style = "color: #f15a29; font-size:18px"), "the server", br(),
+    "your session has ended.", style = "font-size:16px"),
+  p(reload_button("Refresh")),
+  p("Just hit refresh to continue", br(),
+    "where you left off!", style = "font-size:16px")
+)
 
-# # List variables to exclude from fill color scaling
-# exclude_vars <- c("sia_es_long", "sia_es_short")
-#
-# # Identify numeric columns (excluding the bar-based ones)
-# numeric_vars <- setdiff(
-#   names(sia_df)[sapply(sia_df, is.numeric)],
-#   exclude_vars
-# )
-#
-# # Store global min/max per numeric column
-# numeric_var_ranges <- lapply(numeric_vars, function(var) {
-#   vals <- sia_df[[var]]
-#   c(min = min(vals, na.rm = TRUE), max = max(vals, na.rm = TRUE))
-# })
-# names(numeric_var_ranges) <- numeric_vars
 
-# 1. Identify numeric variables and compute ranges
-numeric_vars <- setdiff(names(sia_df)[sapply(sia_df, is.numeric)], c("sia_es_long", "sia_es_short"))
 
-numeric_var_ranges <- lapply(numeric_vars, function(var) {
-  vals <- sia_df[[var]]
-  c(min = min(vals, na.rm = TRUE), max = max(vals, na.rm = TRUE))
-})
-names(numeric_var_ranges) <- numeric_vars
+
+
+
+
+
