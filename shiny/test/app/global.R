@@ -8,7 +8,7 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "DT", "tibble", "lubridate",
+  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "tibble", "lubridate",
   "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets",
   "reactablefmtr", "reactable", "htmltools", "htmlwidgets"
 )
@@ -66,22 +66,22 @@ numeric_cell_colors <- list()
 
 for (var in numeric_vars) {
   vals <- sia_df[[var]]
-  names(vals) <- sia_df$model  # name values by model
+  names(vals) <- sia_df$id  # name values by model
   colors <- map_to_colors(vals, pal_num_scale)
-  names(colors) <- sia_df$model
+  names(colors) <- sia_df$id
   numeric_cell_colors[[var]] <- colors
 }
 
 # Final layout
 reactable_layout <- list()
 
-for (model in unique(sia_df$model)) {
+for (id in unique(sia_df$id)) {
   row <- list()
 
   # Add numeric color vars
   for (var in numeric_vars) {
-    if (!is.null(numeric_cell_colors[[var]]) && model %in% names(numeric_cell_colors[[var]])) {
-      color <- numeric_cell_colors[[var]][[model]]
+    if (!is.null(numeric_cell_colors[[var]]) && id %in% names(numeric_cell_colors[[var]])) {
+      color <- numeric_cell_colors[[var]][[id]]
       if (!is.na(color)) {
         row[[var]] <- color
       }
@@ -90,7 +90,7 @@ for (model in unique(sia_df$model)) {
 
   # Add expert score percentages
   for (var in score_vars) {
-    val <- sia_df[sia_df$model == model, var][1]
+    val <- sia_df[sia_df$id == id, var][1]
     if (!is.na(val)) {
       row[[var]] <- paste0(round(val / 10 * 100), "%")
     }
@@ -98,7 +98,7 @@ for (model in unique(sia_df$model)) {
 
   # Add signal Yes/No icons as plain text (✔ / ✖)
   for (var in signal_vars) {
-    val <- sia_df[sia_df$model == model, var][1]
+    val <- sia_df[sia_df$id == id, var][1]
     if (!is.na(val)) {
       if (val == "Yes") {
         row[[var]] <- 'color: #44AA99; font-weight: bold;, ✔ Yes'
@@ -109,7 +109,7 @@ for (model in unique(sia_df$model)) {
   }
 
   if (length(row) > 0) {
-    reactable_layout[[model]] <- row
+    reactable_layout[[id]] <- row
   }
 }
 

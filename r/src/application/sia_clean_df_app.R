@@ -172,12 +172,26 @@ df_app <- df_app %>%
     sia_es_short = round(sia_es_short, 1)
   )
 
+# Create identifier
+id <-  paste0(
+  sprintf("%03d", seq_len(nrow(sia_df))),
+  "_sia_wd_",
+  substr(tolower(sia_df$manufacturer), 1, 3)
+)
+
+# Add identifier as first column
+df_app <- cbind(id = id, df_app)
+
+
+# rename df_app to sia_df
+sia_df <- df_app
+
 # Save the cleaned data as an RData file
-save(df_app, file = here("r", "data", "processed", "df_sia_wearable_app.RData"))
+save(sia_df, file = here("r", "data", "processed", "df_sia_wearable_app.RData"))
 
 # Optional: Save as Excel for checking
-write_xlsx(df_app, here("r", "data", "processed", "df_sia_wearable_app.xlsx"))
+write_xlsx(sia_df, here("r", "data", "processed", "df_sia_wearable_app.xlsx"))
 
 # Optional: Save as CSV for easy viewing
-write_csv(df_app, here("r", "data", "processed", "df_sia_wearable_app.csv"))
+write_csv(sia_df, here("r", "data", "processed", "df_sia_wearable_app.csv"))
 

@@ -29,6 +29,21 @@ mod_prod_fil_ui <- function(id) {
                       selected = "Vrije Universiteit van Amsterdam", multiple = FALSE),
           pickerInput(ns("model2"), "Product 2: Model",
                       choices = NULL, selected = NULL, multiple = FALSE),
+          div(
+            style = "text-align: center; margin-bottom: 10px;",
+            actionButton(
+              inputId = ns("reset_prod_filter"),
+              label = "Reset Product 3",
+              status = "danger",
+              outline = TRUE,
+              size = "sm",
+              flat = TRUE,
+              icon = NULL,
+              block = TRUE,
+              width = "50%",
+              style = "border-width: 2px"
+            )
+          ),
           pickerInput(ns("product3"), "Product 3: Manufacturer",
                       choices = c("Choose a product" = "", sort(unique(sia_df$manufacturer))),
                       selected = "", multiple = FALSE),
@@ -75,7 +90,7 @@ mod_prod_fil_server <- function(id, sia_df) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    disable("model3")
+    disable(ns("model3"))
 
     observeEvent(input$product1, {
       df <- sia_df()
@@ -109,19 +124,30 @@ mod_prod_fil_server <- function(id, sia_df) {
       bind_rows(row1, row2, row3)
     })
 
-
     output$prod_filtered_table <- renderReactable({
       df <- selected_products()
 
+      if ("release_date" %in% names(df)) {
+        df$release_date <- format(df$release_date, "%Y")
+      }
 
-      if ("release_date" %in% names(df)) df$release_date <- format(df$release_date, "%Y")
+      # Transpose: features as rows, models as columns
+      df_t <- df %>%
+        select(-manufacturer, -model) %>%
+        t() %>%
+        as.data.frame()
 
-      df_t <- df %>% select(-manufacturer, -model) %>% t() %>% as.data.frame()
       colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
       df_t <- tibble::rownames_to_column(df_t, var = "Variable")
+
+      # Define column definitions
+      col_defs <- list(
+        Variable = colDef(name = "Feature")
+      )
+
+
+      # Rename the "Variable" column labels LAST
       df_t$Variable <- rename_map[df_t$Variable]
-
-
 
       reactable(
         df_t,
@@ -133,6 +159,14 @@ mod_prod_fil_server <- function(id, sia_df) {
         searchable = TRUE
       )
     })
+
+    #reset option 3
+    observeEvent(input$reset_prod_filter, {
+      updatePickerInput(session, "product3", selected = "")
+      updatePickerInput(session, "model3", choices = character(0), selected = "")
+      disable("model3")
+    })
+
 
     output$download_data <- downloadHandler(
       filename = function() paste0("sia_product_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),

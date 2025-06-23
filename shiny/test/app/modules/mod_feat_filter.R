@@ -25,7 +25,7 @@ mod_feat_fil_ui <- function(id) {
           div(
             style = "text-align: center; margin-bottom: 10px;",
             actionButton(
-              inputId = ns("reset_filter"),
+              inputId = ns("reset_feat_filter"),
               label = "Reset Filter",
               status = "danger",
               outline = TRUE,
@@ -176,7 +176,25 @@ mod_feat_fil_ui <- function(id) {
             style = "text-align: center; margin-bottom: 10px;",
             downloadButton(ns("download_data"), "Download Filtered Results")
           ),
-          DTOutput(ns("feat_filtered_table")) %>% withSpinner()
+          reactableOutput(ns("feat_filtered_table")) %>% withSpinner(),
+          footer = tags$div(
+            "Source: Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. ",
+            "Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. ",
+            tags$em("Behav Res Methods."),
+            " 2025 May 13;57(6):171. doi: ",
+            tags$a(
+              href = "https://link.springer.com/article/10.3758/s13428-025-02685-4",
+              target = "_blank",
+              "10.3758/s13428-025-02685-4"
+            ),
+            "; PMID: 40360861; PMCID: ",
+            tags$a(
+              href = "https://pmc.ncbi.nlm.nih.gov/articles/PMC12075381/",
+              target = "_blank",
+              "PMC12075381"
+            ),
+            style = "font-family: sans-serif; font-size: 10pt; color: #8C8C8C;"
+          )
         )
       )
     )
@@ -265,7 +283,7 @@ mod_feat_fil_server <- function(id, data) {
     })
 
     # Step 4: Reset filters
-    observeEvent(input$reset_filter, {
+    observeEvent(input$reset_feat_filter, {
       for (var in range_vars) {
         if (var %in% c("sia_es_long", "sia_es_short")) {
           updateSliderInput(session, var, value = c(0, 10))
@@ -281,30 +299,59 @@ mod_feat_fil_server <- function(id, data) {
       lapply(checkbox_vars, function(id) updateCheckboxInput(session, id, value = FALSE))
 
       lapply(select_inputs, function(id) updatePickerInput(session, id, selected = character(0)))
+
+      updateSwitchInput(session, "exclude_na_sia", value = FALSE)
+
     })
 
+    # Background style to visually distinguish sticky columns
+    sticky_style <- list(backgroundColor = "#f7f7f7")
+
     # Step 5: Render table
-    output$feat_filtered_table <- renderDT({
+    output$feat_filtered_table <- renderReactable({
       df <- filtered_data()
 
-      #only show years
+      # Format release date to year only
       if ("release_date" %in% names(df)) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      #rename columns
-      names(df) <- rename_map[names(df)]
+      # Rename columns last (skip 'id' so it stays internal)
+      colnames_display <- names(df)
+      colnames_display[colnames_display != "id"] <- rename_map[colnames_display[colnames_display != "id"]]
+      names(df) <- colnames_display
 
-      datatable(df,
-                options = list(
-                  pageLength = 40,
-                  autoWidth = TRUE,
-                  scrollX = TRUE,
-                  processing = FALSE,
-                  columnDefs = list(list(width = "150px", targets = "_all"))
-                )
+      # Render table and hide 'id' column
+      reactable(
+        df,
+        columns = list(
+          id = colDef(show = FALSE),
+          Manufacturer = colDef(
+            sticky = "left",
+            style = sticky_style,
+            headerStyle = sticky_style,
+            minWidth = 200
+          ),
+          Model = colDef(
+            sticky = "left",
+            style = sticky_style,
+            headerStyle = sticky_style,
+            minWidth = 200
+          )
+        ),
+        bordered = TRUE,
+        highlight = TRUE,
+        striped = FALSE,
+        pagination = TRUE,
+        searchable = TRUE,
+        resizable = TRUE,
+        fullWidth = TRUE,
+        style = list(maxHeight = "1000px", overflowY = "auto")
       )
     })
+
+
+
 
     # Step 6: Download
     output$download_data <- downloadHandler(
