@@ -138,16 +138,27 @@ mod_prod_fil_server <- function(id, sia_df) {
         as.data.frame()
 
       colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
-      df_t <- tibble::rownames_to_column(df_t, var = "Variable")
+      df_t <- tibble::rownames_to_column(df_t, var = "Feature")
 
-      # Define column definitions
+      # Rename features for display
+      df_t$Feature <- rename_map[df_t$Feature]
+
+      transposed_cols <- setdiff(names(df_t), "Feature")
       col_defs <- list(
-        Variable = colDef(name = "Feature")
+        Feature = colDef(name = "Feature", minWidth = 50, style = list(fontWeight = "bold"))
       )
 
+      for (col in transposed_cols) {
+        col_defs[[col]] <- colDef(cell = function(value, index) {
+          # #bar
+          rendered <- func_bar_row_defs(value, index, df_t$Feature, bar_vars, rename_map)
+          if (!identical(rendered, value)) return(rendered)
 
-      # Rename the "Variable" column labels LAST
-      df_t$Variable <- rename_map[df_t$Variable]
+          #yes/no
+          rendered <- func_yn_row_defs(value, index, df_t$Feature, yn_vars, rename_map)
+          return(rendered)
+        })
+      }
 
       reactable(
         df_t,
@@ -156,7 +167,9 @@ mod_prod_fil_server <- function(id, sia_df) {
         bordered = TRUE,
         highlight = TRUE,
         pagination = FALSE,
-        searchable = TRUE
+        searchable = TRUE,
+        fullWidth = TRUE,
+        resizable = TRUE
       )
     })
 

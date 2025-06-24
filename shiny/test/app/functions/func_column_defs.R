@@ -65,6 +65,11 @@ func_numeric_column_defs <- function(df, numeric_vars, rename_map, numeric_var_r
   )
 }
 
+#char
+func_char_column_defs <- function(vars, rename_map) {
+  setNames(lapply(vars, function(var) colDef(name = rename_map[[var]])), vars)
+}
+
 
 
 

@@ -44,10 +44,10 @@ mod_feat_fil_ui <- function(id) {
                   collapsible = FALSE,
                   noUiSliderInput(ns("sia_es_long"), label = "Long-Term Expert Score", min = 0, max = 10, value = c(0,10),
                                   pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
                   noUiSliderInput(ns("sia_es_short"), label = "Short-Term Expert Score", min = 0, max = 10, value = c(0, 10),
                                   pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
                   tags$div(
                     tags$label("Exclude missing SiA scores"),
                     switchInput(inputId = ns("exclude_na_sia"), onLabel = "YES", offLabel = "NO",
@@ -156,12 +156,6 @@ mod_feat_fil_ui <- function(id) {
                                   pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
                                   connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0))
           )
-
-
-
-
-
-
         )
       ),
       column(
@@ -322,13 +316,10 @@ mod_feat_fil_server <- function(id, data) {
       yn_column_defs <- func_yn_column_defs(yn_vars, rename_map)
 
       #create colored numerical cells
-      #numeric_column_defs <- func_numeric_column_defs(df, numeric_vars, rename_map)
       numeric_column_defs <- func_numeric_column_defs(df, numeric_vars, rename_map, numeric_var_ranges)
 
-      # Rename columns last (skip 'id' so it stays internal)
-      # colnames_display <- names(df)
-      # colnames_display[colnames_display != "id"] <- rename_map[colnames_display[colnames_display != "id"]]
-      # names(df) <- colnames_display
+      #char columns rename
+      char_column_defs <- func_char_column_defs(char_vars, rename_map)
 
       # Render table and hide 'id' column
       reactable(
@@ -353,7 +344,8 @@ mod_feat_fil_server <- function(id, data) {
           ),
           bar_column_defs,
           yn_column_defs,
-          numeric_column_defs
+          numeric_column_defs,
+          char_column_defs
         ),
         bordered = TRUE,
         highlight = TRUE,
@@ -362,8 +354,7 @@ mod_feat_fil_server <- function(id, data) {
         searchable = TRUE,
         resizable = TRUE,
         fullWidth = TRUE,
-        style = list(maxHeight = "100000px", overflowY = "auto")
-        #style = list(maxHeight = "1000px", overflowY = "auto")
+        style = list(maxHeight = "1000px", overflowY = "auto")
       )
     })
 

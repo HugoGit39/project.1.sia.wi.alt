@@ -22,12 +22,12 @@ invisible(lapply(required_packages, function(pkg) {
 # * 2 Load functions -----------------------------------------------------------
 
 source(here("shiny", "test", "app", "functions", "accordion.R"))
+source(here("shiny", "test", "app", "functions", "cell_layout.R"))
 source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
 source(here("shiny", "test", "app", "functions", "func_column_defs.R"))
 source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
-source(here("shiny", "test", "app", "functions", "reactable_layout.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 
@@ -78,6 +78,9 @@ names(numeric_var_ranges) <- numeric_vars
 
 # yes/no columns
 yn_vars <- names(sia_df)[sapply(sia_df, is.character) & names(sia_df) != "release_date" & sapply(sia_df, function(x) any(x %in% c("Yes", "No"), na.rm = TRUE))]
+
+#char columns to rename
+char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(numeric_vars), "id"))
 
 #  * 8 Mandatory fields ---------------------------
 
