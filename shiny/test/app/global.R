@@ -8,7 +8,7 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "readxl", "fresh", "tibble", "lubridate",
+  "shiny", "bs4Dash", "here", "dplyr", "scales", "DT", "fresh", "tibble", "lubridate",
   "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets",
   "reactablefmtr", "reactable", "htmltools", "htmlwidgets"
 )
@@ -25,6 +25,7 @@ source(here("shiny", "test", "app", "functions", "accordion.R"))
 source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
 source(here("shiny", "test", "app", "functions", "email.R"))
 source(here("shiny", "test", "app", "functions", "filters.R"))
+source(here("shiny", "test", "app", "functions", "func_column_defs.R"))
 source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
 source(here("shiny", "test", "app", "functions", "reactable_layout.R"))
 
@@ -53,65 +54,30 @@ options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5, hide.ui
 
 #  * 7 reactable layout -----------------------------------------------
 
-# Create base color palette
+#  * * 7.1 colours -----------------------------------------------
+
+#  sticky columns color
+sticky_style <- list(backgroundColor = "#f7f7f7")
+
+# base color palette numerical columns
 pal_num_scale <- generate_alpha_palette("#1c75bc", 100)
 
-# Vars
-score_vars <- c("sia_es_long", "sia_es_short")
+#  * * 7.2 cells -----------------------------------------------
+
+#bars columns
+bar_vars <- c("sia_es_long", "sia_es_short")
+
+# numerical columns
 numeric_vars <- names(sia_df)[sapply(sia_df, is.numeric) & !names(sia_df) %in% score_vars]
-signal_vars <- names(sia_df)[sapply(sia_df, is.character) & names(sia_df) != "release_date" & sapply(sia_df, function(x) any(x %in% c("Yes", "No"), na.rm = TRUE))]
 
-# Precompute numeric color values
-numeric_cell_colors <- list()
+# save min and max per column
+numeric_var_ranges <- lapply(numeric_vars, function(var) {
+  range(sia_df[[var]], na.rm = TRUE)
+})
+names(numeric_var_ranges) <- numeric_vars
 
-for (var in numeric_vars) {
-  vals <- sia_df[[var]]
-  names(vals) <- sia_df$id  # name values by model
-  colors <- map_to_colors(vals, pal_num_scale)
-  names(colors) <- sia_df$id
-  numeric_cell_colors[[var]] <- colors
-}
-
-# Final layout
-reactable_layout <- list()
-
-for (id in unique(sia_df$id)) {
-  row <- list()
-
-  # Add numeric color vars
-  for (var in numeric_vars) {
-    if (!is.null(numeric_cell_colors[[var]]) && id %in% names(numeric_cell_colors[[var]])) {
-      color <- numeric_cell_colors[[var]][[id]]
-      if (!is.na(color)) {
-        row[[var]] <- color
-      }
-    }
-  }
-
-  # Add expert score percentages
-  for (var in score_vars) {
-    val <- sia_df[sia_df$id == id, var][1]
-    if (!is.na(val)) {
-      row[[var]] <- paste0(round(val / 10 * 100), "%")
-    }
-  }
-
-  # Add signal Yes/No icons as plain text (✔ / ✖)
-  for (var in signal_vars) {
-    val <- sia_df[sia_df$id == id, var][1]
-    if (!is.na(val)) {
-      if (val == "Yes") {
-        row[[var]] <- 'color: #44AA99; font-weight: bold;, ✔ Yes'
-      } else if (val == "No") {
-        row[[var]] <- 'color: #882255; font-weight: bold;, ✖ No'
-      }
-    }
-  }
-
-  if (length(row) > 0) {
-    reactable_layout[[id]] <- row
-  }
-}
+# yes/no columns
+yn_vars <- names(sia_df)[sapply(sia_df, is.character) & names(sia_df) != "release_date" & sapply(sia_df, function(x) any(x %in% c("Yes", "No"), na.rm = TRUE))]
 
 #  * 8 Mandatory fields ---------------------------
 

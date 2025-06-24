@@ -304,9 +304,6 @@ mod_feat_fil_server <- function(id, data) {
 
     })
 
-    # Background style to visually distinguish sticky columns
-    sticky_style <- list(backgroundColor = "#f7f7f7")
-
     # Step 5: Render table
     output$feat_filtered_table <- renderReactable({
       df <- filtered_data()
@@ -316,28 +313,47 @@ mod_feat_fil_server <- function(id, data) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
+      df <- filtered_data()
+
+      #create bars
+      bar_column_defs <- func_bar_column_defs(df, bar_vars, rename_map)
+
+      #create yes/np
+      yn_column_defs <- func_yn_column_defs(yn_vars, rename_map)
+
+      #create colored numerical cells
+      #numeric_column_defs <- func_numeric_column_defs(df, numeric_vars, rename_map)
+      numeric_column_defs <- func_numeric_column_defs(df, numeric_vars, rename_map, numeric_var_ranges)
+
       # Rename columns last (skip 'id' so it stays internal)
-      colnames_display <- names(df)
-      colnames_display[colnames_display != "id"] <- rename_map[colnames_display[colnames_display != "id"]]
-      names(df) <- colnames_display
+      # colnames_display <- names(df)
+      # colnames_display[colnames_display != "id"] <- rename_map[colnames_display[colnames_display != "id"]]
+      # names(df) <- colnames_display
 
       # Render table and hide 'id' column
       reactable(
         df,
-        columns = list(
-          id = colDef(show = FALSE),
-          Manufacturer = colDef(
-            sticky = "left",
-            style = sticky_style,
-            headerStyle = sticky_style,
-            minWidth = 200
+        columns = c(
+          list(
+            id = colDef(show = FALSE),
+            manufacturer = colDef(
+              name = "Manufacturer",
+              sticky = "left",
+              style = sticky_style,
+              headerStyle = sticky_style,
+              minWidth = 200
+            ),
+            model = colDef(
+              name = "Model",
+              sticky = "left",
+              style = sticky_style,
+              headerStyle = sticky_style,
+              minWidth = 200
+            )
           ),
-          Model = colDef(
-            sticky = "left",
-            style = sticky_style,
-            headerStyle = sticky_style,
-            minWidth = 200
-          )
+          bar_column_defs,
+          yn_column_defs,
+          numeric_column_defs
         ),
         bordered = TRUE,
         highlight = TRUE,
@@ -346,12 +362,10 @@ mod_feat_fil_server <- function(id, data) {
         searchable = TRUE,
         resizable = TRUE,
         fullWidth = TRUE,
-        style = list(maxHeight = "1000px", overflowY = "auto")
+        style = list(maxHeight = "100000px", overflowY = "auto")
+        #style = list(maxHeight = "1000px", overflowY = "auto")
       )
     })
-
-
-
 
     # Step 6: Download
     output$download_data <- downloadHandler(

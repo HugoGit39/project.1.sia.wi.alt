@@ -31,7 +31,7 @@ mod_contact_ui <- function(id) {
                        textAreaInput(ns("message"), labelMandatory("Message"), ""),
 
                        # Submit button (starts disabled)
-                       actionButton(ns("submit"), "Submit", disabled = TRUE)
+                       actionButton(ns("submit_email"), "Submit", disabled = TRUE)
                      )
              )
       )
@@ -46,7 +46,7 @@ mod_contact_server <- function(id) {
 
       observe({
 
-        toggleState(id = "submit", condition = mandatoryfields_check(fieldsMandatory_email, input))
+        toggleState(id = "submit_email", condition = mandatoryfields_check(fieldsMandatory_email, input))
 
       })
 
