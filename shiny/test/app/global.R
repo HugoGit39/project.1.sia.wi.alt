@@ -47,6 +47,9 @@ source(here("shiny", "test", "app", "modules", "mod_timeout.R"))
 #  * 4 load data -----------------------------------------------
 sia_df <- get(load(here("shiny", "test", "app", "data", "df_sia_wearable_app.RData")))
 
+#remove column id
+sia_df$id <- NULL
+
 #  * 5 calculate no of wearables for home page -----------------------------------------------
 n_wearables <- nrow(sia_df)
 
@@ -69,7 +72,7 @@ pal_num_scale <- generate_alpha_palette("#1c75bc", 100)
 bar_vars <- c("sia_es_long", "sia_es_short")
 
 # numerical columns
-numeric_vars <- names(sia_df)[sapply(sia_df, is.numeric) & !names(sia_df) %in% score_vars]
+numeric_vars <- names(sia_df)[sapply(sia_df, is.numeric) & !names(sia_df) %in% bar_vars]
 
 # save min and max per column
 numeric_var_ranges <- lapply(numeric_vars, function(var) {

@@ -307,8 +307,6 @@ mod_feat_fil_server <- function(id, data) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      df <- filtered_data()
-
       #create bars
       bar_column_defs <- func_bar_column_defs(df, bar_vars, rename_map)
 
@@ -326,7 +324,6 @@ mod_feat_fil_server <- function(id, data) {
         df,
         columns = c(
           list(
-            id = colDef(show = FALSE),
             manufacturer = colDef(
               name = "Manufacturer",
               sticky = "left",
@@ -347,6 +344,13 @@ mod_feat_fil_server <- function(id, data) {
           numeric_column_defs,
           char_column_defs
         ),
+        defaultColDef = colDef(
+          footer = function(values, name) {
+            div(rename_map[[name]] %||% name, style = list(fontWeight = 600))
+          }
+        ),
+        defaultSorted = "manufacturer",
+        filterable = TRUE,
         bordered = TRUE,
         highlight = TRUE,
         striped = FALSE,
