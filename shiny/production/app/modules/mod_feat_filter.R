@@ -25,7 +25,7 @@ mod_feat_fil_ui <- function(id) {
           div(
             style = "text-align: center; margin-bottom: 10px;",
             actionButton(
-              inputId = ns("reset_filter"),
+              inputId = ns("reset_feat_filter"),
               label = "Reset Filter",
               status = "danger",
               outline = TRUE,
@@ -44,10 +44,10 @@ mod_feat_fil_ui <- function(id) {
                   collapsible = FALSE,
                   noUiSliderInput(ns("sia_es_long"), label = "Long-Term Expert Score", min = 0, max = 10, value = c(0,10),
                                   pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
                   noUiSliderInput(ns("sia_es_short"), label = "Short-Term Expert Score", min = 0, max = 10, value = c(0, 10),
                                   pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 1)),
+                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
                   tags$div(
                     tags$label("Exclude missing SiA scores"),
                     switchInput(inputId = ns("exclude_na_sia"), onLabel = "YES", offLabel = "NO",
@@ -156,12 +156,6 @@ mod_feat_fil_ui <- function(id) {
                                   pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
                                   connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0))
           )
-
-
-
-
-
-
         )
       ),
       column(
@@ -176,7 +170,25 @@ mod_feat_fil_ui <- function(id) {
             style = "text-align: center; margin-bottom: 10px;",
             downloadButton(ns("download_data"), "Download Filtered Results")
           ),
-          DTOutput(ns("feat_filtered_table")) %>% withSpinner()
+          reactableOutput(ns("feat_filtered_table")) %>% withSpinner(),
+          footer = tags$div(
+            "Source: Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. ",
+            "Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. ",
+            tags$em("Behav Res Methods."),
+            " 2025 May 13;57(6):171. doi: ",
+            tags$a(
+              href = "https://link.springer.com/article/10.3758/s13428-025-02685-4",
+              target = "_blank",
+              "10.3758/s13428-025-02685-4"
+            ),
+            "; PMID: 40360861; PMCID: ",
+            tags$a(
+              href = "https://pmc.ncbi.nlm.nih.gov/articles/PMC12075381/",
+              target = "_blank",
+              "PMC12075381"
+            ),
+            style = "font-family: sans-serif; font-size: 10pt; color: #8C8C8C;"
+          )
         )
       )
     )
@@ -265,7 +277,7 @@ mod_feat_fil_server <- function(id, data) {
     })
 
     # Step 4: Reset filters
-    observeEvent(input$reset_filter, {
+    observeEvent(input$reset_feat_filter, {
       for (var in range_vars) {
         if (var %in% c("sia_es_long", "sia_es_short")) {
           updateSliderInput(session, var, value = c(0, 10))
@@ -281,28 +293,72 @@ mod_feat_fil_server <- function(id, data) {
       lapply(checkbox_vars, function(id) updateCheckboxInput(session, id, value = FALSE))
 
       lapply(select_inputs, function(id) updatePickerInput(session, id, selected = character(0)))
+
+      updateSwitchInput(session, "exclude_na_sia", value = FALSE)
+
     })
 
     # Step 5: Render table
-    output$feat_filtered_table <- renderDT({
+    output$feat_filtered_table <- renderReactable({
       df <- filtered_data()
 
-      #only show years
+      # Format release date to year only
       if ("release_date" %in% names(df)) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      #rename columns
-      names(df) <- rename_map[names(df)]
+      #create bars
+      bar_column_defs <- func_bar_column_defs(df, bar_vars, rename_map)
 
-      datatable(df,
-                options = list(
-                  pageLength = 40,
-                  autoWidth = TRUE,
-                  scrollX = TRUE,
-                  processing = FALSE,
-                  columnDefs = list(list(width = "150px", targets = "_all"))
-                )
+      #create yes/np
+      yn_column_defs <- func_yn_column_defs(yn_vars, rename_map)
+
+      #create colored numerical cells
+      numeric_column_defs <- func_numeric_column_defs(df, numeric_vars, rename_map, numeric_var_ranges)
+
+      #char columns rename
+      char_column_defs <- func_char_column_defs(char_vars, rename_map)
+
+      # Render table and hide 'id' column
+      reactable(
+        df,
+        columns = c(
+          list(
+            manufacturer = colDef(
+              name = "Manufacturer",
+              sticky = "left",
+              style = sticky_style,
+              headerStyle = sticky_style,
+              minWidth = 200
+            ),
+            model = colDef(
+              name = "Model",
+              sticky = "left",
+              style = sticky_style,
+              headerStyle = sticky_style,
+              minWidth = 200
+            )
+          ),
+          bar_column_defs,
+          yn_column_defs,
+          numeric_column_defs,
+          char_column_defs
+        ),
+        defaultColDef = colDef(
+          footer = function(values, name) {
+            div(rename_map[[name]] %||% name, style = list(fontWeight = 600))
+          }
+        ),
+        defaultSorted = "manufacturer",
+        filterable = TRUE,
+        bordered = TRUE,
+        highlight = TRUE,
+        striped = FALSE,
+        pagination = TRUE,
+        searchable = TRUE,
+        resizable = TRUE,
+        fullWidth = TRUE,
+        style = list(maxHeight = "1000px", overflowY = "auto")
       )
     })
 
@@ -368,166 +424,3 @@ mod_feat_fil_server <- function(id, data) {
   })
 }
 
-
-
-# mod_feat_fil_server <- function(id, data) {
-#   moduleServer(id, function(input, output, session) {
-#     ns <- session$ns
-#
-#     # Step 1: Reactive data after sliders, checkboxes, and date
-#     filtered_for_dropdowns <- reactive({
-#       df <- data()
-#       df %>%
-#         filter(
-#           is.na(sia_es_long) | between(sia_es_long, input$sia_es_long[1], input$sia_es_long[2]),
-#           is.na(sia_es_short) | between(sia_es_short, input$sia_es_short[1], input$sia_es_short[2]),
-#           is.na(device_cost) | between(device_cost, input$device_cost[1], input$device_cost[2]),
-#           is.na(weight) | between(weight, input$weight[1], input$weight[2]),
-#           is.na(battery_life) | between(battery_life, input$battery_life[1], input$battery_life[2]),
-#           is.na(charging_duration) | between(charging_duration, input$charging_duration[1], input$charging_duration[2]),
-#           is.na(dev_storage_cap_mb) | between(dev_storage_cap_mb, input$dev_storage_cap_mb[1], input$dev_storage_cap_mb[2]),
-#           is.na(dev_storage_cap_hrs) | between(dev_storage_cap_hrs, input$dev_storage_cap_hrs[1], input$dev_storage_cap_hrs[2]),
-#           is.na(no_studies_val_rel_reviewed) | between(no_studies_val_rel_reviewed, input$no_studies_val_rel_reviewed[1], input$no_studies_val_rel_reviewed[2]),
-#           is.na(no_studies_usab_reviewed) | between(no_studies_usab_reviewed, input$no_studies_usab_reviewed[1], input$no_studies_usab_reviewed[2]),
-#           is.null(input$release_date[1]) | is.null(input$release_date[2]) |
-#             is.na(release_date) | between(release_date, input$release_date[1], input$release_date[2]),
-#           (!input$water_resistance | water_resistance == "Yes"),
-#           (!input$bio_cueing | bio_cueing == "Yes"),
-#           (!input$bio_feedback | bio_feedback == "Yes"),
-#           (!input$ppg | ppg == "Yes"),
-#           (!input$ecg | ecg == "Yes"),
-#           (!input$icg | icg == "Yes"),
-#           (!input$emg | emg == "Yes"),
-#           (!input$respiration | respiration == "Yes"),
-#           (!input$eda | eda == "Yes"),
-#           (!input$eeg | eeg == "Yes"),
-#           (!input$bp | bp == "Yes"),
-#           (!input$accelerometer | accelerometer == "Yes"),
-#           (!input$gyroscope | gyroscope == "Yes"),
-#           (!input$gps | gps == "Yes"),
-#           (!input$skin_temperature | skin_temperature == "Yes"),
-#           (!input$int_storage_met | int_storage_met == "Yes"),
-#           (!input$server_data_storage | server_data_storage == "Yes"),
-#           (!input$raw_data_available | raw_data_available == "Yes"),
-#           (!input$gdpr_comp | gdpr_comp == "Yes"),
-#           (!input$ce_app_label | ce_app_label == "Yes"),
-#           (!input$fda_app_clear | fda_app_clear == "Yes")
-#         )
-#     })
-#
-#     # Step 2: Dynamically update selectInput choices
-#     observe({
-#       df <- filtered_for_dropdowns()
-#
-#       select_inputs <- c("manufacturer", "model", "market_status", "main_use",
-#                          "wearable_type", "location", "size", "charging_method",
-#                          "other_signals", "data_trans_method", "level_validation")
-#
-#       for (input_id in select_inputs) {
-#         # Filter df based on all other selectInputs except current one
-#         df_filtered <- df
-#         for (other_id in setdiff(select_inputs, input_id)) {
-#           selected <- input[[other_id]]
-#           if (!is.null(selected)) {
-#             df_filtered <- df_filtered %>% filter(.data[[other_id]] %in% selected)
-#           }
-#         }
-#
-#         # Update current input choices based on filtered data
-#         valid_choices <- sort(unique(df_filtered[[input_id]]))
-#         selected_now <- input[[input_id]]
-#         updateSelectInput(session, input_id,
-#                           choices = valid_choices,
-#                           selected = selected_now[selected_now %in% valid_choices])
-#       }
-#     })
-#
-#
-#     # Step 3: Apply full filtering (sliders + checkboxes + dropdowns)
-#     filtered_data <- reactive({
-#       df <- filtered_for_dropdowns()  # Use already partially filtered data
-#
-#       df %>%
-#         filter(
-#           is.null(input$manufacturer) | manufacturer %in% input$manufacturer,
-#           is.null(input$model) | model %in% input$model,
-#           is.null(input$market_status) | market_status %in% input$market_status,
-#           is.null(input$main_use) | main_use %in% input$main_use,
-#           is.null(input$wearable_type) | wearable_type %in% input$wearable_type,
-#           is.null(input$location) | location %in% input$location,
-#           is.null(input$size) | size %in% input$size,
-#           is.null(input$charging_method) | charging_method %in% input$charging_method,
-#           is.null(input$other_signals) | other_signals %in% input$other_signals,
-#           is.null(input$data_trans_method) | data_trans_method %in% input$data_trans_method,
-#           is.null(input$level_validation) | level_validation %in% input$level_validation
-#         )
-#     })
-#
-#     # Observe Reset Filter button
-#     observeEvent(input$reset_filter, {
-#       # Reset sliders
-#       updateSliderInput(session, "sia_es_long", value = c(0, 10))
-#       updateSliderInput(session, "sia_es_short", value = c(0, 10))
-#       updateSliderInput(session, "device_cost", value = c(0, max(sia_df$device_cost, na.rm = TRUE)))
-#       updateSliderInput(session, "weight", value = c(0, max(sia_df$weight, na.rm = TRUE)))
-#       updateSliderInput(session, "battery_life", value = c(0, max(sia_df$battery_life, na.rm = TRUE)))
-#       updateSliderInput(session, "charging_duration", value = c(0, 10000))
-#       updateSliderInput(session, "dev_storage_cap_mb", value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)))
-#       updateSliderInput(session, "dev_storage_cap_hrs", value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)))
-#       updateSliderInput(session, "no_studies_val_rel_reviewed", value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)))
-#       updateSliderInput(session, "no_studies_usab_reviewed", value = c(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)))
-#
-#       # Reset date
-#       updateDateRangeInput(session, "release_date",
-#                            start = min(sia_df$release_date, na.rm = TRUE),
-#                            end = max(sia_df$release_date, na.rm = TRUE)
-#       )
-#
-#       # Reset checkboxInputs
-#       checkbox_inputs <- c("water_resistance", "bio_cueing", "bio_feedback", "ppg", "ecg", "icg",
-#                            "emg", "respiration", "eda", "eeg", "bp", "accelerometer", "gyroscope",
-#                            "gps", "skin_temperature", "raw_data_available", "int_storage_met",
-#                            "server_data_storage", "gdpr_comp", "fda_app_clear", "ce_app_label")
-#       lapply(checkbox_inputs, function(id) updateCheckboxInput(session, id, value = FALSE))
-#
-#       # Reset selectInputs
-#       select_inputs <- c("manufacturer", "model", "market_status", "main_use",
-#                          "wearable_type", "location", "size", "charging_method",
-#                          "other_signals", "data_trans_method", "level_validation")
-#       lapply(select_inputs, function(id) updateSelectInput(session, id, selected = character(0)))
-#     })
-#
-#     # Step 4: Render filtered table
-#     output$feat_filtered_table <- renderDT({
-#
-#       df <- filtered_data()
-#
-#       # Rename only the columns that exist in df
-#       existing_cols <- names(df)
-#       new_colnames <- rename_map[existing_cols]  # Get mapped names for existing cols
-#       names(df) <- ifelse(!is.na(new_colnames), new_colnames, existing_cols)  # Rename safely
-#
-#       datatable(
-#         df,
-#         options = list(
-#           pageLength = 40,
-#           autoWidth = TRUE,
-#           scrollX = TRUE,
-#           columnDefs = list(
-#             list(width = "150px", targets = "_all")
-#           )
-#         )
-#       )
-#     })
-#
-#     # Step 5: Download Handler
-#     output$download_data <- downloadHandler(
-#       filename = function() {
-#         paste0("sia_filtered_data_", Sys.Date(), ".csv")
-#       },
-#       content = function(file) {
-#         write.csv(filtered_data(), file, row.names = FALSE)
-#       }
-#     )
-#   })
-# }

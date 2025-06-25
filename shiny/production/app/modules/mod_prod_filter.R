@@ -29,6 +29,21 @@ mod_prod_fil_ui <- function(id) {
                       selected = "Vrije Universiteit van Amsterdam", multiple = FALSE),
           pickerInput(ns("model2"), "Product 2: Model",
                       choices = NULL, selected = NULL, multiple = FALSE),
+          div(
+            style = "text-align: center; margin-bottom: 10px;",
+            actionButton(
+              inputId = ns("reset_prod_filter"),
+              label = "Reset Product 3",
+              status = "danger",
+              outline = TRUE,
+              size = "sm",
+              flat = TRUE,
+              icon = NULL,
+              block = TRUE,
+              width = "50%",
+              style = "border-width: 2px"
+            )
+          ),
           pickerInput(ns("product3"), "Product 3: Manufacturer",
                       choices = c("Choose a product" = "", sort(unique(sia_df$manufacturer))),
                       selected = "", multiple = FALSE),
@@ -46,7 +61,25 @@ mod_prod_fil_ui <- function(id) {
           style = "text-align: center; margin-bottom: 10px;",
           downloadButton(ns("download_data"), "Download Filtered Products")
         ),
-        DTOutput(ns("prod_filtered_table")) %>% withSpinner()
+        reactableOutput(ns("prod_filtered_table")) %>% withSpinner(),
+        footer = tags$div(
+          "Source: Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. ",
+          "Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. ",
+          tags$em("Behav Res Methods."),
+          " 2025 May 13;57(6):171. doi: ",
+          tags$a(
+            href = "https://link.springer.com/article/10.3758/s13428-025-02685-4",
+            target = "_blank",
+            "10.3758/s13428-025-02685-4"
+          ),
+          "; PMID: 40360861; PMCID: ",
+          tags$a(
+            href = "https://pmc.ncbi.nlm.nih.gov/articles/PMC12075381/",
+            target = "_blank",
+            "PMC12075381"
+          ),
+          style = "font-family: sans-serif; font-size: 10pt; color: #8C8C8C;"
+        )
       )
     )
   )
@@ -57,112 +90,100 @@ mod_prod_fil_server <- function(id, sia_df) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    # Disable model3 initially
-    disable("model3")
+    disable(ns("model3"))
 
-    # Update model1 choices based on selected product1
     observeEvent(input$product1, {
       df <- sia_df()
-      updatePickerInput(
-        session,
-        "model1",
-        choices = sort(unique(df$model[df$manufacturer == input$product1]))
-      )
+      updatePickerInput(session, "model1", choices = sort(unique(df$model[df$manufacturer == input$product1])))
     })
 
-    # Update model2 choices based on selected product2
     observeEvent(input$product2, {
       df <- sia_df()
-      updatePickerInput(
-        session,
-        "model2",
-        choices = sort(unique(df$model[df$manufacturer == input$product2]))
-      )
+      updatePickerInput(session, "model2", choices = sort(unique(df$model[df$manufacturer == input$product2])))
     })
 
-    # Handle product3 updates and enable/disable model3
     observeEvent(input$product3, {
       df <- sia_df()
-
       if (input$product3 == "None" || input$product3 == "") {
         disable("model3")
         updatePickerInput(session, "model3", choices = character(0), selected = "")
       } else {
         enable("model3")
-        updatePickerInput(
-          session,
-          "model3",
-          choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3])))
-        )
-      }
-
-      # If product3 was selected and "None" isn't in the list, update with it
-      all_products <- sort(unique(df$manufacturer))
-      if (!"None" %in% all_products && nzchar(input$product3)) {
-        updatePickerInput(
-          session,
-          "product3",
-          choices = c("None", all_products),
-          selected = input$product3
-        )
+        updatePickerInput(session, "model3", choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3]))))
       }
     })
 
-    # Reactive: Selected products
     selected_products <- reactive({
       df <- sia_df()
+      row1 <- df %>% filter(manufacturer == input$product1, model == input$model1)
+      row2 <- df %>% filter(manufacturer == input$product2, model == input$model2)
+      row3 <- if (!is.null(input$model3) && nzchar(input$model3)) {
+        df %>% filter(manufacturer == input$product3, model == input$model3)
+      } else NULL
 
-      # Always include product1/model1 first
-      row1 <- df %>%
-        filter(manufacturer == input$product1, model == input$model1)
-
-      # Always include product2/model2 second
-      row2 <- df %>%
-        filter(manufacturer == input$product2, model == input$model2)
-
-      # Optionally include product3/model3 third
-      row3 <- NULL
-      if (!is.null(input$model3) && nzchar(input$model3)) {
-        row3 <- df %>%
-          filter(manufacturer == input$product3, model == input$model3)
-      }
-
-      # Combine in fixed order
       bind_rows(row1, row2, row3)
     })
 
-    # Output: Comparison table
-    output$prod_filtered_table <- renderDT({
+    output$prod_filtered_table <- renderReactable({
       df <- selected_products()
 
-      # Only show years
       if ("release_date" %in% names(df)) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      # Transpose selected data
-      df_t <- as.data.frame(t(df %>% select(-manufacturer, -model)))
-      colnames(df_t) <- paste0(df$manufacturer, " - ", df$model)
-      df_t <- rownames_to_column(df_t, var = "Variable")
+      # Transpose: features as rows, models as columns
+      df_t <- df %>%
+        select(-manufacturer, -model) %>%
+        t() %>%
+        as.data.frame()
 
-      # Rename rows
-      df_t$Variable <- rename_map[df_t$Variable]
+      colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
+      df_t <- tibble::rownames_to_column(df_t, var = "Feature")
 
-      datatable(df_t,
-                options = list(
-                  pageLength = nrow(df_t),
-                  scrollX = TRUE,
-                  processing = FALSE))
+      # Rename features for display
+      df_t$Feature <- rename_map[df_t$Feature]
+
+      transposed_cols <- setdiff(names(df_t), "Feature")
+      col_defs <- list(
+        Feature = colDef(name = "Feature", minWidth = 50, style = list(fontWeight = "bold"))
+      )
+
+      for (col in transposed_cols) {
+        col_defs[[col]] <- colDef(cell = function(value, index) {
+          # #bar
+          rendered <- func_bar_row_defs(value, index, df_t$Feature, bar_vars, rename_map)
+          if (!identical(rendered, value)) return(rendered)
+
+          #yes/no
+          rendered <- func_yn_row_defs(value, index, df_t$Feature, yn_vars, rename_map)
+          return(rendered)
+        })
+      }
+
+      reactable(
+        df_t,
+        columns = col_defs,
+        height = (nrow(df_t) * 0.5) * 40,
+        bordered = TRUE,
+        highlight = TRUE,
+        pagination = FALSE,
+        searchable = TRUE,
+        fullWidth = TRUE,
+        resizable = TRUE
+      )
     })
 
-    # Download data
+    #reset option 3
+    observeEvent(input$reset_prod_filter, {
+      updatePickerInput(session, "product3", selected = "")
+      updatePickerInput(session, "model3", choices = character(0), selected = "")
+      disable("model3")
+    })
+
+
     output$download_data <- downloadHandler(
-      filename = function() {
-        paste0("sia_product_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv")
-      },
-      content = function(file) {
-        write.csv(selected_products(), file, row.names = FALSE)
-      }
+      filename = function() paste0("sia_product_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),
+      content = function(file) write.csv(selected_products(), file, row.names = FALSE)
     )
   })
 }
