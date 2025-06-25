@@ -8,7 +8,7 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "scales", "DT", "fresh", "tibble", "rlang", "lubridate",
+  "shiny", "bs4Dash", "here", "dplyr", "rlang", "scales", "DT", "fresh", "tibble", "rlang", "lubridate",
   "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets",
   "reactablefmtr", "reactable", "htmltools", "htmlwidgets"
 )
