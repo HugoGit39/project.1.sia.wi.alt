@@ -90,7 +90,7 @@ mod_prod_fil_server <- function(id, sia_df) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-    disable(ns("model3"))
+    disable("model3")
 
     observeEvent(input$product1, {
       df <- sia_df()
@@ -115,13 +115,20 @@ mod_prod_fil_server <- function(id, sia_df) {
 
     selected_products <- reactive({
       df <- sia_df()
-      row1 <- df %>% filter(manufacturer == input$product1, model == input$model1)
-      row2 <- df %>% filter(manufacturer == input$product2, model == input$model2)
-      row3 <- if (!is.null(input$model3) && nzchar(input$model3)) {
-        df %>% filter(manufacturer == input$product3, model == input$model3)
-      } else NULL
 
-      bind_rows(row1, row2, row3)
+      rows <- list(
+        df %>% filter(manufacturer == input$product1, model == input$model1),
+        df %>% filter(manufacturer == input$product2, model == input$model2)
+      )
+
+      if (!is.null(input$model3) && nzchar(input$model3)) {
+        rows <- c(rows,
+                  list(df %>% filter(manufacturer == input$product3,
+                                     model == input$model3)))
+      }
+
+      bind_rows(rows) %>%
+        distinct(manufacturer, model, .keep_all = TRUE)   # <- NEW
     })
 
     output$prod_filtered_table <- renderReactable({

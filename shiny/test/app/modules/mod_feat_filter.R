@@ -152,8 +152,8 @@ mod_feat_fil_ui <- function(id) {
                                   connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
                   noUiSliderInput(ns("no_studies_usab_reviewed"), label = "# Usability Studies", min = 0,
                                   max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE),
-                                  value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
+                                  value = c(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)),
+                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)), density = 10),
                                   connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0))
           )
         )
@@ -280,17 +280,19 @@ mod_feat_fil_server <- function(id, data) {
     observeEvent(input$reset_feat_filter, {
       for (var in range_vars) {
         if (var %in% c("sia_es_long", "sia_es_short")) {
-          updateSliderInput(session, var, value = c(0, 10))
+          updateNoUiSliderInput(session, var, value = c(0, 10))
         } else {
-          updateSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
+          updateNoUiSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
         }
       }
 
-      updateDateRangeInput(session, "release_date",
-                           start = min(sia_df$release_date, na.rm = TRUE),
-                           end = max(sia_df$release_date, na.rm = TRUE))
+      updateAirDateInput(session, "release_date",
+                         value = c(
+                           min(sia_df$release_date, na.rm = TRUE),
+                           max(sia_df$release_date, na.rm = TRUE)
+                         ))
 
-      lapply(checkbox_vars, function(id) updateCheckboxInput(session, id, value = FALSE))
+      lapply(checkbox_vars, function(id) updatePrettyCheckbox(session, id, value = FALSE))
 
       lapply(select_inputs, function(id) updatePickerInput(session, id, selected = character(0)))
 
@@ -350,7 +352,6 @@ mod_feat_fil_server <- function(id, data) {
           }
         ),
         defaultSorted = "manufacturer",
-        filterable = TRUE,
         bordered = TRUE,
         highlight = TRUE,
         striped = FALSE,
