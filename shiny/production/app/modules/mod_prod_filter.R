@@ -44,10 +44,10 @@ mod_prod_fil_ui <- function(id) {
               style = "border-width: 2px"
             )
           ),
-          pickerInput(ns("product3"), "Product 3: Manufacturer",
+          selectInput(ns("product3"), "Product 3: Manufacturer",
                       choices = c("Choose a product" = "", sort(unique(sia_df$manufacturer))),
                       selected = "", multiple = FALSE),
-          pickerInput(ns("model3"), "Product 3: Model",
+          selectInput(ns("model3"), "Product 3: Model",
                       choices = NULL, selected = NULL, multiple = FALSE)
         )
       ),
@@ -106,10 +106,10 @@ mod_prod_fil_server <- function(id, sia_df) {
       df <- sia_df()
       if (input$product3 == "None" || input$product3 == "") {
         disable("model3")
-        updatePickerInput(session, "model3", choices = character(0), selected = "")
+        updateSelectInput(session, "model3", choices = character(0), selected = "")
       } else {
         enable("model3")
-        updatePickerInput(session, "model3", choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3]))))
+        updateSelectInput(session, "model3", choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3]))))
       }
     })
 
