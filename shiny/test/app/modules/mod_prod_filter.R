@@ -18,16 +18,16 @@ mod_prod_fil_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-          pickerInput(ns("product1"), "Product 1: Manufacturer",
+          selectInput(ns("product1"), "Product 1: Manufacturer",
                       choices = sort(unique(sia_df$manufacturer)),
                       selected = "Apple", multiple = FALSE),
-          pickerInput(ns("model1"), "Product 1: Model",
+          selectInput(ns("model1"), "Product 1: Model",
                       choices = NULL, selected = NULL, multiple = FALSE),
 
-          pickerInput(ns("product2"), "Product 2: Manufacturer",
+          selectInput(ns("product2"), "Product 2: Manufacturer",
                       choices = sort(unique(sia_df$manufacturer)),
                       selected = "Vrije Universiteit van Amsterdam", multiple = FALSE),
-          pickerInput(ns("model2"), "Product 2: Model",
+          selectInput(ns("model2"), "Product 2: Model",
                       choices = NULL, selected = NULL, multiple = FALSE),
           div(
             style = "text-align: center; margin-bottom: 10px;",
@@ -44,10 +44,10 @@ mod_prod_fil_ui <- function(id) {
               style = "border-width: 2px"
             )
           ),
-          pickerInput(ns("product3"), "Product 3: Manufacturer",
+          selectInput(ns("product3"), "Product 3: Manufacturer",
                       choices = c("Choose a product" = "", sort(unique(sia_df$manufacturer))),
                       selected = "", multiple = FALSE),
-          pickerInput(ns("model3"), "Product 3: Model",
+          selectInput(ns("model3"), "Product 3: Model",
                       choices = NULL, selected = NULL, multiple = FALSE)
         )
       ),
@@ -94,22 +94,22 @@ mod_prod_fil_server <- function(id, sia_df) {
 
     observeEvent(input$product1, {
       df <- sia_df()
-      updatePickerInput(session, "model1", choices = sort(unique(df$model[df$manufacturer == input$product1])))
+      updateSelectInput(session, "model1", choices = sort(unique(df$model[df$manufacturer == input$product1])))
     })
 
     observeEvent(input$product2, {
       df <- sia_df()
-      updatePickerInput(session, "model2", choices = sort(unique(df$model[df$manufacturer == input$product2])))
+      updateSelectInput(session, "model2", choices = sort(unique(df$model[df$manufacturer == input$product2])))
     })
 
     observeEvent(input$product3, {
       df <- sia_df()
       if (input$product3 == "None" || input$product3 == "") {
         disable("model3")
-        updatePickerInput(session, "model3", choices = character(0), selected = "")
+        updateSelectInput(session, "model3", choices = character(0), selected = "")
       } else {
         enable("model3")
-        updatePickerInput(session, "model3", choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3]))))
+        updateSelectInput(session, "model3", choices = c("Choose a model" = "", sort(unique(df$model[df$manufacturer == input$product3]))))
       }
     })
 
@@ -182,8 +182,8 @@ mod_prod_fil_server <- function(id, sia_df) {
 
     #reset option 3
     observeEvent(input$reset_prod_filter, {
-      updatePickerInput(session, "product3", selected = "")
-      updatePickerInput(session, "model3", choices = character(0), selected = "")
+      updateSelectInput(session, "product3", selected = "")
+      updateSelectInput(session, "model3", choices = character(0), selected = "")
       disable("model3")
     })
 

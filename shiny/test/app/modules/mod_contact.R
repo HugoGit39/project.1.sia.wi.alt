@@ -64,12 +64,8 @@ mod_contact_server <- function(id) {
 
       send_email(body, subject)
 
-      showModal(
-        modalDialog(
-          title = "Form Submitted",
-          "Thank you for your message! We will get back to you soon."
-        )
-      )
+      # Trigger JS alert from server
+      session$sendCustomMessage("emailSubmitted", "Thank you for your message! We will get back to you soon.")
 
       # Reset form fields
       updateTextInput(session, "name", value = "")

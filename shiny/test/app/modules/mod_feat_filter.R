@@ -42,12 +42,20 @@ mod_feat_fil_ui <- function(id) {
                   status = "secondary",
                   solidHeader = TRUE,
                   collapsible = FALSE,
-                  noUiSliderInput(ns("sia_es_long"), label = "Long-Term Expert Score", min = 0, max = 10, value = c(0,10),
-                                  pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
-                  noUiSliderInput(ns("sia_es_short"), label = "Short-Term Expert Score", min = 0, max = 10, value = c(0, 10),
-                                  pips = list(mode = "values", values = list(0, 10), density = 10),
-                                  connect = TRUE, color = "#f15a29", format = wNumbFormat(decimals = 1)),
+                  sliderInput(
+                    ns("sia_es_long"),
+                    label = "Long-Term Expert Score",
+                    min   = 0,
+                    max   = 10,
+                    value = c(0, 10),
+                    step  = 0.1),
+                  sliderInput(
+                    ns("sia_es_short"),
+                    label = "Short-Term Expert Score",
+                    min   = 0,
+                    max   = 10,
+                    value = c(0, 10),
+                    step  = 0.1),
                   tags$div(
                     tags$label("Exclude missing SiA scores"),
                     switchInput(inputId = ns("exclude_na_sia"), onLabel = "YES", offLabel = "NO",
@@ -58,45 +66,56 @@ mod_feat_fil_ui <- function(id) {
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  pickerInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
-                  pickerInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
+                  selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
+                  selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
                   airDatepickerInput(ns("release_date"), "Release Year Range",
                                      range = TRUE, view = "years", minView = "years",
                                      dateFormat = "yyyy",
                                      value = c(min(sia_df$release_date, na.rm = TRUE),
                                                max(sia_df$release_date, na.rm = TRUE))),
-                  pickerInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
-                  pickerInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
-                  noUiSliderInput(ns("device_cost"), label = "Device Cost (€)", min = 0,
-                                  max = max(sia_df$device_cost, na.rm = TRUE),
-                                  value = c(0, max(sia_df$device_cost, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$device_cost, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
-                  pickerInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
-                  pickerInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
-                  noUiSliderInput(ns("weight"), label = "Weight (g)", min = 0,
-                                  max = max(sia_df$weight, na.rm = TRUE),
-                                  value = c(0, max(sia_df$weight, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$weight, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
-                  pickerInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
+                  selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
+                  selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
+                  sliderInput(
+                    ns("device_cost"),
+                    label = "Device Cost (€)",
+                    min   = 0,
+                    max   = max(sia_df$device_cost, na.rm = TRUE),
+                    value = c(0, max(sia_df$device_cost, na.rm = TRUE)),
+                    step  = 1
+                  ),
+                  selectInput(ns("wearable_type"), "Type", choices = NULL, multiple = TRUE),
+                  selectInput(ns("location"), "Location", choices = NULL, multiple = TRUE),
+                  sliderInput(
+                    ns("weight"),
+                    label = "Weight (g)",
+                    min   = 0,
+                    max   = max(sia_df$weight, na.rm = TRUE),
+                    value = c(0, max(sia_df$weight, na.rm = TRUE)),
+                    step  = 1
+                  ),
+                  selectInput(ns("size"), "Size", choices = NULL, multiple = TRUE)
           ),
           bs4Card(title = "Technical Specifications",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
                   prettyCheckbox(ns("water_resistance"), label = "Water Resistant", icon = icon("check"), status = "primary"),
-                  noUiSliderInput(ns("battery_life"), label = "Battery Life (min)", min = 0,
-                                  max = max(sia_df$battery_life, na.rm = TRUE),
-                                  value = c(0, max(sia_df$battery_life, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$battery_life, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
-                  pickerInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
-                  noUiSliderInput(ns("charging_duration"), label = "Charging Duration (min)", min = 0,
-                                  max = max(sia_df$charging_duration, na.rm = TRUE),
-                                  value = c(0, max(sia_df$charging_duration, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$charging_duration, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  sliderInput(
+                    ns("battery_life"),
+                    label = "Battery Life (min)",
+                    min   = 0,
+                    max   = max(sia_df$battery_life, na.rm = TRUE),
+                    value = c(0, max(sia_df$battery_life, na.rm = TRUE)),
+                    step  = 1),
+                  selectInput(ns("charging_method"), "Charging Method", choices = NULL, multiple = TRUE),
+                  sliderInput(
+                    ns("charging_duration"),
+                    label = "Charging Duration (min)",
+                    min   = 0,
+                    max   = max(sia_df$charging_duration, na.rm = TRUE),
+                    value = c(0, max(sia_df$charging_duration, na.rm = TRUE)),
+                    step  = 1
+                  ),
                   prettyCheckbox(ns("bio_cueing"), label = "Bio Cueing", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("bio_feedback"), label = "Bio Feedback", icon = icon("check"), status = "primary")
           ),
@@ -116,26 +135,30 @@ mod_feat_fil_ui <- function(id) {
                   prettyCheckbox(ns("gyroscope"), label = "Gyroscope", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("gps"), label = "Global Positioning System (GPS)", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("skin_temperature"), label = "Skin Temperature", icon = icon("check"), status = "primary"),
-                  pickerInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
+                  selectInput(ns("other_signals"), "Other Signals", choices = NULL, multiple = TRUE)
           ),
           bs4Card(title = "Data Access",
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
                   prettyCheckbox(ns("raw_data_available"), label = "Raw Data", icon = icon("check"), status = "primary"),
-                  pickerInput(ns("data_trans_method"), "Data Transmission Method", choices = NULL, multiple = TRUE),
+                  selectInput(ns("data_trans_method"), "Data Transmission Method", choices = NULL, multiple = TRUE),
                   prettyCheckbox(ns("int_storage_met"), label = "Internal Storage", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("server_data_storage"), label = "Server Storage", icon = icon("check"), status = "primary"),
-                  noUiSliderInput(ns("dev_storage_cap_mb"), label = "Storage Capacity (MB)", min = 0,
-                                  max = max(sia_df$dev_storage_cap_mb, na.rm = TRUE),
-                                  value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
-                  noUiSliderInput(ns("dev_storage_cap_hrs"), label = "Storage Capacity (hrs)", min = 0,
-                                  max = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE),
-                                  value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
+                  sliderInput(
+                    ns("dev_storage_cap_mb"),
+                    label = "Storage Capacity (MB)",
+                    min   = 0,
+                    max   = max(sia_df$dev_storage_cap_mb, na.rm = TRUE),
+                    value = c(0, max(sia_df$dev_storage_cap_mb, na.rm = TRUE)),
+                    step  = 1),
+                  sliderInput(
+                    ns("dev_storage_cap_hrs"),
+                    label = "Storage Capacity (hrs)",
+                    min   = 0,
+                    max   = max(sia_df$dev_storage_cap_hrs, na.rm = TRUE),
+                    value = c(0, max(sia_df$dev_storage_cap_hrs, na.rm = TRUE)),
+                    step  = 1),
                   prettyCheckbox(ns("gdpr_comp"), label = "GDPR Compliant", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("fda_app_clear"), label = "FDA Approved", icon = icon("check"), status = "primary"),
                   prettyCheckbox(ns("ce_app_label"), label = "CE Label", icon = icon("check"), status = "primary")
@@ -144,17 +167,23 @@ mod_feat_fil_ui <- function(id) {
                   width = 12,
                   status = "secondary",
                   collapsible = FALSE,
-                  pickerInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
-                  noUiSliderInput(ns("no_studies_val_rel_reviewed"), label = "# Validation/Reliability Studies", min = 0,
-                                  max = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE),
-                                  value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0)),
-                  noUiSliderInput(ns("no_studies_usab_reviewed"), label = "# Usability Studies", min = 0,
-                                  max = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE),
-                                  value = c(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)),
-                                  pips = list(mode = "values", values = list(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)), density = 10),
-                                  connect = TRUE, color = "#1c75bc", format = wNumbFormat(decimals = 0))
+                  selectInput(ns("level_validation"), "Validation Level", choices = NULL, multiple = TRUE),
+                  sliderInput(
+                    ns("no_studies_val_rel_reviewed"),
+                    label = "# Validation/Reliability Studies",
+                    min   = 0,
+                    max   = max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE),
+                    value = c(0, max(sia_df$no_studies_val_rel_reviewed, na.rm = TRUE)),
+                    step  = 1
+                  ),
+                  sliderInput(
+                    ns("no_studies_usab_reviewed"),
+                    label  = "# Usability Studies",
+                    min    = 0,
+                    max    = max(sia_df$no_studies_usab_reviewed, na.rm = TRUE),
+                    value  = c(0, max(sia_df$no_studies_usab_reviewed, na.rm = TRUE)),
+                    step   = 1
+                  )
           )
         )
       ),
@@ -248,7 +277,7 @@ mod_feat_fil_server <- function(id, data) {
       df
     })
 
-    # Step 2: Update pickerInput options
+    # Step 2: Update selectInput options
     observe({
       df <- filtered_for_dropdowns()
       for (input_id in select_inputs) {
@@ -261,7 +290,7 @@ mod_feat_fil_server <- function(id, data) {
         }
         valid_choices <- sort(unique(df_filtered[[input_id]]))
         selected_now <- input[[input_id]]
-        updatePickerInput(session, input_id,
+        updateSelectInput(session, input_id,
                           choices = valid_choices,
                           selected = selected_now[selected_now %in% valid_choices])
       }
@@ -280,9 +309,9 @@ mod_feat_fil_server <- function(id, data) {
     observeEvent(input$reset_feat_filter, {
       for (var in range_vars) {
         if (var %in% c("sia_es_long", "sia_es_short")) {
-          updateNoUiSliderInput(session, var, value = c(0, 10))
+          updateSliderInput(session, var, value = c(0, 10))
         } else {
-          updateNoUiSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
+          updateSliderInput(session, var, value = c(0, max(sia_df[[var]], na.rm = TRUE)))
         }
       }
 
@@ -294,7 +323,7 @@ mod_feat_fil_server <- function(id, data) {
 
       lapply(checkbox_vars, function(id) updatePrettyCheckbox(session, id, value = FALSE))
 
-      lapply(select_inputs, function(id) updatePickerInput(session, id, selected = character(0)))
+      lapply(select_inputs, function(id) updateSelectInput(session, id, selected = character(0)))
 
       updateSwitchInput(session, "exclude_na_sia", value = FALSE)
 

@@ -13,3 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 });
+
+// Email submited
+Shiny.addCustomMessageHandler("emailSubmitted", function(message) {
+  alert(message);
+});
