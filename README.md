@@ -93,7 +93,6 @@ shiny::runApp("path/to/your/app")`
 - {DT} - [https://github.com/rstudio/DT](https://github.com/rstudio/DT)  
 - {emayili} - [https://github.com/datawookie/emayili](https://github.com/datawookie/emayili)  
 - {fresh} - [https://github.com/dreamRs/fresh](https://github.com/dreamRs/fresh)  
-- {golem} - [https://github.com/ThinkR-open/golem](https://github.com/ThinkR-open/golem)  
 - {here} - [https://github.com/r-lib/here](https://github.com/r-lib/here)  
 - {htmltools} - [https://github.com/rstudio/htmltools](https://github.com/rstudio/htmltools)  
 - {htmlwidgets} - [https://github.com/ramnathv/htmlwidgets](https://github.com/ramnathv/htmlwidgets)  
@@ -106,7 +105,7 @@ shiny::runApp("path/to/your/app")`
 - {shiny} - [https://github.com/rstudio/shiny](https://github.com/rstudio/shiny)  
 - {shinycssloaders} - [https://github.com/andrewsali/shinycssloaders](https://github.com/andrewsali/shinycssloaders)  
 - {shinyjs} - [https://github.com/daattali/shinyjs](https://github.com/daattali/shinyjs)  
-- {shinySearchbar} - [https://github.com/Appsilon/shinySearchbar](https://github.com/Appsilon/shinySearchbar)  
+- {shinySearchbar} - [https://github.com/Appsilon/shinySearchbar](https://github.com/jsdnrs/shiny-searchbar)  
 - {shinyWidgets} - [https://github.com/dreamRs/shinyWidgets](https://github.com/dreamRs/shinyWidgets)
 
 
