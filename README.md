@@ -54,7 +54,7 @@ shiny::runApp("path/to/your/app")`
 ## Live version
 
 <p align="justify"> 
-	<strong>Live Wearable Shiny App website:</strong> <a href="https://www.wearables.stress-in-action.nl" target="_blank">	https://www.wearables.stress-in-action.nl</a> 
+	<strong>Live Wearable Shiny App website:</strong> <a href="https://wearables.stress-in-action.nl/" target="_blank">	https://wearables.stress-in-action.nl/</a> 
 </p>
 
 ## Support
@@ -64,7 +64,7 @@ shiny::runApp("path/to/your/app")`
 </p>
 
 <p align="justify">
-  If you run into any problems, feel free to get in touch with the DISC via <a href="mailto:disc@stressin-action.nl">h.klarenberg@vu.nl</a>.
+  If you run into any problems, feel free to get in touch with the DISC via <a href="mailto:disc@stressin-action.nl">disc@stressin-action.nl</a>.
 </p>
 
 <p align="justify">
@@ -82,7 +82,7 @@ shiny::runApp("path/to/your/app")`
 - <a href="https://stress-in-action.nl/matthijs-noordzij/">M. Noordzij</a> - Author RT2
 - <a href="https://stress-in-action.nl/eco-de-geus/">J.C.N. de Geus</a> - Author RT2
 
-- <a href="https://stress-in-action.nl/hugo-klarenberg/">H. Klarenberg</a> - Author DISC, app maintainer
+- <a href="https://stress-in-action.nl/hugo-klarenberg/">H. Klarenberg</a> - Author, app maintainer
 
 ## Resources
 
