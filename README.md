@@ -41,21 +41,19 @@
 <ul> <li>Validation Level (multi-select dropdown)</li> <li>Number of Validation/Reliability Studies (slider)</li> <li>Number of Usability Studies (slider)</li> </ul>
 <p align="justify"> Every filter selection instantly updates the available options in other dropdowns and sliders to reflect valid combinations. This guarantees a coherent, data-consistent exploration experience. Filtered tables and filter settings can be downloaded using dedicated buttons in the interface. </p>
 
-
-
-## Run the app
-
-Use the following R code to start the Shiny app
-
-```r
-shiny::runApp("path/to/your/app")`
-```
-
 ## Live version
 
 <p align="justify"> 
 	<strong>Live Wearable Shiny App website:</strong> <a href="https://wearables.stress-in-action.nl/" target="_blank">	https://wearables.stress-in-action.nl/</a> 
 </p>
+
+## Run the app
+
+<p align="justify"> The SiA Wearable Database Shiny App can be run in two modes: </p> <ul> <li> <strong>Local Testing Version</strong> <br> This version can be run on your own machine using R. It includes all core functionality of the app and allows you to test the user interface, filtering logic, and output generation. <br><br> <code>Note:</code> Email functionality is disabled in the local version. The required SMTP server settings are not included in the public repository to protect sensitive DISC email credentials. </li> <br> <li> <strong>Production Version on Shiny Server</strong> <br> The full production version is deployed to a dedicated Shiny Server and connected to a configured email backend. It allows users to submit forms or request exports via email, as well as access the most recent data pipeline. </li> </ul> <p align="justify"> To run the app locally for testing purposes, use the following R code: </p>
+
+```r
+shiny::runApp("path/to/your/app")`
+```
 
 ## Support
 
