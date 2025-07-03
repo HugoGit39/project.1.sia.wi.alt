@@ -53,7 +53,7 @@ project.1.sia.wi::run_app()
 
 ## Live version
 
-`Live Wearable Shiny App` website: [https://wd.stress-in-action.nl](https://stress-in-action.nl) - Available middle 2025 
+<p align="justify"> <strong>Live Wearable Shiny App website:</strong> <a href="https://www.wearables.stress-in-action.nl" target="_blank">https://www.wearables.stress-in-action.nl</a> </p>
 
 ## Support
 
@@ -70,6 +70,8 @@ project.1.sia.wi::run_app()
 </p>
 
 ## Authors and Citation
+
+<p align="justify"> This application is based on the following publication: <br> <strong> Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. <em>Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information.</em> Behav Res Methods. 2025 May 13;57(6):171. </strong> <br> <a href="https://link.springer.com/article/10.3758/s13428-025-02685-4" target="_blank"> https://link.springer.com/article/10.3758/s13428-025-02685-4 </a> </p> <p align="justify"> Please cite this paper when publishing or sharing any analysis that uses outputs from the filters in this app. </p>
 
 - <a href="https://stress-in-action.nl/hugo-klarenberg/">H. Klarenberg</a> - Author DISC, maintainer
 - <a href="https://stress-in-action.nl/artemis-stefani/">A. Stefani</a> - Author RT2
