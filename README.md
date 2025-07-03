@@ -101,11 +101,11 @@ shiny::runApp("path/to/your/app")`
 - {reactablefmtr} - [https://github.com/kcuilla/reactablefmtr](https://github.com/kcuilla/reactablefmtr)  
 - {rlang} - [https://github.com/r-lib/rlang](https://github.com/r-lib/rlang)  
 - {scales} - [https://github.com/r-lib/scales](https://github.com/r-lib/scales)  
-- {sever} - [https://github.com/jonocarroll/sever](https://github.com/JohnCoene/sever)  
+- {sever} - [https://github.com/JohnCoene/sever](https://github.com/JohnCoene/sever)  
 - {shiny} - [https://github.com/rstudio/shiny](https://github.com/rstudio/shiny)  
 - {shinycssloaders} - [https://github.com/andrewsali/shinycssloaders](https://github.com/andrewsali/shinycssloaders)  
 - {shinyjs} - [https://github.com/daattali/shinyjs](https://github.com/daattali/shinyjs)  
-- {shinySearchbar} - [https://github.com/Appsilon/shinySearchbar](https://github.com/jsdnrs/shiny-searchbar)  
+- {shinySearchbar} - [https://github.com/jsdnrs/shiny-searchbar](https://github.com/jsdnrs/shiny-searchbar)  
 - {shinyWidgets} - [https://github.com/dreamRs/shinyWidgets](https://github.com/dreamRs/shinyWidgets)
 
 
