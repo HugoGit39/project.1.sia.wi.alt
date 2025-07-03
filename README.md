@@ -64,7 +64,7 @@ shiny::runApp("path/to/your/app")`
 </p>
 
 <p align="justify">
-  If you run into any problems, feel free to get in touch with the DISC via <a href="mailto:disc@stressin-action.nl">disc@stressin-action.nl</a>.
+  If you run into any problems, feel free to get in touch with the DISC via <a href="mailto:disc@stress-in-action.nl">disc@stressin-action.nl</a>.
 </p>
 
 <p align="justify">
