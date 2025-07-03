@@ -145,7 +145,8 @@ mod_prod_fil_server <- function(id, sia_df) {
         as.data.frame()
 
       colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
-      df_t <- tibble::rownames_to_column(df_t, var = "Feature")
+      df_t <- cbind(Feature = rownames(df_t), df_t)  # 1. copy row-names into a new first column
+      rownames(df_t) <- NULL 
 
       # Rename features for display
       df_t$Feature <- rename_map[df_t$Feature]

@@ -8,7 +8,7 @@
 
 # list of required packages
 required_packages <- c(
-  "shiny", "bs4Dash", "here", "dplyr", "rlang", "scales", "DT", "fresh", "tibble", "rlang", "lubridate",
+  "shiny", "bs4Dash", "dplyr", "rlang", "scales", "DT", "fresh", "lubridate",
   "shinySearchbar", "emayili", "shinyjs", "sever", "shinycssloaders", "shinyWidgets",
   "reactablefmtr", "reactable", "htmltools", "htmlwidgets"
 )
@@ -44,7 +44,7 @@ source("modules/mod_footer.R")
 source("modules/mod_timeout.R")
 
 #  * 4 load data -----------------------------------------------
-sia_df <- get(load(here("data/df_sia_wearable_app.RData")))
+sia_df <- get(load(file.path("data", "df_sia_wearable_app.RData")))
 
 #remove column id
 sia_df$id <- NULL

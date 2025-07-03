@@ -30,7 +30,7 @@ mod_header_ui <- function(id) {
         navbarTab(tabName = "product_filter", text = "Product Filter (simple)"),
         navbarTab(tabName = "feature_filter", text = "Feature Filter (extensive)")
       ),
-      navbarTab(tabName = "submit_data", text = "Submit Data"),
+      #navbarTab(tabName = "submit_data", text = "Submit Data"),
       navbarTab(tabName = "article", text = "Research"),
       navbarTab(tabName = "about", text = "About"),
       navbarTab(tabName = "contact_us", text = "Contact Us")

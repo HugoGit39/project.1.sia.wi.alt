@@ -10,10 +10,10 @@ send_email <- function(body, subject, receiver = "disc@stress-in-action.nl", att
   # SMTP settings (use environment variables for security)
   smtp <- server(
     host = Sys.getenv("SMTP_HOST"),
-    port = Sys.getenv("SMTP_PORT"),
+    port = as.integer(Sys.getenv("SMTP_PORT")),
     username = Sys.getenv("MAIL_NAME_ID"),
     password = Sys.getenv("MAIL_KEY_ID"),
-    tls = TRUE
+    ssl      = TRUE 
   )
 
   # Create email message

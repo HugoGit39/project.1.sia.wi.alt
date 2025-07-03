@@ -38,7 +38,7 @@ ui <-
           tabItem(tabName = "app_info", mod_app_info_ui("app_info")),
           tabItem(tabName = "product_filter", mod_prod_fil_ui("product_comp")),
           tabItem(tabName = "feature_filter", mod_feat_fil_ui("feature_comp")),
-          tabItem(tabName = "submit_data", mod_sub_data_ui("add_data")),
+          #tabItem(tabName = "submit_data", mod_sub_data_ui("add_data")),
           tabItem(tabName = "article", mod_article_ui("art")),
           tabItem(tabName = "about", mod_about_ui("about")),
           tabItem(tabName = "contact_us", mod_contact_ui("contact"))
@@ -68,7 +68,7 @@ server <- function(input, output, session) {
   mod_header_server("header")
   mod_prod_fil_server("product_comp", sia_df_reactive)
   mod_feat_fil_server("feature_comp", sia_df_reactive )
-  mod_sub_data__server("add_data")
+  #mod_sub_data__server("add_data")
   mod_article_server("art")
   mod_contact_server("contact")
   mod_control__server("controlbar", sia_df_reactive)

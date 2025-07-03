@@ -68,11 +68,18 @@ mod_feat_fil_ui <- function(id) {
                   collapsible = FALSE,
                   selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
                   selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
-                  airDatepickerInput(ns("release_date"), "Release Year Range",
-                                     range = TRUE, view = "years", minView = "years",
-                                     dateFormat = "yyyy",
-                                     value = c(min(sia_df$release_date, na.rm = TRUE),
-                                               max(sia_df$release_date, na.rm = TRUE))),
+                  dateRangeInput(
+                    inputId   = ns("release_date"),          
+                    label     = "Release Year Range",
+                    start     = min(sia_df$release_date, na.rm = TRUE),   
+                    end       = max(sia_df$release_date, na.rm = TRUE),   
+                    min       = min(sia_df$release_date, na.rm = TRUE),   
+                    max       = max(sia_df$release_date, na.rm = TRUE),
+                    format    = "yyyy",          
+                    startview = "decade",        
+                    separator = " – ",           
+                    width     = "100%"           
+                  ),
                   selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
                   selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
                   sliderInput(
@@ -315,11 +322,12 @@ mod_feat_fil_server <- function(id, data) {
         }
       }
 
-      updateAirDateInput(session, "release_date",
-                         value = c(
-                           min(sia_df$release_date, na.rm = TRUE),
-                           max(sia_df$release_date, na.rm = TRUE)
-                         ))
+      updateDateRangeInput(
+        session,
+        "release_date",
+        start = min(sia_df$release_date, na.rm = TRUE),
+        end   = max(sia_df$release_date, na.rm = TRUE)
+      )
 
       lapply(checkbox_vars, function(id) updatePrettyCheckbox(session, id, value = FALSE))
 
@@ -376,6 +384,7 @@ mod_feat_fil_server <- function(id, data) {
           char_column_defs
         ),
         defaultColDef = colDef(
+          minWidth = 175,  
           footer = function(values, name) {
             div(rename_map[[name]] %||% name, style = list(fontWeight = 600))
           }
@@ -388,7 +397,7 @@ mod_feat_fil_server <- function(id, data) {
         searchable = TRUE,
         resizable = TRUE,
         fullWidth = TRUE,
-        style = list(maxHeight = "1000px", overflowY = "auto")
+        style = list(maxHeight = "1000px", overflowY = "auto"),
       )
     })
 

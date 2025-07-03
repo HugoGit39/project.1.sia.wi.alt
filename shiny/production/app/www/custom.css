@@ -33,7 +33,7 @@ html, body {
 .main-header {min-height: 80px}
 
 .dropdown-menu {
-          min-width: 250px !important;  /* Adjust width as needed */
+          min-width: 275px !important;  /* Adjust width as needed */
         }
         .dropdown-menu .dropdown-header {
           white-space: nowrap !important;  /* Prevents wrapping */
@@ -42,6 +42,7 @@ html, body {
         .nav-item .nav-link {
           font-size: 18px !important;  /* Set font size */
           color: #1c75bc !important;  /* Set text color */
+          font-weight: bold !important; /* Make text bold */
         }
         .nav-item .nav-link:hover {
           color: #f15a29 !important;  /* Set hover color */
@@ -122,6 +123,8 @@ html, body {
   align-items: center;
   gap: 10px; /* spacing between pills if multiple */
 }
+
+
 
 
 
