@@ -20,11 +20,11 @@
 
 ## How to use the SiA Wearable Database Shiny App
 
-<strong>Product Filter<strong>
+<strong>Product Filter</strong>
 
 <p align="justify"> The <strong>Product Filter</strong> lets you compare up to three wearables side by side. Each product is selected in two steps: first choose a <em>Manufacturer</em>, then pick a <em>Model</em> from the available options for that brand. </p> <p align="justify"> Once at least one product is selected, a comparison table is generated that transposes features into rows and selected products into columns. This makes it easy to directly compare specs, usability, and validation metrics. </p> <p align="justify"> The third product slot can be cleared using the <code>Reset Product 3</code> button. The filtered comparison can also be downloaded via the <code>Download Filtered Products</code> button. </p> <ul> <li>Product 1: <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Product 2: <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Product 3 (optional): <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Reset Product 3 (button)</li> <li>Download Filtered Products (button)</li> </ul>
 
-<strong>Feature Filter<strong>
+<strong>Feature Filter</strong>
 
 <p align="justify"> The <strong>Feature Filter</strong> is a powerful, modular interface that allows filtering wearables on 44 different variables. These filters are grouped into six well-defined categories. The app dynamically updates all options to show only compatible selections. You can download both the filtered results and your filter settings. </p>
 1. SiA Expert Score (3 filters)
