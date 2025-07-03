@@ -18,15 +18,14 @@
   For research theme (RT) 2:  how daily life stress can be reliably measured in a specific individual in real-time using daily life stress assessment tools, selection and validation pipelines in our design field labs will establish their ethical and legal feasibility, user-acceptance, reliability and validity, and potential application in just-in-time adaptive stress interventions.
 </p>
 
-<p align="justify">
-  This GitHub repository contains an R Shiny app developed using the <code>{golem}</code> and <code>{bd4Dash}</code> frameworks. The app showcases the results of the wearable validation pipeline, offering a robust platform for visualizing and analyzing data. Designed for efficiency and scalability, the application provides insights into the validation process, allowing users to interact with and explore the outcomes of the wearable technology assessment.
-</p>
-
 ## How to use the SiA Wearable Database Shiny App
 
-Product Filter
+<strong>Product Filter<strong>
+
 <p align="justify"> The <strong>Product Filter</strong> lets you compare up to three wearables side by side. Each product is selected in two steps: first choose a <em>Manufacturer</em>, then pick a <em>Model</em> from the available options for that brand. </p> <p align="justify"> Once at least one product is selected, a comparison table is generated that transposes features into rows and selected products into columns. This makes it easy to directly compare specs, usability, and validation metrics. </p> <p align="justify"> The third product slot can be cleared using the <code>Reset Product 3</code> button. The filtered comparison can also be downloaded via the <code>Download Filtered Products</code> button. </p> <ul> <li>Product 1: <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Product 2: <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Product 3 (optional): <ul> <li>Manufacturer (dropdown)</li> <li>Model (dropdown)</li> </ul> </li> <li>Reset Product 3 (button)</li> <li>Download Filtered Products (button)</li> </ul>
-Feature Filter
+
+<strong>Feature Filter<strong>
+
 <p align="justify"> The <strong>Feature Filter</strong> is a powerful, modular interface that allows filtering wearables on 44 different variables. These filters are grouped into six well-defined categories. The app dynamically updates all options to show only compatible selections. You can download both the filtered results and your filter settings. </p>
 1. SiA Expert Score (3 filters)
 <ul> <li>Long-Term Expert Score (slider: 0–10)</li> <li>Short-Term Expert Score (slider: 0–10)</li> <li>Exclude missing SiA scores (YES/NO switch)</li> </ul>
