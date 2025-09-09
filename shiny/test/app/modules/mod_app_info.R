@@ -91,18 +91,15 @@ mod_app_info_ui <- function(id) {
             width = 12,
             collapsible = FALSE,
             headerBorder = FALSE,
-            style = "height: 300px; overflow-y: auto;",
-            p("Version 1.0 - Initial release with filtering and submission features."),
-            p("Version 1.1 - Added dynamic selection to remove already chosen wearables."),
-            p("Version 1.2 - Enabled CSV download of comparison results."),
-            p("Version 1.3 - Added App Info page with separate cards."),
-            p("Version 1.4 - Improved UI with colored headers and scrollable updates."),
-            p("Version 1.5 - Fixed navbar tab issue where multiple tabs opened."),
-            p("Version 1.6 - Improved the download feature for comparison tables."),
-            p("Version 1.7 - Enhanced styling and usability."),
-            p("Version 1.8 - Fixed UI inconsistencies and spacing issues."),
-            p("Version 1.9 - Optimized data filtering for better performance."),
-            p("Version 2.0 - Improved accessibility and mobile compatibility.")
+            style = "max-height: 300px; overflow-y: auto;",
+            p(strong("September 2025"), br(), "Live release."),
+            p(strong("August 2025"), br(), "Tables updated with bars, yes/no and color coded cells."),
+            p(strong("July 2025"), br(), "60 wearables still to be tested."),
+            p(strong("June 2025"), br(), "54 wearables included in App."),
+            p(strong("May 2025"), br(), "Stress in Action wearables database paper published!"),
+            p(strong("March 2025"), br(), "Feature Filter live."),
+            p(strong("February 2025"), br(), "Product Filter live."),
+            p(strong("January 2025"), br(), "Test version (MVP) live.")
           )
         )
       ),
