@@ -41,7 +41,7 @@ func_yn_row_defs <- function(value, index, feature_vec, yn_vars, rename_map) {
   return(value)
 }
 
-#numerical colors:
+#numerical colors
 func_numeric_row_defs <- function(value, index, feature_internal, numeric_vars, numeric_var_ranges, palette) {
   var <- feature_internal[index]
   if (is.null(var) || !(var %in% numeric_vars)) return(value)
@@ -58,6 +58,6 @@ func_numeric_row_defs <- function(value, index, feature_internal, numeric_vars, 
   idx <- 1 + floor(p * (length(palette) - 1))
   bg <- palette[idx]
 
-  htmltools::div(style = list(background = bg), value)
+  div(style = list(background = bg), value)
 }
 
