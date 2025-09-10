@@ -51,7 +51,7 @@ mod_contact_server <- function(id) {
       })
 
     # Call `send_email()` when Submit button is clicked
-    observeEvent(input$submit, {
+    observeEvent(input$submit_email, {
 
       # Create email body
       body <- paste("Name: ", input$name,

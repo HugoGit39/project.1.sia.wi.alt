@@ -18,3 +18,5 @@ document.addEventListener("DOMContentLoaded", function () {
 Shiny.addCustomMessageHandler("emailSubmitted", function(message) {
   alert(message);
 });
+
+
