@@ -89,7 +89,7 @@ char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(num
 #  * 8 Mandatory fields ---------------------------
 
 # * * 8.1 data
-fieldsMandatory_data <- c("manufacturer", "model", "website", "release_date", "market_status", "main_use",
+fieldsMandatory_data <- c("name", "email", "manufacturer", "model", "website", "release_date", "market_status", "main_use",
                           "device_cost", "wearable_type", "location", "weight", "size")
 
 char_only_fields <- list(

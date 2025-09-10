@@ -135,7 +135,7 @@ mod_sub_data_ui <- function(id) {
             status = "secondary",
             solidHeader = TRUE,
             collapsible = FALSE,
-            dataTableOutput(ns("draft_table"))  %>% withSpinner()
+            reactableOutput(ns("draft_table"))  %>% withSpinner()
           )
         )
       ),
@@ -210,18 +210,38 @@ mod_sub_data__server <- function(id) {
     })
 
     #Render draft table
-    output$draft_table <- renderDataTable({
-      datatable(
-        draft_data(),
-        rownames = FALSE,
-        options = list(
-          scrollX = TRUE,
-          processing = FALSE,
-          pageLength = nrow(draft_data()),
-          dom = 't'
-        )
+    output$draft_table <- renderReactable({
+      df <- draft_data()
+
+      reactable(
+        df,
+        columns = list(
+          Variable = colDef(
+            name = "Field",
+            sticky = "left",
+            minWidth = 220
+          ),
+          Value = colDef(
+            name = "Value",
+            minWidth = 380,
+            cell = function(value) {
+              if (is.na(value) || (is.character(value) && nzchar(value) == FALSE)) return("—")
+              # Show line breaks nicely if any (e.g., multi-line notes)
+              htmltools::div(style = list(whiteSpace = "pre-wrap"), as.character(value))
+            }
+          )
+        ),
+        bordered   = TRUE,
+        highlight  = TRUE,
+        striped    = FALSE,
+        pagination = FALSE,     # show full draft
+        resizable  = TRUE,
+        fullWidth  = TRUE,
+        defaultColDef = colDef(align = "left"),
+        style = list(maxHeight = "500px", overflowY = "auto")
       )
     })
+
 
     observeEvent(input$create_draft, {
       create_clicked(TRUE)  # mark that draft was created
