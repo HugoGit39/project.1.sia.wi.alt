@@ -14,9 +14,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+// Data submited
+Shiny.addCustomMessageHandler("dataSubmitted", function(message) {
+  alert(message);
+});
+
 // Email submited
 Shiny.addCustomMessageHandler("emailSubmitted", function(message) {
   alert(message);
 });
+
 
 

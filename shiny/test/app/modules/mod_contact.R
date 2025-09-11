@@ -48,8 +48,10 @@ mod_contact_server <- function(id) {
     output$email_error <- renderUI({
       val <- input$email
       if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
-        div(style = "color:#CC6677;",
-            "Email must contain '@' (e.g., name@example.com).")
+        div(
+          style = "color:#CC6677; font-size:12px;",
+          strong("Email must contain '@' (e.g., name@example.com).")
+        )
       }
     })
 

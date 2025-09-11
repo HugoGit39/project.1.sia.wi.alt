@@ -174,8 +174,9 @@ mod_sub_data_ui <- function(id) {
             style = "text-align: justify;"
           ),
           p(actionButton(ns("submit_final"), "Submit", disabled = TRUE)),
+          downloadLink(ns("dl_csv_submit"), "", style = "display:none;"),
           p(
-            "A copy of your submission will be sent to the email address you provided. We will reach out to you to discuss it in more detail.",
+            "A copy of will be downloaded automatically when submitting. We will reach out to you to discuss it in more detail.",
             style = "text-align: justify;"
           )
         ),
@@ -195,6 +196,7 @@ mod_sub_data_ui <- function(id) {
 mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
 
     # Start with switch disabled
     disable("draft_ok")
@@ -230,8 +232,10 @@ mod_sub_data__server <- function(id) {
     output$email_error <- renderUI({
       val <- input$email
       if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
-        div(style = "color:#CC6677;",
-            "Email must contain '@' (e.g., name@example.com).")
+        div(
+          style = "color:#CC6677; font-size:12px;",
+          strong("Email must contain '@' (e.g., name@example.com).")
+        )
       }
     })
 
@@ -247,7 +251,10 @@ mod_sub_data__server <- function(id) {
     lapply(names(char_only_fields), function(field) {
       output[[paste0(field, "_error")]] <- renderUI({
         if (invalid_char_fields()[[field]]) {
-          div(style = "color:#CC6677;", paste(char_only_fields[[field]], "should not contain a number."))
+          div(
+            style = "color:#CC6677; font-size:12px;",
+            strong(paste(char_only_fields[[field]], "should not contain a number."))
+          )
         }
       })
     })
@@ -272,6 +279,16 @@ mod_sub_data__server <- function(id) {
         updateSwitchInput(session, "draft_ok", value = FALSE)
       }
     })
+
+    # snapshot of last submitted form
+    last_submission <- reactiveVal(NULL)
+
+    output$dl_csv_submit <- downloadHandler(
+      filename    = function() sprintf("sia_submission_from_%s.csv", input$email),
+      content     = function(file) write.csv(req(last_submission()), file, row.names = FALSE),
+      contentType = "text/csv"
+    )
+    outputOptions(output, "dl_csv_submit", suspendWhenHidden = FALSE)
 
     # Submit button only enabled when switch is YES
     observe({
@@ -307,15 +324,15 @@ mod_sub_data__server <- function(id) {
 
               # 1) Email: show error message instead of faulty text
               if (identical(var, "email") && is.character(raw) && nzchar(raw) && !grepl("@", raw)) {
-                return(div(style = list(color = "#CC6677", fontStyle = "italic"),
-                           "Invalid email"))
+                return(div(style = list(color = "#CC6677"),
+                           strong("Invalid email")))
               }
 
               # 2) Char-only fields: show error message instead of faulty text
               if (var %in% names(char_only_fields) &&
                   is.character(raw) && nzchar(raw) && grepl("\\d", raw)) {
-                return(div(style = list(color = "#CC6677", fontStyle = "italic"),
-                           "Invalid character field"))
+                return(div(style = list(color = "#CC6677"),
+                           strong("Invalid character field")))
               }
 
               # 3) Normal display
@@ -335,18 +352,16 @@ mod_sub_data__server <- function(id) {
     })
 
 
-    # Final submit (no email code here)
     observeEvent(input$submit_final, {
-      req(isTRUE(input$draft_ok))  # only when the YES/NO switch is ON
 
-      # Build CSV named with the email
-      csv_path <- file.path(
-        tempdir(),
-        paste0("sia_submission_from_", input$email, ".csv")
-      )
-      write.csv(build_form(), csv_path, row.names = FALSE)
+      # 1) snapshot the form once
+      df <- build_form()
+      last_submission(df)
 
-      # Subject + body
+      # 2) build + send email attachment from the snapshot
+      csv_path <- file.path(tempdir(), paste0("sia_submission_from_", input$email, ".csv"))
+      write.csv(df, csv_path, row.names = FALSE)
+
       subject <- sprintf("SiA Wearables submission: %s", input$email)
       body <- paste0(
         "New submission received.\n\n",
@@ -355,18 +370,20 @@ mod_sub_data__server <- function(id) {
         "Telephone: ",   input$telephone,   "\n",
         "Institution: ", input$institution, "\n"
       )
-
-      # Send (your send_email already targets your inbox by default)
       send_email(body = body, subject = subject, attachment = csv_path)
 
-      showModal(modalDialog(
-        title = "Data Submitted",
-        "Thank you for your data submission! We will get back to you soon."
-      ))
+      # 3) trigger the hidden download (now backed by last_submission)
+      session$onFlushed(function() {
+        runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
+      }, once = TRUE)
 
+      session$sendCustomMessage("dataSubmitted",
+                                "Thank you for your data submission! We will get back to you soon.")
+
+      # 4) finally reset inputs
       reset_inputs_sub_data(session, input)
-
     })
+
   })
 }
 
