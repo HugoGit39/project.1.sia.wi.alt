@@ -26,6 +26,7 @@ mod_contact_ui <- function(id) {
                      div(
                        textInput(ns("name"), labelMandatory("Name"), ""),
                        textInput(ns("email"), labelMandatory("Email"), ""),
+                       uiOutput(ns("email_error")),
                        textInput(ns("telephone"), "Telephone"),
                        textInput(ns("institution"), "Institution"),
                        textAreaInput(ns("message"), labelMandatory("Message"), ""),
@@ -43,6 +44,14 @@ mod_contact_ui <- function(id) {
 mod_contact_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+
+    output$email_error <- renderUI({
+      val <- input$email
+      if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
+        div(style = "color:#CC6677;",
+            "Email must contain '@' (e.g., name@example.com).")
+      }
+    })
 
       observe({
 
@@ -67,12 +76,8 @@ mod_contact_server <- function(id) {
       # Trigger JS alert from server
       session$sendCustomMessage("emailSubmitted", "Thank you for your message! We will get back to you soon.")
 
-      # Reset form fields
-      updateTextInput(session, "name", value = "")
-      updateTextInput(session, "email", value = "")
-      updateTextInput(session, "telephone", value = "")
-      updateTextInput(session, "institution", value = "")
-      updateTextAreaInput(session, "message", value = "")
+      # Reset all fields in one go
+      reset_inputs_contact(session)
     })
   })
 }

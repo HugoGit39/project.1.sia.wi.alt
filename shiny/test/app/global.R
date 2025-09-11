@@ -21,14 +21,15 @@ invisible(lapply(required_packages, function(pkg) {
 
 # * 2 Load functions -----------------------------------------------------------
 
-source(here("shiny", "test", "app", "functions", "accordion.R"))
-source(here("shiny", "test", "app", "functions", "cell_layout.R"))
-source(here("shiny", "test", "app", "functions", "colours_fresh.R"))
-source(here("shiny", "test", "app", "functions", "email.R"))
-source(here("shiny", "test", "app", "functions", "filters.R"))
+source(here("shiny", "test", "app", "functions", "func_accordion.R"))
+source(here("shiny", "test", "app", "functions", "func_cell_layout.R"))
+source(here("shiny", "test", "app", "functions", "func_colours_fresh.R"))
+source(here("shiny", "test", "app", "functions", "func_email.R"))
+source(here("shiny", "test", "app", "functions", "func_filters.R"))
 source(here("shiny", "test", "app", "functions", "func_column_defs.R"))
 source(here("shiny", "test", "app", "functions", "func_row_defs.R"))
-source(here("shiny", "test", "app", "functions", "mandatory_fields.R"))
+source(here("shiny", "test", "app", "functions", "func_mandatory_fields.R"))
+source(here("shiny", "test", "app", "functions", "func_reset_fields.R"))
 
 # * 3 Load modules -----------------------------------------------------------
 
@@ -89,7 +90,7 @@ char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(num
 #  * 8 Mandatory fields ---------------------------
 
 # * * 8.1 data
-fieldsMandatory_data <- c("name", "email", "manufacturer", "model", "website", "release_date", "market_status", "main_use",
+fieldsMandatory_data <- c("name", "email", "manufacturer", "model", "website", "market_status", "main_use",
                           "device_cost", "wearable_type", "location", "weight", "size")
 
 char_only_fields <- list(
@@ -100,6 +101,9 @@ char_only_fields <- list(
   other_signals = "Other Signals",
   data_trans_method = "Data Transmission Method"
 )
+
+# only enforce no-digits on mandatory text fields
+char_only_targets <- intersect(names(char_only_fields), fieldsMandatory_data)
 
 # * * 8.2 email
 fieldsMandatory_email <- c("name", "email", "message")
