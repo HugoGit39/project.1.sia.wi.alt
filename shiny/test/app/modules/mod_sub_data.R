@@ -252,10 +252,13 @@ mod_sub_data__server <- function(id) {
 
     # Email inline error
     output$email_error <- renderUI({
-      val <- input$email
-      if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
+      v <- input$email
+      if (is.null(v) || !nzchar(v)) return(NULL)
+
+      invalid <- !grepl("@", v) || grepl(csv_delims_pattern, v)
+      if (invalid) {
         div(style = "color:#CC6677; font-size:12px;",
-            strong("Email must contain '@' (e.g., name@example.com)."))
+            strong("Email should contain '@' and must not include CSV delimiters (, ;)."))
       }
     })
 
