@@ -12,7 +12,7 @@ send_email <- function(body, subject, receiver = "disc@stress-in-action.nl", att
     host = "smtp.transip.email",
     port = 465,
     username = "disc@stress-in-action.nl",
-    password = "Stress_disc1"
+    password = "xxxxxxxxxxx"
   )
 
   # Create email message

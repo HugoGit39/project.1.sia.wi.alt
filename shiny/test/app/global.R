@@ -92,20 +92,14 @@ char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(num
 fieldsMandatory_data <- c("name","email","manufacturer","model","website","market_status","main_use",
                           "device_cost","wearable_type","location","weight","size")
 
-char_no_digit_fields <- list(
-  name              = "Name",
-  market_status     = "Market Status",
-  main_use          = "Main Use",
-  wearable_type     = "Type",
-  location          = "Location",
-  other_signals     = "Other Signals",
-  data_trans_method = "Data Transmission Method"
+# IDs that must NOT contain digits or CSV delimiters
+char_no_digit_ids <- c(
+  "name","market_status","main_use","wearable_type","location",
+  "other_signals","data_trans_method"
 )
 
-char_no_digit_ids <- names(char_no_digit_fields)
-
 # you already have char_vars defined elsewhere
-csv_only_ids <- setdiff(char_vars, char_no_digit_ids)
+csv_only_ids <- union(setdiff(char_vars, char_no_digit_ids), "additional_information")
 
 char_no_digit_mand <- intersect(char_no_digit_ids, fieldsMandatory_data)
 

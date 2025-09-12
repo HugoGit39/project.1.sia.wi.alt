@@ -220,7 +220,6 @@ mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
 
-
     # Start with switch disabled
     disable("draft_ok")
     updateSwitchInput(session, "draft_ok", value = FALSE)
@@ -251,76 +250,58 @@ mod_sub_data__server <- function(id) {
       )
     })
 
-    #email check @ value
+    # Email inline error
     output$email_error <- renderUI({
       val <- input$email
       if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
-        div(
-      style = "color:#CC6677; font-size:12px;",
-      strong("Email must contain '@' (e.g., name@example.com).")
-    )
+        div(style = "color:#CC6677; font-size:12px;",
+            strong("Email must contain '@' (e.g., name@example.com)."))
       }
     })
 
-    # --- Local sets limited to inputs present in this form (avoid OOB) ---
-    char_no_digit_ids_submit <- intersect(char_no_digit_ids, rename_subm)
-    csv_only_ids_submit      <- intersect(csv_only_ids,      rename_subm)
+    # ---------------- VALIDATION (uses your global sets) ----------------
 
-    # 1) invalid: digits or CSV delimiters for "no-digit" fields
+    # invalid for "no-digit" fields: digits OR CSV delimiters
     invalid_no_digit <- reactive({
-      pat_csv <- csv_delims_pattern          # from global: "[,;\"\\r\\n]"
-      sapply(char_no_digit_ids_submit, function(field) {
+      ids <- char_no_digit_ids
+      setNames(vapply(ids, function(field) {
         v <- input[[field]]
-        is.character(v) && nzchar(v) && (grepl("\\d", v) || grepl(pat_csv, v))
-      })
+        is.character(v) && nzchar(v) && (grepl("\\d", v) || grepl(csv_delims_pattern, v))
+      }, logical(1)), ids)
     })
 
-    # 2) invalid: CSV delimiters for all other character fields
+    # invalid for CSV-only fields: CSV delimiters
     invalid_csv_only <- reactive({
-      pat_csv <- csv_delims_pattern
-      sapply(csv_only_ids_submit, function(field) {
+      ids <- csv_only_ids
+      setNames(vapply(ids, function(field) {
         v <- input[[field]]
-        is.character(v) && nzchar(v) && grepl(pat_csv, v)
-      })
+        is.character(v) && nzchar(v) && grepl(csv_delims_pattern, v)
+      }, logical(1)), ids)
     })
 
-    # 3) per-field UI messages (only where you have uiOutput(...) in the UI)
-    lapply(char_no_digit_ids_submit, function(field) {
+    # Per-field UI messages (generic text, no labels needed)
+    lapply(char_no_digit_ids, function(field) {
       output[[paste0(field, "_error")]] <- renderUI({
-        if (isTRUE(invalid_no_digit()[[field]])) {
+        if (isTRUE(invalid_no_digit()[field])) {
           div(style = "color:#CC6677; font-size:12px;",
-              strong(paste0(char_no_digit_fields[[field]],
-                            " should not contain numbers or CSV delimiters ",
-                            "(, ;). Please use pipes (|).")))
+              strong("The input should not contain numbers or CSV delimiters (, ;). Please use pipes (|)."))
         }
       })
     })
 
-    # If you also added uiOutput(...) slots for some CSV-only fields,
-    # same shape as your no-digit lapply
-    lapply(csv_only_ids_submit, function(field) {
+    lapply(csv_only_ids, function(field) {
       output[[paste0(field, "_csv_error")]] <- renderUI({
-        if (isTRUE(invalid_csv_only()[[field]])) {
-          # pretty label if you have rename_map; fallback to id with spaces
-          lbl <- if (!is.null(rename_map[[field]])) rename_map[[field]] else gsub("_", " ", field)
-          div(
-            style = "color:#CC6677; font-size:12px;",
-            strong(paste0(
-              lbl,
-              " should not contain CSV delimiters (, ;). Please use pipes (|)."
-            ))
-          )
+        if (isTRUE(invalid_csv_only()[field])) {
+          div(style = "color:#CC6677; font-size:12px;",
+              strong("The input should not contain CSV delimiters (, ;). Please use pipes (|)."))
         }
       })
     })
 
-
-    # 4) Gate the YES/NO switch
+    # Gate the YES/NO switch
     observe({
-      # any CSV delimiter anywhere in ANY character field blocks
-      any_csv_bad <- any(invalid_csv_only()) || any(invalid_no_digit())
-      # digits rule applies only to mandatory no-digit fields
-      bad_no_digit_mand <- any(invalid_no_digit()[ intersect(char_no_digit_ids_submit, fieldsMandatory_data) ])
+      any_csv_bad       <- any(invalid_csv_only()) || any(invalid_no_digit())
+      bad_no_digit_mand <- any(invalid_no_digit()[ intersect(char_no_digit_ids, fieldsMandatory_data) ])
 
       valid_form <- mandatoryfields_check(fieldsMandatory_data, input) &&
         !any_csv_bad && !bad_no_digit_mand
@@ -331,78 +312,7 @@ mod_sub_data__server <- function(id) {
       }
     })
 
-    # # 1) Any char-only field invalid? (digits OR CSV delimiters)
-    # invalid_char_fields <- reactive({
-    #   bad <- "(\\d|[,;\"\\r\\n])"  # digits or CSV delimiters
-    #   sapply(names(char_only_fields), function(field) {
-    #     v <- input[[field]]
-    #     is.character(v) && nzchar(v) && grepl(bad, v)
-    #   })
-    # })
-    #
-    # # 2) Inline error messages (now mention CSV delimiters)
-    # lapply(names(char_only_fields), function(field) {
-    #   output[[paste0(field, "_error")]] <- renderUI({
-    #     if (invalid_char_fields()[[field]]) {
-    #       div(style = "color:#CC6677; font-size:12px;",
-    #           strong(paste0(char_only_fields[[field]],
-    #                         " should not contain numbers or CSV delimiters ",
-    #                         "(comma, semicolon). Please use pipes (|)")))
-    #     }
-    #   })
-    # })
-    #
-    # # 3) Only gate on MANDATORY char-only fields
-    # invalid_man_char_fields <- reactive({
-    #   bad <- "(\\d|[,;\"\\r\\n])"
-    #   sapply(char_only_mand_fields, function(field) {
-    #     v <- input[[field]]
-    #     is.character(v) && nzchar(v) && grepl(bad, v)
-    #   })
-    # })
-
-    # # ----  B) CSV-ONLY for other character fields  ----
-    # csv_only_labels <- c(
-    #   name="Name", manufacturer="Manufacturer", model="Model", website="Website",
-    #   institution="Institution", charging_method="Charging Method",
-    #   level_validation="Validation Level", additional_information="Additional Information",
-    #   telephone="Telephone"
-    # )
-    #
-    # invalid_csv_only_fields <- reactive({
-    #   bad_csv <- "[,;\"\\r\\n]"     # CSV delimiters only
-    #   sapply(char_csv_only_fields, function(field) {
-    #     v <- input[[field]]
-    #     is.character(v) && nzchar(v) && grepl(bad_csv, v)
-    #   })
-    # })
-    #
-    # # show messages for CSV-only fields (to the *_csv_error slots you added in UI)
-    # lapply(char_csv_only_fields, function(field) {
-    #   output[[paste0(field, "_csv_error")]] <- renderUI({
-    #     if (invalid_csv_only_fields()[[field]]) {
-    #       lbl <- csv_only_labels[[field]] %||% field
-    #       div(style = "color:#CC6677; font-size:12px;",
-    #           strong(paste0(lbl, " should not contain CSV delimiters ",
-    #                         "(comma, semicolon). Please use pipes (|)")))
-    #     }
-    #   })
-    # })
-
-    # Enable/disable the YES/NO switch based on mandatory fields + char checks
-    # observe({
-    #   valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_man_char_fields())
-    #
-    #   # enable only when valid; otherwise disable
-    #   toggleState("draft_ok", condition = valid_form)
-    #
-    #   # if it becomes invalid, also force the switch back to NO
-    #   if (!valid_form && isTRUE(input$draft_ok)) {
-    #     updateSwitchInput(session, "draft_ok", value = FALSE)
-    #   }
-    # })
-
-    # snapshot of last submitted form
+    # Hidden download of submitted CSV
     last_submission <- reactiveVal(NULL)
 
     output$dl_csv_submit <- downloadHandler(
@@ -417,66 +327,9 @@ mod_sub_data__server <- function(id) {
       toggleState("submit_final", condition = isTRUE(input$draft_ok))
     })
 
-    # # Render the draft table
-    # output$draft_table <- renderReactable({
-    #   df <- build_form()
-    #
-    #   reactable(
-    #     df,
-    #     rownames = FALSE,
-    #     columns = list(
-    #       Variable = colDef(
-    #         name = "Variables",
-    #         sticky = "left",
-    #         minWidth = 220,
-    #         cell = function(value) {
-    #           div(
-    #             style = list(display = "inline-flex", alignItems = "center", whiteSpace = "nowrap"),
-    #             if (value %in% fieldsMandatory_data) labelMandatory(value) else value
-    #           )
-    #         }
-    #       ),
-    #       Value = colDef(
-    #         name = "Value",
-    #         minWidth = 380,
-    #         cell = function(value, index) {
-    #           # Which field (row) is this?
-    #           var <- df$Variable[index]
-    #           raw <- input[[var]]  # raw, live input for that field
-    #
-    #           # 1) Email: show error message instead of faulty text
-    #           if (identical(var, "email") && is.character(raw) && nzchar(raw) && !grepl("@", raw)) {
-    #             return(div(style = list(color = "#CC6677"),
-    #                        strong("Invalid email")))
-    #           }
-    #
-    #           # 2) Char-only fields: show error message instead of faulty text
-    #           if (var %in% names(char_only_fields) &&
-    #               is.character(raw) && nzchar(raw) && grepl("\\d", raw)) {
-    #             return(div(style = list(color = "#CC6677"),
-    #                        strong("Invalid character field")))
-    #           }
-    #
-    #           # 3) Normal display
-    #           if (is.na(value) || (is.character(value) && nzchar(value) == FALSE)) return("—")
-    #           div(style = list(whiteSpace = "pre-wrap"), value)
-    #         }
-    #       )
-    #     ),
-    #     bordered   = TRUE,
-    #     highlight  = TRUE,
-    #     striped    = FALSE,
-    #     pagination = FALSE,
-    #     resizable  = TRUE,
-    #     fullWidth  = TRUE,
-    #     defaultColDef = colDef(align = "left")
-    #   )
-    # })
-
-    # 5) (Optional) also reflect invalids in the Draft table cells
+    # Draft table with inline flags
     output$draft_table <- renderReactable({
       df <- build_form()
-      pat_csv <- csv_delims_pattern
 
       reactable(
         df,
@@ -506,16 +359,16 @@ mod_sub_data__server <- function(id) {
               }
 
               # no-digit fields: digits or CSV delimiters
-              if (var %in% char_no_digit_ids_submit &&
+              if (var %in% char_no_digit_ids &&
                   is.character(raw) && nzchar(raw) &&
-                  (grepl("\\d", raw) || grepl(pat_csv, raw))) {
+                  (grepl("\\d", raw) || grepl(csv_delims_pattern, raw))) {
                 return(div(style = list(color = "#CC6677"),
                            strong("Invalid characters")))
               }
 
               # csv-only fields: CSV delimiters
-              if (var %in% csv_only_ids_submit &&
-                  is.character(raw) && nzchar(raw) && grepl(pat_csv, raw)) {
+              if (var %in% csv_only_ids &&
+                  is.character(raw) && nzchar(raw) && grepl(csv_delims_pattern, raw)) {
                 return(div(style = list(color = "#CC6677"),
                            strong("Contains CSV delimiters")))
               }
@@ -536,14 +389,13 @@ mod_sub_data__server <- function(id) {
       )
     })
 
-
+    # Submit flow
     observeEvent(input$submit_final, {
-
-      # 1) snapshot the form once
+      # snapshot the form once
       df <- build_form()
       last_submission(df)
 
-      # 2) build + send email attachment from the snapshot
+      # build + send email attachment from the snapshot
       csv_path <- file.path(tempdir(), paste0("sia_submission_from_", input$email, ".csv"))
       write.csv(df, csv_path, row.names = FALSE)
 
@@ -557,7 +409,7 @@ mod_sub_data__server <- function(id) {
       )
       send_email(body = body, subject = subject, attachment = csv_path)
 
-      # 3) trigger the hidden download (now backed by last_submission)
+      # trigger the hidden download (now backed by last_submission)
       session$onFlushed(function() {
         runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
       }, once = TRUE)
@@ -565,10 +417,9 @@ mod_sub_data__server <- function(id) {
       session$sendCustomMessage("dataSubmitted",
                                 "Thank you for your data submission! We will get back to you soon.")
 
-      # 4) finally reset inputs
+      # finally reset inputs
       reset_inputs_sub_data(session, input)
     })
 
   })
 }
-
