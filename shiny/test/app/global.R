@@ -89,21 +89,27 @@ char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(num
 
 #  * 8 Mandatory fields ---------------------------
 
-# * * 8.1 data
-fieldsMandatory_data <- c("name", "email", "manufacturer", "model", "website", "market_status", "main_use",
-                          "device_cost", "wearable_type", "location", "weight", "size")
+fieldsMandatory_data <- c("name","email","manufacturer","model","website","market_status","main_use",
+                          "device_cost","wearable_type","location","weight","size")
 
-char_only_fields <- list(
-  market_status = "Market Status",
-  main_use = "Main Use",
-  wearable_type = "Type",
-  location = "Location",
-  other_signals = "Other Signals",
+char_no_digit_fields <- list(
+  name              = "Name",
+  market_status     = "Market Status",
+  main_use          = "Main Use",
+  wearable_type     = "Type",
+  location          = "Location",
+  other_signals     = "Other Signals",
   data_trans_method = "Data Transmission Method"
 )
 
-# only enforce no-digits on mandatory text fields
-char_only_targets <- intersect(names(char_only_fields), fieldsMandatory_data)
+char_no_digit_ids <- names(char_no_digit_fields)
+
+# you already have char_vars defined elsewhere
+csv_only_ids <- setdiff(char_vars, char_no_digit_ids)
+
+char_no_digit_mand <- intersect(char_no_digit_ids, fieldsMandatory_data)
+
+csv_delims_pattern <- "[,;]"
 
 # * * 8.2 email
 fieldsMandatory_email <- c("name", "email", "message")

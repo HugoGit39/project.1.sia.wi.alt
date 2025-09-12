@@ -226,7 +226,7 @@ mod_feat_fil_ui <- function(id) {
 
 ############################################################################################
 #
-#  Function nodule for nfeauture filter (extensive)
+#  Module for feauture filter (extensive)
 #
 #############################################################################################
 

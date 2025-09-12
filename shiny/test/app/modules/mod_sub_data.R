@@ -28,38 +28,50 @@ mod_sub_data_ui <- function(id) {
             )
           ),
           textOutput(ns("status")),
+
+          # --- Your Information ---
           bs4Card(
             title = "Your Information",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
             textInput(ns("name"), labelMandatory("Name")),
+            uiOutput(ns("name_error")),                     # digits/CSV blocked (your existing handler)
             textInput(ns("email"), labelMandatory("Email")),
             uiOutput(ns("email_error")),
             textInput(ns("telephone"), "Telephone"),
-            textInput(ns("institution"), "Institution")
+            uiOutput(ns("telephone_csv_error")),            # CSV-only
+            textInput(ns("institution"), "Institution"),
+            uiOutput(ns("institution_csv_error"))           # CSV-only
           ),
+
+          # --- General Device Information ---
           bs4Card(
             title = "General Device Information",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
             textInput(ns("manufacturer"), labelMandatory("Manufacturer")),
+            uiOutput(ns("manufacturer_csv_error")),         # CSV-only
             textInput(ns("model"), labelMandatory("Model")),
+            uiOutput(ns("model_csv_error")),                # CSV-only
             textInput(ns("website"), labelMandatory("Website")),
+            uiOutput(ns("website_csv_error")),              # CSV-only
             dateInput(ns("release_date"), "Release Date"),
             textInput(ns("market_status"), labelMandatory("Market Status")),
-            uiOutput(ns("market_status_error")),
+            uiOutput(ns("market_status_error")),            # digits/CSV blocked (your existing handler)
             textInput(ns("main_use"), labelMandatory("Main Use")),
-            uiOutput(ns("main_use_error")),
+            uiOutput(ns("main_use_error")),                 # digits/CSV blocked
             numericInput(ns("device_cost"), labelMandatory("Cost (€)"), value = NA),
             textInput(ns("wearable_type"), labelMandatory("Type")),
-            uiOutput(ns("wearable_type_error")),
+            uiOutput(ns("wearable_type_error")),            # digits/CSV blocked
             textInput(ns("location"), labelMandatory("Location")),
-            uiOutput(ns("location_error")),
+            uiOutput(ns("location_error")),                 # digits/CSV blocked
             numericInput(ns("weight"), labelMandatory("Weight (g)"), value = NA),
             numericInput(ns("size"), labelMandatory("Size"), value = NA)
           ),
+
+          # --- Technical Specifications ---
           bs4Card(
             title = "Technical Specifications",
             status = "secondary",
@@ -68,10 +80,13 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("water_resistance"), "Water Resistant", value = FALSE),
             numericInput(ns("battery_life"), "Battery Life (min)", value = NA),
             textInput(ns("charging_method"), "Charging Method"),
+            uiOutput(ns("charging_method_csv_error")),      # CSV-only
             numericInput(ns("charging_duration"), "Charging Duration (min)", value = NA),
             checkboxInput(ns("bio_cueing"), "Bio Cueing", value = FALSE),
             checkboxInput(ns("bio_feedback"), "Bio Feedback", value = FALSE)
           ),
+
+          # --- Signals ---
           bs4Card(
             title = "Signals",
             status = "secondary",
@@ -90,8 +105,10 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("gps"), "GPS", value = FALSE),
             checkboxInput(ns("skin_temperature"), "Skin Temperature", value = FALSE),
             textInput(ns("other_signals"), "Other Signals"),
-            uiOutput(ns("other_signals_error"))
+            uiOutput(ns("other_signals_error"))             # digits/CSV blocked
           ),
+
+          # --- Data Access ---
           bs4Card(
             title = "Data Access",
             status = "secondary",
@@ -99,7 +116,7 @@ mod_sub_data_ui <- function(id) {
             collapsible = FALSE,
             checkboxInput(ns("raw_data_available"), "Raw Data Available", value = FALSE),
             textInput(ns("data_trans_method"), "Data Transmission Method"),
-            uiOutput(ns("data_trans_method_error")),
+            uiOutput(ns("data_trans_method_error")),        # digits/CSV blocked
             numericInput(ns("int_storage_met"), "Internal Storage (MB)", value = NA),
             checkboxInput(ns("server_data_storage"), "Server Data Storage", value = FALSE),
             numericInput(ns("dev_storage_cap_hrs"), "Device Storage (hrs)", value = NA),
@@ -108,21 +125,27 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("fda_app_clear"), "FDA Approved", value = FALSE),
             checkboxInput(ns("ce_app_label"), "CE Label", value = FALSE)
           ),
+
+          # --- Validation, Reliability & Usability ---
           bs4Card(
             title = "Validation, Reliability & Usability",
             width = 12,
             status = "secondary",
             collapsible = FALSE,
             textInput(ns("level_validation"), "Validation Level"),
+            uiOutput(ns("level_validation_csv_error")),     # CSV-only
             numericInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", value = NA),
             numericInput(ns("no_studies_usab_reviewed"), "Usability Studies", value = NA)
           ),
+
+          # --- Further Details ---
           bs4Card(
             title = "Further Details",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
-            textAreaInput(ns("additional_information"), "Additional Information", rows = 4)
+            textAreaInput(ns("additional_information"), "Additional Information", rows = 4),
+            uiOutput(ns("additional_information_csv_error")) # CSV-only
           )
         )
       ),
@@ -239,46 +262,145 @@ mod_sub_data__server <- function(id) {
       }
     })
 
-    # Character-only field validation (no digits allowed)
-    invalid_char_fields <- reactive({
-      sapply(names(char_only_fields), function(field) {
-        val <- input[[field]]
-        !is.null(val) && !is.na(val) && grepl("\\d", val)
+    # --- Local sets limited to inputs present in this form (avoid OOB) ---
+    char_no_digit_ids_submit <- intersect(char_no_digit_ids, rename_subm)
+    csv_only_ids_submit      <- intersect(csv_only_ids,      rename_subm)
+
+    # 1) invalid: digits or CSV delimiters for "no-digit" fields
+    invalid_no_digit <- reactive({
+      pat_csv <- csv_delims_pattern          # from global: "[,;\"\\r\\n]"
+      sapply(char_no_digit_ids_submit, function(field) {
+        v <- input[[field]]
+        is.character(v) && nzchar(v) && (grepl("\\d", v) || grepl(pat_csv, v))
       })
     })
 
-    # Inline validation messages
-    lapply(names(char_only_fields), function(field) {
+    # 2) invalid: CSV delimiters for all other character fields
+    invalid_csv_only <- reactive({
+      pat_csv <- csv_delims_pattern
+      sapply(csv_only_ids_submit, function(field) {
+        v <- input[[field]]
+        is.character(v) && nzchar(v) && grepl(pat_csv, v)
+      })
+    })
+
+    # 3) per-field UI messages (only where you have uiOutput(...) in the UI)
+    lapply(char_no_digit_ids_submit, function(field) {
       output[[paste0(field, "_error")]] <- renderUI({
-        if (invalid_char_fields()[[field]]) {
+        if (isTRUE(invalid_no_digit()[[field]])) {
+          div(style = "color:#CC6677; font-size:12px;",
+              strong(paste0(char_no_digit_fields[[field]],
+                            " should not contain numbers or CSV delimiters ",
+                            "(, ;). Please use pipes (|).")))
+        }
+      })
+    })
+
+    # If you also added uiOutput(...) slots for some CSV-only fields,
+    # same shape as your no-digit lapply
+    lapply(csv_only_ids_submit, function(field) {
+      output[[paste0(field, "_csv_error")]] <- renderUI({
+        if (isTRUE(invalid_csv_only()[[field]])) {
+          # pretty label if you have rename_map; fallback to id with spaces
+          lbl <- if (!is.null(rename_map[[field]])) rename_map[[field]] else gsub("_", " ", field)
           div(
             style = "color:#CC6677; font-size:12px;",
-            strong(paste(char_only_fields[[field]], "should not contain a number."))
+            strong(paste0(
+              lbl,
+              " should not contain CSV delimiters (, ;). Please use pipes (|)."
+            ))
           )
         }
       })
     })
 
-    # Check invalid char fields
-    invalid_char_fields <- reactive({
-      sapply(char_only_targets, function(field) {
-        val <- input[[field]]
-        is.character(val) && nzchar(val) && grepl("\\d", val)
-      })
-    })
 
-    # Enable/disable the YES/NO switch based on mandatory fields + char checks
+    # 4) Gate the YES/NO switch
     observe({
-      valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields())
+      # any CSV delimiter anywhere in ANY character field blocks
+      any_csv_bad <- any(invalid_csv_only()) || any(invalid_no_digit())
+      # digits rule applies only to mandatory no-digit fields
+      bad_no_digit_mand <- any(invalid_no_digit()[ intersect(char_no_digit_ids_submit, fieldsMandatory_data) ])
 
-      # enable only when valid; otherwise disable
+      valid_form <- mandatoryfields_check(fieldsMandatory_data, input) &&
+        !any_csv_bad && !bad_no_digit_mand
+
       toggleState("draft_ok", condition = valid_form)
-
-      # if it becomes invalid, also force the switch back to NO
       if (!valid_form && isTRUE(input$draft_ok)) {
         updateSwitchInput(session, "draft_ok", value = FALSE)
       }
     })
+
+    # # 1) Any char-only field invalid? (digits OR CSV delimiters)
+    # invalid_char_fields <- reactive({
+    #   bad <- "(\\d|[,;\"\\r\\n])"  # digits or CSV delimiters
+    #   sapply(names(char_only_fields), function(field) {
+    #     v <- input[[field]]
+    #     is.character(v) && nzchar(v) && grepl(bad, v)
+    #   })
+    # })
+    #
+    # # 2) Inline error messages (now mention CSV delimiters)
+    # lapply(names(char_only_fields), function(field) {
+    #   output[[paste0(field, "_error")]] <- renderUI({
+    #     if (invalid_char_fields()[[field]]) {
+    #       div(style = "color:#CC6677; font-size:12px;",
+    #           strong(paste0(char_only_fields[[field]],
+    #                         " should not contain numbers or CSV delimiters ",
+    #                         "(comma, semicolon). Please use pipes (|)")))
+    #     }
+    #   })
+    # })
+    #
+    # # 3) Only gate on MANDATORY char-only fields
+    # invalid_man_char_fields <- reactive({
+    #   bad <- "(\\d|[,;\"\\r\\n])"
+    #   sapply(char_only_mand_fields, function(field) {
+    #     v <- input[[field]]
+    #     is.character(v) && nzchar(v) && grepl(bad, v)
+    #   })
+    # })
+
+    # # ----  B) CSV-ONLY for other character fields  ----
+    # csv_only_labels <- c(
+    #   name="Name", manufacturer="Manufacturer", model="Model", website="Website",
+    #   institution="Institution", charging_method="Charging Method",
+    #   level_validation="Validation Level", additional_information="Additional Information",
+    #   telephone="Telephone"
+    # )
+    #
+    # invalid_csv_only_fields <- reactive({
+    #   bad_csv <- "[,;\"\\r\\n]"     # CSV delimiters only
+    #   sapply(char_csv_only_fields, function(field) {
+    #     v <- input[[field]]
+    #     is.character(v) && nzchar(v) && grepl(bad_csv, v)
+    #   })
+    # })
+    #
+    # # show messages for CSV-only fields (to the *_csv_error slots you added in UI)
+    # lapply(char_csv_only_fields, function(field) {
+    #   output[[paste0(field, "_csv_error")]] <- renderUI({
+    #     if (invalid_csv_only_fields()[[field]]) {
+    #       lbl <- csv_only_labels[[field]] %||% field
+    #       div(style = "color:#CC6677; font-size:12px;",
+    #           strong(paste0(lbl, " should not contain CSV delimiters ",
+    #                         "(comma, semicolon). Please use pipes (|)")))
+    #     }
+    #   })
+    # })
+
+    # Enable/disable the YES/NO switch based on mandatory fields + char checks
+    # observe({
+    #   valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_man_char_fields())
+    #
+    #   # enable only when valid; otherwise disable
+    #   toggleState("draft_ok", condition = valid_form)
+    #
+    #   # if it becomes invalid, also force the switch back to NO
+    #   if (!valid_form && isTRUE(input$draft_ok)) {
+    #     updateSwitchInput(session, "draft_ok", value = FALSE)
+    #   }
+    # })
 
     # snapshot of last submitted form
     last_submission <- reactiveVal(NULL)
@@ -295,9 +417,66 @@ mod_sub_data__server <- function(id) {
       toggleState("submit_final", condition = isTRUE(input$draft_ok))
     })
 
-    # Render the draft table
+    # # Render the draft table
+    # output$draft_table <- renderReactable({
+    #   df <- build_form()
+    #
+    #   reactable(
+    #     df,
+    #     rownames = FALSE,
+    #     columns = list(
+    #       Variable = colDef(
+    #         name = "Variables",
+    #         sticky = "left",
+    #         minWidth = 220,
+    #         cell = function(value) {
+    #           div(
+    #             style = list(display = "inline-flex", alignItems = "center", whiteSpace = "nowrap"),
+    #             if (value %in% fieldsMandatory_data) labelMandatory(value) else value
+    #           )
+    #         }
+    #       ),
+    #       Value = colDef(
+    #         name = "Value",
+    #         minWidth = 380,
+    #         cell = function(value, index) {
+    #           # Which field (row) is this?
+    #           var <- df$Variable[index]
+    #           raw <- input[[var]]  # raw, live input for that field
+    #
+    #           # 1) Email: show error message instead of faulty text
+    #           if (identical(var, "email") && is.character(raw) && nzchar(raw) && !grepl("@", raw)) {
+    #             return(div(style = list(color = "#CC6677"),
+    #                        strong("Invalid email")))
+    #           }
+    #
+    #           # 2) Char-only fields: show error message instead of faulty text
+    #           if (var %in% names(char_only_fields) &&
+    #               is.character(raw) && nzchar(raw) && grepl("\\d", raw)) {
+    #             return(div(style = list(color = "#CC6677"),
+    #                        strong("Invalid character field")))
+    #           }
+    #
+    #           # 3) Normal display
+    #           if (is.na(value) || (is.character(value) && nzchar(value) == FALSE)) return("—")
+    #           div(style = list(whiteSpace = "pre-wrap"), value)
+    #         }
+    #       )
+    #     ),
+    #     bordered   = TRUE,
+    #     highlight  = TRUE,
+    #     striped    = FALSE,
+    #     pagination = FALSE,
+    #     resizable  = TRUE,
+    #     fullWidth  = TRUE,
+    #     defaultColDef = colDef(align = "left")
+    #   )
+    # })
+
+    # 5) (Optional) also reflect invalids in the Draft table cells
     output$draft_table <- renderReactable({
       df <- build_form()
+      pat_csv <- csv_delims_pattern
 
       reactable(
         df,
@@ -309,7 +488,7 @@ mod_sub_data__server <- function(id) {
             minWidth = 220,
             cell = function(value) {
               div(
-                style = list(display = "inline-flex", alignItems = "center", whiteSpace = "nowrap"),
+                style = list(display="inline-flex", alignItems="center", whiteSpace="nowrap"),
                 if (value %in% fieldsMandatory_data) labelMandatory(value) else value
               )
             }
@@ -318,24 +497,30 @@ mod_sub_data__server <- function(id) {
             name = "Value",
             minWidth = 380,
             cell = function(value, index) {
-              # Which field (row) is this?
               var <- df$Variable[index]
-              raw <- input[[var]]  # raw, live input for that field
+              raw <- input[[var]]
 
-              # 1) Email: show error message instead of faulty text
+              # email inline message
               if (identical(var, "email") && is.character(raw) && nzchar(raw) && !grepl("@", raw)) {
-                return(div(style = list(color = "#CC6677"),
-                           strong("Invalid email")))
+                return(div(style = list(color = "#CC6677"), strong("Invalid email")))
               }
 
-              # 2) Char-only fields: show error message instead of faulty text
-              if (var %in% names(char_only_fields) &&
-                  is.character(raw) && nzchar(raw) && grepl("\\d", raw)) {
+              # no-digit fields: digits or CSV delimiters
+              if (var %in% char_no_digit_ids_submit &&
+                  is.character(raw) && nzchar(raw) &&
+                  (grepl("\\d", raw) || grepl(pat_csv, raw))) {
                 return(div(style = list(color = "#CC6677"),
-                           strong("Invalid character field")))
+                           strong("Invalid characters")))
               }
 
-              # 3) Normal display
+              # csv-only fields: CSV delimiters
+              if (var %in% csv_only_ids_submit &&
+                  is.character(raw) && nzchar(raw) && grepl(pat_csv, raw)) {
+                return(div(style = list(color = "#CC6677"),
+                           strong("Contains CSV delimiters")))
+              }
+
+              # normal display
               if (is.na(value) || (is.character(value) && nzchar(value) == FALSE)) return("—")
               div(style = list(whiteSpace = "pre-wrap"), value)
             }
