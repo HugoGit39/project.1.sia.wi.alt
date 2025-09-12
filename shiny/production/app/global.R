@@ -20,14 +20,15 @@ invisible(lapply(required_packages, function(pkg) {
 
 # * 2 Load functions -----------------------------------------------------------
 
-source("functions/accordion.R")
-source("functions/colours_fresh.R")
-source("functions/cell_layout.R")
-source("functions/email.R")
-source("functions/filters.R")
+source("functions/func_accordion.R")
+source("functions/func_cell_layout.R")
+source("functions/func_colours_fresh.R")
+source("functions/func_email.R")
+source("functions/func_filters.R")
 source("functions/func_column_defs.R")
 source("functions/func_row_defs.R")
-source("functions/mandatory_fields.R")
+source("functions/func_mandatory_fields.R")
+source("functions/func_reset_fields.R")
 
 # * 3 Load modules -----------------------------------------------------------
 
@@ -87,18 +88,21 @@ char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(num
 
 #  * 8 Mandatory fields ---------------------------
 
-# * * 8.1 data
-fieldsMandatory_data <- c("manufacturer", "model", "website", "release_date", "market_status", "main_use",
-                          "device_cost", "wearable_type", "location", "weight", "size")
+fieldsMandatory_data <- c("name","email","manufacturer","model","website","market_status","main_use",
+                          "device_cost","wearable_type","location","weight","size")
 
-char_only_fields <- list(
-  market_status = "Market Status",
-  main_use = "Main Use",
-  wearable_type = "Type",
-  location = "Location",
-  other_signals = "Other Signals",
-  data_trans_method = "Data Transmission Method"
+# IDs that must NOT contain digits or CSV delimiters
+char_no_digit_ids <- c(
+  "name","market_status","main_use","wearable_type","location",
+  "other_signals","data_trans_method"
 )
+
+# you already have char_vars defined elsewhere
+csv_only_ids <- union(setdiff(char_vars, char_no_digit_ids), "additional_information")
+
+char_no_digit_mand <- intersect(char_no_digit_ids, fieldsMandatory_data)
+
+csv_delims_pattern <- "[,;]"
 
 # * * 8.2 email
 fieldsMandatory_email <- c("name", "email", "message")
@@ -174,3 +178,6 @@ disconnected <- tagList(
   p("Just hit refresh to continue", br(),
     "where you left off!", style = "font-size:16px")
 )
+
+
+

@@ -39,7 +39,7 @@ func_yn_column_defs <- function(yn_vars, rename_map) {
   )
 }
 
-#numerical colors:
+#numerical colors
 func_numeric_column_defs <- function(df, numeric_vars, rename_map, numeric_var_ranges) {
   palette <- generate_alpha_palette("#1c75bc")
 

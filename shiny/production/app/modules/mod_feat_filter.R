@@ -68,18 +68,11 @@ mod_feat_fil_ui <- function(id) {
                   collapsible = FALSE,
                   selectInput(ns("manufacturer"), "Manufacturer", choices = NULL, multiple = TRUE),
                   selectInput(ns("model"), "Model", choices = NULL, multiple = TRUE),
-                  dateRangeInput(
-                    inputId   = ns("release_date"),          
-                    label     = "Release Year Range",
-                    start     = min(sia_df$release_date, na.rm = TRUE),   
-                    end       = max(sia_df$release_date, na.rm = TRUE),   
-                    min       = min(sia_df$release_date, na.rm = TRUE),   
-                    max       = max(sia_df$release_date, na.rm = TRUE),
-                    format    = "yyyy",          
-                    startview = "decade",        
-                    separator = " – ",           
-                    width     = "100%"           
-                  ),
+                  airDatepickerInput(ns("release_date"), "Release Year Range",
+                                     range = TRUE, view = "years", minView = "years",
+                                     dateFormat = "yyyy",
+                                     value = c(min(sia_df$release_date, na.rm = TRUE),
+                                               max(sia_df$release_date, na.rm = TRUE))),
                   selectInput(ns("market_status"), "Market Status", choices = NULL, multiple = TRUE),
                   selectInput(ns("main_use"), "Main Use", choices = NULL, multiple = TRUE),
                   sliderInput(
@@ -233,7 +226,7 @@ mod_feat_fil_ui <- function(id) {
 
 ############################################################################################
 #
-#  Function nodule for nfeauture filter (extensive)
+#  Module for feauture filter (extensive)
 #
 #############################################################################################
 
@@ -322,12 +315,11 @@ mod_feat_fil_server <- function(id, data) {
         }
       }
 
-      updateDateRangeInput(
-        session,
-        "release_date",
-        start = min(sia_df$release_date, na.rm = TRUE),
-        end   = max(sia_df$release_date, na.rm = TRUE)
-      )
+      updateAirDateInput(session, "release_date",
+                         value = c(
+                           min(sia_df$release_date, na.rm = TRUE),
+                           max(sia_df$release_date, na.rm = TRUE)
+                         ))
 
       lapply(checkbox_vars, function(id) updatePrettyCheckbox(session, id, value = FALSE))
 
@@ -384,7 +376,6 @@ mod_feat_fil_server <- function(id, data) {
           char_column_defs
         ),
         defaultColDef = colDef(
-          minWidth = 175,  
           footer = function(values, name) {
             div(rename_map[[name]] %||% name, style = list(fontWeight = 600))
           }
@@ -397,15 +388,30 @@ mod_feat_fil_server <- function(id, data) {
         searchable = TRUE,
         resizable = TRUE,
         fullWidth = TRUE,
-        style = list(maxHeight = "1000px", overflowY = "auto"),
+        style = list(maxHeight = "1000px", overflowY = "auto")
       )
     })
 
     # Step 6: Download
     output$download_data <- downloadHandler(
       filename = function() paste0("sia_feature_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),
-      content = function(file) write.csv(filtered_data(), file, row.names = FALSE)
+      content = function(file) {
+        # write the data
+        write.csv(filtered_data(), file, row.names = FALSE, na = "")
+
+        # append the footer message (as comment lines)
+        cat(
+          "\n# Citation terms.\n",
+          "# Thank you for using the Stress-in-Action Wearable Database!\n",
+          "# If you use the SiA-WD and/or this web app, you must cite:\n",
+          "# Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. Behav Res Methods. 2025 May 13;57(6):171. doi: 10.3758/s13428-025-02685-4. PMID: 40360861; PMCID: PMC12075381.\n",
+          "# [Shiny paper comming soon]\n",
+          file = file, append = TRUE, sep = ""
+        )
+      },
+      contentType = "text/csv"
     )
+
 
     # Step 7: Download filter settings
     output$download_filter_settings <- downloadHandler(
@@ -443,21 +449,30 @@ mod_feat_fil_server <- function(id, data) {
         df <- data.frame(t(unlist(settings)), check.names = FALSE)
         names(df) <- names(settings)
 
-        # Define order: sia_es_long, sia_es_short, exclude_na_sia, then the rest
+        # Order columns
         ordered_vars <- c(
           "sia_es_long",
           "sia_es_short",
           "exclude_na_sia",
           setdiff(c(names(rename_map), "release_date"), c("sia_es_long", "sia_es_short"))
         )
-
-        # Filter only existing variables
         ordered_vars <- ordered_vars[ordered_vars %in% names(df)]
         df <- df[ordered_vars]
 
-        # Keep column names as internal variable names
+        # Write CSV (settings)
         write.table(df, file, sep = ",", row.names = FALSE, col.names = TRUE, quote = FALSE)
-      }
+
+        # Append citation footer
+        cat(
+          "\n# Citation terms.\n",
+          "# Thank you for using the SiA-WD!\n",
+          "# If you use the database and/or this web app, you must cite:\n",
+          "# Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. Behav Res Methods. 2025 May 13;57(6):171. doi: 10.3758/s13428-025-02685-4. PMID: 40360861; PMCID: PMC12075381.\n",
+          "# [Your app paper citation here]\n",
+          file = file, append = TRUE, sep = ""
+        )
+      },
+      contentType = "text/csv"
     )
 
   })

@@ -20,7 +20,7 @@ mandatoryfields_check <- function(fields, input) {
       FALSE
     } else if (x == "email") {
       grepl("@", value)
-    } else if (x %in% names(char_only_fields)) {
+    } else if (x %in% char_no_digit_ids) {
       is.character(value) && value != "" && !grepl("\\d", value)
     } else if (is.character(value)) {
       value != ""

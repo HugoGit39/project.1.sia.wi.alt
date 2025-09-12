@@ -9,16 +9,15 @@ send_email <- function(body, subject, receiver = "disc@stress-in-action.nl", att
 
   # SMTP settings (use environment variables for security)
   smtp <- server(
-    host = Sys.getenv("SMTP_HOST"),
-    port = as.integer(Sys.getenv("SMTP_PORT")),
-    username = Sys.getenv("MAIL_NAME_ID"),
-    password = Sys.getenv("MAIL_KEY_ID"),
-    ssl      = TRUE 
+    host = "smtp.transip.email",
+    port = 465,
+    username = "disc@stress-in-action.nl",
+    password = "xxxxxxxxxxx"
   )
 
   # Create email message
   msg <- envelope(
-    to = receiver,
+    to = "disc@stress-in-action.nl",
     from = "disc@stress-in-action.nl"
   ) %>%
     subject(subject) %>%

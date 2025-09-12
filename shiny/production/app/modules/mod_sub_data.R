@@ -1,10 +1,11 @@
+
 ############################################################################################
 #
-#  Function nodule for add data
+#  Module: Submit Data (live draft; no create button; switch enables on validity)
 #
-#############################################################################################
+############################################################################################
 
-# ui
+# UI
 mod_sub_data_ui <- function(id) {
   ns <- NS(id)
 
@@ -13,47 +14,64 @@ mod_sub_data_ui <- function(id) {
       column(
         width = 4,
         bs4Card(
-          title = "1. Create Draft Form",
+          title = "1. Draft Form",
           status = "primary",
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
           div(
-            p("Make sure to complete at least the mandatory fields ", strong("*", style = "color: #CC6677;"), " to create a draft before submitting.", style = "text-align: justify;"),
-            p(actionButton(ns("create_draft"), "Create", disabled = TRUE))
+            p(
+              "The draft updates live as you type. Complete the mandatory fields ",
+              strong("*", style = "color: #CC6677;"),
+              " to enable submission.",
+              style = "text-align: justify;"
+            )
           ),
           textOutput(ns("status")),
+
+          # --- Your Information ---
           bs4Card(
             title = "Your Information",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
             textInput(ns("name"), labelMandatory("Name")),
+            uiOutput(ns("name_error")),                     # digits/CSV blocked (your existing handler)
             textInput(ns("email"), labelMandatory("Email")),
+            uiOutput(ns("email_error")),
             textInput(ns("telephone"), "Telephone"),
-            textInput(ns("institution"), "Institution")
-            ),
+            uiOutput(ns("telephone_csv_error")),            # CSV-only
+            textInput(ns("institution"), "Institution"),
+            uiOutput(ns("institution_csv_error"))           # CSV-only
+          ),
+
+          # --- General Device Information ---
           bs4Card(
             title = "General Device Information",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
             textInput(ns("manufacturer"), labelMandatory("Manufacturer")),
+            uiOutput(ns("manufacturer_csv_error")),         # CSV-only
             textInput(ns("model"), labelMandatory("Model")),
+            uiOutput(ns("model_csv_error")),                # CSV-only
             textInput(ns("website"), labelMandatory("Website")),
-            dateInput(ns("release_date"), labelMandatory("Release Date")),
+            uiOutput(ns("website_csv_error")),              # CSV-only
+            dateInput(ns("release_date"), "Release Date"),
             textInput(ns("market_status"), labelMandatory("Market Status")),
-            uiOutput(ns("market_status_error")),
+            uiOutput(ns("market_status_error")),            # digits/CSV blocked (your existing handler)
             textInput(ns("main_use"), labelMandatory("Main Use")),
-            uiOutput(ns("main_use_error")),
+            uiOutput(ns("main_use_error")),                 # digits/CSV blocked
             numericInput(ns("device_cost"), labelMandatory("Cost (€)"), value = NA),
             textInput(ns("wearable_type"), labelMandatory("Type")),
-            uiOutput(ns("wearable_type_error")),
+            uiOutput(ns("wearable_type_error")),            # digits/CSV blocked
             textInput(ns("location"), labelMandatory("Location")),
-            uiOutput(ns("location_error")),
+            uiOutput(ns("location_error")),                 # digits/CSV blocked
             numericInput(ns("weight"), labelMandatory("Weight (g)"), value = NA),
             numericInput(ns("size"), labelMandatory("Size"), value = NA)
           ),
+
+          # --- Technical Specifications ---
           bs4Card(
             title = "Technical Specifications",
             status = "secondary",
@@ -62,10 +80,13 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("water_resistance"), "Water Resistant", value = FALSE),
             numericInput(ns("battery_life"), "Battery Life (min)", value = NA),
             textInput(ns("charging_method"), "Charging Method"),
+            uiOutput(ns("charging_method_csv_error")),      # CSV-only
             numericInput(ns("charging_duration"), "Charging Duration (min)", value = NA),
             checkboxInput(ns("bio_cueing"), "Bio Cueing", value = FALSE),
             checkboxInput(ns("bio_feedback"), "Bio Feedback", value = FALSE)
           ),
+
+          # --- Signals ---
           bs4Card(
             title = "Signals",
             status = "secondary",
@@ -75,7 +96,7 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("ecg"), "ECG", value = FALSE),
             checkboxInput(ns("icg"), "ICG", value = FALSE),
             checkboxInput(ns("emg"), "EMG", value = FALSE),
-            textInput(ns("respiration"), "Respiration"),
+            checkboxInput(ns("respiration"), "Respiration", value = FALSE),
             checkboxInput(ns("eda"), "EDA", value = FALSE),
             checkboxInput(ns("eeg"), "EEG", value = FALSE),
             checkboxInput(ns("bp"), "Blood Pressure", value = FALSE),
@@ -84,8 +105,10 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("gps"), "GPS", value = FALSE),
             checkboxInput(ns("skin_temperature"), "Skin Temperature", value = FALSE),
             textInput(ns("other_signals"), "Other Signals"),
-            uiOutput(ns("other_signals_error"))
+            uiOutput(ns("other_signals_error"))             # digits/CSV blocked
           ),
+
+          # --- Data Access ---
           bs4Card(
             title = "Data Access",
             status = "secondary",
@@ -93,7 +116,7 @@ mod_sub_data_ui <- function(id) {
             collapsible = FALSE,
             checkboxInput(ns("raw_data_available"), "Raw Data Available", value = FALSE),
             textInput(ns("data_trans_method"), "Data Transmission Method"),
-            uiOutput(ns("data_trans_method_error")),
+            uiOutput(ns("data_trans_method_error")),        # digits/CSV blocked
             numericInput(ns("int_storage_met"), "Internal Storage (MB)", value = NA),
             checkboxInput(ns("server_data_storage"), "Server Data Storage", value = FALSE),
             numericInput(ns("dev_storage_cap_hrs"), "Device Storage (hrs)", value = NA),
@@ -102,20 +125,27 @@ mod_sub_data_ui <- function(id) {
             checkboxInput(ns("fda_app_clear"), "FDA Approved", value = FALSE),
             checkboxInput(ns("ce_app_label"), "CE Label", value = FALSE)
           ),
-          bs4Card(title = "Validation, Reliability & Usability",
-                  width = 12,
-                  status = "secondary",
-                  collapsible = FALSE,
-                  textInput(ns("level_validation"), "Validation Level"),
-                  numericInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", value = NA),
-                  numericInput(ns("no_studies_usab_reviewed"), "Usability Studies", value = NA)
+
+          # --- Validation, Reliability & Usability ---
+          bs4Card(
+            title = "Validation, Reliability & Usability",
+            width = 12,
+            status = "secondary",
+            collapsible = FALSE,
+            textInput(ns("level_validation"), "Validation Level"),
+            uiOutput(ns("level_validation_csv_error")),     # CSV-only
+            numericInput(ns("no_studies_val_rel_reviewed"), "Validation Studies", value = NA),
+            numericInput(ns("no_studies_usab_reviewed"), "Usability Studies", value = NA)
           ),
+
+          # --- Further Details ---
           bs4Card(
             title = "Further Details",
             status = "secondary",
             width = 12,
             collapsible = FALSE,
-            textAreaInput(ns("additional_information"), "Additional Information", rows = 4)
+            textAreaInput(ns("additional_information"), "Additional Information", rows = 4),
+            uiOutput(ns("additional_information_csv_error")) # CSV-only
           )
         )
       ),
@@ -127,15 +157,30 @@ mod_sub_data_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-          p("Please verify that prvided fields are correct, then slide the toggle to enable submission.", style = "text-align: justify;"),
-          p(materialSwitch(inputId = ns("draft_ok"), label = "Slide to the right when ready!", right = TRUE, status = "success")),
+          p(
+            "Please verify that provided fields are correct, then slide the toggle to enable submission.",
+            style = "text-align: justify;"
+          ),
+          p(
+            switchInput(
+              inputId   = ns("draft_ok"),
+              onLabel   = "YES",
+              offLabel  = "NO",
+              value     = FALSE,
+              size      = "sm",
+              onStatus  = "secondary",
+              offStatus = "primary"
+            )
+          ),
+          p(strong("All required fields complete?")
+          ),
           bs4Card(
             title = "Draft Form Output",
             width = 12,
             status = "secondary",
             solidHeader = TRUE,
             collapsible = FALSE,
-            reactableOutput(ns("draft_table"))  %>% withSpinner()
+            reactableOutput(ns("draft_table")) %>% withSpinner()
           )
         )
       ),
@@ -147,9 +192,16 @@ mod_sub_data_ui <- function(id) {
           width = 12,
           collapsible = FALSE,
           solidHeader = TRUE,
-            p("When you approve your draft, the option to send it to us will become available.", style = "text-align: justify;"),
-            p(actionButton(ns("submit_final"), "Submit", disabled = TRUE)),
-            p("A copy of your submission will be sent to the email address you provided. We will reach out to you to discuss it in more detail.", style = "text-align: justify;")
+          p(
+            "When you approve your draft, the option to send it to us will become available.",
+            style = "text-align: justify;"
+          ),
+          p(actionButton(ns("submit_final"), "Submit", disabled = TRUE)),
+          downloadLink(ns("dl_csv_submit"), "", style = "display:none;"),
+          p(
+            "A copy of will be downloaded automatically when submitting. We will reach out to you to discuss it in more detail.",
+            style = "text-align: justify;"
+          )
         ),
         div(
           style = "text-align: center;",
@@ -163,161 +215,214 @@ mod_sub_data_ui <- function(id) {
   )
 }
 
-#server
+# Server
 mod_sub_data__server <- function(id) {
   moduleServer(id, function(input, output, session) {
-
     ns <- session$ns
 
-    create_clicked <- reactiveVal(FALSE)
-
+    # Start with switch disabled
     disable("draft_ok")
+    updateSwitchInput(session, "draft_ok", value = FALSE)
 
-    #create reactive data frame
-    draft_data <- reactiveVal()
+    # Live builder for the draft table from inputs
+    build_form <- reactive({
+      data.frame(
+        Variable = rename_subm,
+        Value = vapply(rename_subm, function(varname) {
+          val <- input[[varname]]
 
-    # Create empty form
-    form_template <- data.frame(
-      Variable = rename_subm,
-      Value = rep(NA, length(rename_subm))
-    )
+          # Checkboxes: show Yes/No (default No)
+          if (varname %in% yn_vars) {
+            return(if (isTRUE(val)) "Yes" else "No")
+          }
 
-    #Fill reactive value
-    draft_data(form_template)
+          # Dates -> YYYY-MM-DD
+          if (inherits(val, "Date")) {
+            return(if (!is.null(val) && !is.na(val)) format(val, "%Y-%m-%d") else NA_character_)
+          }
 
-    # Check char fields correct
-    invalid_char_fields <- reactive({
-      sapply(names(char_only_fields), function(field) {
-        val <- input[[field]]
-        !is.null(val) && !is.na(val) && grepl("\\d", val)
-      })
+          # Empty -> NA; else as character
+          if (is.null(val) || (is.character(val) && val == "")) return(NA_character_)
+          as.character(val)
+        }, character(1)),
+        check.names = FALSE,
+        stringsAsFactors = FALSE
+      )
     })
 
-    # Character field validation UI outputs with friendly labels
-    lapply(names(char_only_fields), function(field) {
+    # Email inline error
+    output$email_error <- renderUI({
+      v <- input$email
+      if (is.null(v) || !nzchar(v)) return(NULL)
+
+      invalid <- !grepl("@", v) || grepl(csv_delims_pattern, v)
+      if (invalid) {
+        div(style = "color:#CC6677; font-size:12px;",
+            strong("Email should contain '@' and must not include CSV delimiters (, ;)."))
+      }
+    })
+
+    # ---------------- VALIDATION (uses your global sets) ----------------
+
+    # invalid for "no-digit" fields: digits OR CSV delimiters
+    invalid_no_digit <- reactive({
+      ids <- char_no_digit_ids
+      setNames(vapply(ids, function(field) {
+        v <- input[[field]]
+        is.character(v) && nzchar(v) && (grepl("\\d", v) || grepl(csv_delims_pattern, v))
+      }, logical(1)), ids)
+    })
+
+    # invalid for CSV-only fields: CSV delimiters
+    invalid_csv_only <- reactive({
+      ids <- csv_only_ids
+      setNames(vapply(ids, function(field) {
+        v <- input[[field]]
+        is.character(v) && nzchar(v) && grepl(csv_delims_pattern, v)
+      }, logical(1)), ids)
+    })
+
+    # Per-field UI messages (generic text, no labels needed)
+    lapply(char_no_digit_ids, function(field) {
       output[[paste0(field, "_error")]] <- renderUI({
-        if (invalid_char_fields()[[field]]) {
-          div(style = "color:#CC6677;", paste(char_only_fields[[field]], "should not contain a number."))
+        if (isTRUE(invalid_no_digit()[field])) {
+          div(style = "color:#CC6677; font-size:12px;",
+              strong("The input should not contain numbers or CSV delimiters (, ;). Please use pipes (|)."))
         }
       })
     })
 
-    # Correct Filled in fields & Mandatory fields
-    observe({
-
-      toggleState("create_draft", condition = mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields()))
-
+    lapply(csv_only_ids, function(field) {
+      output[[paste0(field, "_csv_error")]] <- renderUI({
+        if (isTRUE(invalid_csv_only()[field])) {
+          div(style = "color:#CC6677; font-size:12px;",
+              strong("The input should not contain CSV delimiters (, ;). Please use pipes (|)."))
+        }
+      })
     })
 
-    #Render draft table
+    # Gate the YES/NO switch
+    observe({
+      any_csv_bad       <- any(invalid_csv_only()) || any(invalid_no_digit())
+      bad_no_digit_mand <- any(invalid_no_digit()[ intersect(char_no_digit_ids, fieldsMandatory_data) ])
+
+      valid_form <- mandatoryfields_check(fieldsMandatory_data, input) &&
+        !any_csv_bad && !bad_no_digit_mand
+
+      toggleState("draft_ok", condition = valid_form)
+      if (!valid_form && isTRUE(input$draft_ok)) {
+        updateSwitchInput(session, "draft_ok", value = FALSE)
+      }
+    })
+
+    # Hidden download of submitted CSV
+    last_submission <- reactiveVal(NULL)
+
+    output$dl_csv_submit <- downloadHandler(
+      filename    = function() sprintf("sia_submission_from_%s.csv", input$email),
+      content     = function(file) write.csv(req(last_submission()), file, row.names = FALSE),
+      contentType = "text/csv"
+    )
+    outputOptions(output, "dl_csv_submit", suspendWhenHidden = FALSE)
+
+    # Submit button only enabled when switch is YES
+    observe({
+      toggleState("submit_final", condition = isTRUE(input$draft_ok))
+    })
+
+    # Draft table with inline flags
     output$draft_table <- renderReactable({
-      df <- draft_data()
+      df <- build_form()
 
       reactable(
         df,
+        rownames = FALSE,
         columns = list(
           Variable = colDef(
-            name = "Field",
+            name = "Variables",
             sticky = "left",
-            minWidth = 220
+            minWidth = 220,
+            cell = function(value) {
+              div(
+                style = list(display="inline-flex", alignItems="center", whiteSpace="nowrap"),
+                if (value %in% fieldsMandatory_data) labelMandatory(value) else value
+              )
+            }
           ),
           Value = colDef(
             name = "Value",
             minWidth = 380,
-            cell = function(value) {
+            cell = function(value, index) {
+              var <- df$Variable[index]
+              raw <- input[[var]]
+
+              # email inline message
+              if (identical(var, "email") && is.character(raw) && nzchar(raw) && !grepl("@", raw)) {
+                return(div(style = list(color = "#CC6677"), strong("Invalid email")))
+              }
+
+              # no-digit fields: digits or CSV delimiters
+              if (var %in% char_no_digit_ids &&
+                  is.character(raw) && nzchar(raw) &&
+                  (grepl("\\d", raw) || grepl(csv_delims_pattern, raw))) {
+                return(div(style = list(color = "#CC6677"),
+                           strong("Invalid characters")))
+              }
+
+              # csv-only fields: CSV delimiters
+              if (var %in% csv_only_ids &&
+                  is.character(raw) && nzchar(raw) && grepl(csv_delims_pattern, raw)) {
+                return(div(style = list(color = "#CC6677"),
+                           strong("Contains CSV delimiters")))
+              }
+
+              # normal display
               if (is.na(value) || (is.character(value) && nzchar(value) == FALSE)) return("—")
-              # Show line breaks nicely if any (e.g., multi-line notes)
-              htmltools::div(style = list(whiteSpace = "pre-wrap"), as.character(value))
+              div(style = list(whiteSpace = "pre-wrap"), value)
             }
           )
         ),
         bordered   = TRUE,
         highlight  = TRUE,
         striped    = FALSE,
-        pagination = FALSE,     # show full draft
+        pagination = FALSE,
         resizable  = TRUE,
         fullWidth  = TRUE,
-        defaultColDef = colDef(align = "left"),
-        style = list(maxHeight = "500px", overflowY = "auto")
+        defaultColDef = colDef(align = "left")
       )
     })
 
-
-    observeEvent(input$create_draft, {
-      create_clicked(TRUE)  # mark that draft was created
-
-      updated_form <- draft_data()
-      for (i in seq_len(nrow(updated_form))) {
-        varname <- updated_form$Variable[i]
-        val <- input[[varname]]
-
-        if (!is.null(val) && !is.na(val) && !(is.character(val) && val == "")) {
-          # Convert logicals to "Yes"/"No"
-          if (is.logical(val)) {
-            updated_form$Value[i] <- ifelse(val, "Yes", "No")
-          }
-          # Format dates as string
-          else if (inherits(val, "Date")) {
-            updated_form$Value[i] <- format(val, "%Y-%m-%d")
-          }
-          # Otherwise just store value
-          else {
-            updated_form$Value[i] <- val
-          }
-        }
-      }
-
-      draft_data(updated_form)
-    })
-
-
-
-    observe({
-      valid_form <- mandatoryfields_check(fieldsMandatory_data, input) && !any(invalid_char_fields())
-
-      # Enable or disable toggle based on validity + if Create was clicked
-      toggleState("draft_ok", condition = create_clicked() && valid_form)
-
-      # If form becomes invalid, also reset the toggle switch to OFF
-      if (!valid_form) {
-        updateMaterialSwitch(session = session, inputId = "draft_ok", value = FALSE)
-      }
-    })
-
-    #check if toggle is switched
-    observe({
-      toggleState("submit_final", condition = isTRUE(input$draft_ok))
-    })
-
+    # Submit flow
     observeEvent(input$submit_final, {
+      # snapshot the form once
+      df <- build_form()
+      last_submission(df)
 
-      # Save to a temporary CSV
-      tmp_file <- tempfile(fileext = ".csv")
-      write.csv(draft_data(), tmp_file, row.names = FALSE)
+      # build + send email attachment from the snapshot
+      csv_path <- file.path(tempdir(), paste0("sia_submission_from_", input$email, ".csv"))
+      write.csv(df, csv_path, row.names = FALSE)
 
-      # Create email body
-      body <- paste("Name: ", input$name,
-                    "\nEmail: ", input$email,
-                    "\nTelephone: ", input$telephone,
-                    "\n\nInstitution: ", input$institution)
-
-      subject <- "Wearable Shiny App new data submission"
-
-      receiver_email <- input$email
-
-      send_email(body, subject, receiver_email, tmp_file)
-
-      showModal(
-        modalDialog(
-          title = "Data Submitted",
-          "Thank you for your data submission! We will get back to you soon."
-        )
+      subject <- sprintf("SiA Wearables submission: %s", input$email)
+      body <- paste0(
+        "New submission received.\n\n",
+        "Name: ",        input$name,        "\n",
+        "Email: ",       input$email,       "\n",
+        "Telephone: ",   input$telephone,   "\n",
+        "Institution: ", input$institution, "\n"
       )
+      send_email(body = body, subject = subject, attachment = csv_path)
+
+      # trigger the hidden download (now backed by last_submission)
+      session$onFlushed(function() {
+        runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
+      }, once = TRUE)
+
+      session$sendCustomMessage("dataSubmitted",
+                                "Thank you for your data submission! We will get back to you soon.")
+
+      # finally reset inputs
+      reset_inputs_sub_data(session, input)
     })
 
-
-
-  }
-  )
+  })
 }
-

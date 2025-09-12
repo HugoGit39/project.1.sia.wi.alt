@@ -132,45 +132,69 @@ mod_prod_fil_server <- function(id, sia_df) {
     })
 
     output$prod_filtered_table <- renderReactable({
+      # 1) get selected rows
       df <- selected_products()
 
+      # format release year if present
       if ("release_date" %in% names(df)) {
         df$release_date <- format(df$release_date, "%Y")
       }
 
-      # Transpose: features as rows, models as columns
+      # 2) transpose to features-as-rows, models-as-columns
       df_t <- df %>%
         select(-manufacturer, -model) %>%
         t() %>%
-        as.data.frame()
+        as.data.frame(stringsAsFactors = FALSE)
 
       colnames(df_t) <- paste0(df$manufacturer, " – ", df$model)
-      df_t <- cbind(Feature = rownames(df_t), df_t)  # 1. copy row-names into a new first column
-      rownames(df_t) <- NULL 
+      # keep internal variable name BEFORE renaming
+      df_t <- cbind(Feature_internal = rownames(df_t), df_t)
+      rownames(df_t) <- NULL
 
-      # Rename features for display
-      df_t$Feature <- rename_map[df_t$Feature]
+      # display name
+      df_t$Feature <- rename_map[df_t$Feature_internal] %||% df_t$Feature_internal
 
-      transposed_cols <- setdiff(names(df_t), "Feature")
+      # columns to render
+      transposed_cols <- setdiff(names(df_t), c("Feature", "Feature_internal"))
+
       col_defs <- list(
         Feature = colDef(name = "Feature", minWidth = 50, style = list(fontWeight = "bold"))
       )
 
+      # 3) per-column cell renderer (bars -> yes/no -> numeric heat -> plain)
       for (col in transposed_cols) {
         col_defs[[col]] <- colDef(cell = function(value, index) {
-          # #bar
+          # bars
           rendered <- func_bar_row_defs(value, index, df_t$Feature, bar_vars, rename_map)
           if (!identical(rendered, value)) return(rendered)
 
-          #yes/no
+          # yes/no
           rendered <- func_yn_row_defs(value, index, df_t$Feature, yn_vars, rename_map)
-          return(rendered)
+          if (!identical(rendered, value)) return(rendered)
+
+          # numeric (row-aware; uses Feature_internal + global pal_num_scale)
+          rendered <- func_numeric_row_defs(
+            value, index,
+            feature_internal    = df_t$Feature_internal,
+            numeric_vars        = numeric_vars,
+            numeric_var_ranges  = numeric_var_ranges,
+            palette             = pal_num_scale
+          )
+          if (!identical(rendered, value)) return(rendered)
+
+          # fallback
+          value
         })
       }
 
+
+      # 4) render table
       reactable(
-        df_t,
-        columns = col_defs,
+        df_t[, c("Feature", "Feature_internal", transposed_cols)],
+        columns = c(
+          col_defs,
+          list(Feature_internal = colDef(show = FALSE)) # hide helper column
+        ),
         height = (nrow(df_t) * 0.5) * 40,
         bordered = TRUE,
         highlight = TRUE,
@@ -191,7 +215,18 @@ mod_prod_fil_server <- function(id, sia_df) {
 
     output$download_data <- downloadHandler(
       filename = function() paste0("sia_product_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),
-      content = function(file) write.csv(selected_products(), file, row.names = FALSE)
+      content = function(file) {
+        write.csv(selected_products(), file, row.names = FALSE, na = "")
+        cat(
+          "\n# Citation terms.\n",
+          "# Thank you for using the Stress-in-Action Wearable Database!\n",
+          "# If you use the SiA-WD and/or this web app, you must cite:\n",
+          "# Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. Behav Res Methods. 2025 May 13;57(6):171. doi: 10.3758/s13428-025-02685-4. PMID: 40360861; PMCID: PMC12075381.\n",
+          "# [Shiny paper comming soon]\n",
+          file = file, append = TRUE, sep = ""
+        )
+      },
+      contentType = "text/csv"
     )
   })
 }
