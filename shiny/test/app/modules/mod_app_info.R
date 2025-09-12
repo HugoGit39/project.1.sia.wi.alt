@@ -71,7 +71,8 @@ mod_app_info_ui <- function(id) {
               collapsible = FALSE,
               headerBorder = FALSE,
               style = "height: 300px; overflow-y: auto;",
-              p("Terms of citation", style = "text-align: justify;"),
+              p(strong("Terms of citation"), br(),
+                "When making use of the wearables database and/or the web app, you must cite the two papers describe in", strong("Papers to Cite", style = "color: #f15a29;"), "and/or", strong("Research", style = "color: #1c75bc;")),
               p("To use this app, navigate to the 'Filters' section to explore wearables based on your
                 criteria. If you have new data to add, visit the 'Submit Data' section.", style = "text-align: justify;"),
               p("For more details, check the documentation or contact support.", style = "text-align: justify;")

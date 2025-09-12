@@ -233,9 +233,9 @@ mod_sub_data__server <- function(id) {
       val <- input$email
       if (!is.null(val) && nzchar(val) && !grepl("@", val)) {
         div(
-          style = "color:#CC6677; font-size:12px;",
-          strong("Email must contain '@' (e.g., name@example.com).")
-        )
+      style = "color:#CC6677; font-size:12px;",
+      strong("Email must contain '@' (e.g., name@example.com).")
+    )
       }
     })
 

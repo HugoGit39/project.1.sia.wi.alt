@@ -215,7 +215,18 @@ mod_prod_fil_server <- function(id, sia_df) {
 
     output$download_data <- downloadHandler(
       filename = function() paste0("sia_product_filter_data_", format(Sys.Date(), "%Y%m%d"), ".csv"),
-      content = function(file) write.csv(selected_products(), file, row.names = FALSE)
+      content = function(file) {
+        write.csv(selected_products(), file, row.names = FALSE, na = "")
+        cat(
+          "\n# Citation terms.\n",
+          "# Thank you for using the Stress-in-Action Wearable Database!\n",
+          "# If you use the SiA-WD and/or this web app, you must cite:\n",
+          "# Schoenmakers M, Saygin M, Sikora M, Vaessen T, Noordzij M, de Geus E. Stress in action wearables database: A database of noninvasive wearable monitors with systematic technical, reliability, validity, and usability information. Behav Res Methods. 2025 May 13;57(6):171. doi: 10.3758/s13428-025-02685-4. PMID: 40360861; PMCID: PMC12075381.\n",
+          "# [Shiny paper comming soon]\n",
+          file = file, append = TRUE, sep = ""
+        )
+      },
+      contentType = "text/csv"
     )
   })
 }
