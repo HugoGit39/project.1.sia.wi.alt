@@ -18,7 +18,11 @@ invisible(lapply(required_packages, function(pkg) {
   library(pkg, character.only = TRUE)
 }))
 
-# * 2 Load functions -----------------------------------------------------------
+# * 2 Load .Renviron -----------------------------------------------------------
+
+readRenviron("/home/hugo/app/.Renviron")
+
+# * 3 Load functions -----------------------------------------------------------
 
 source("functions/func_accordion.R")
 source("functions/func_cell_layout.R")
@@ -30,7 +34,7 @@ source("functions/func_row_defs.R")
 source("functions/func_mandatory_fields.R")
 source("functions/func_reset_fields.R")
 
-# * 3 Load modules -----------------------------------------------------------
+# * 4 Load modules -----------------------------------------------------------
 
 source("modules/mod_controlbar.R")
 source("modules/mod_header.R")
@@ -44,21 +48,21 @@ source("modules/mod_contact.R")
 source("modules/mod_footer.R")
 source("modules/mod_timeout.R")
 
-#  * 4 load data -----------------------------------------------
+#  * 5 load data -----------------------------------------------
 sia_df <- get(load(file.path("data", "df_sia_wearable_app.RData")))
 
 #remove column id
 sia_df$id <- NULL
 
-#  * 5 calculate no of wearables for home page -----------------------------------------------
+#  * 6 calculate no of wearables for home page -----------------------------------------------
 n_wearables <- nrow(sia_df)
 
-#  * 6 set spinner table -----------------------------------------------
+#  * 7 set spinner table -----------------------------------------------
 options(spinner.type = 5, spinner.color = "#f15a29", spinner.size = 0.5, hide.ui = FALSE)
 
-#  * 7 reactable layout -----------------------------------------------
+#  * 8 reactable layout -----------------------------------------------
 
-#  * * 7.1 colours -----------------------------------------------
+#  * * 8.1 colours -----------------------------------------------
 
 #  sticky columns color
 sticky_style <- list(backgroundColor = "#f7f7f7")
@@ -66,7 +70,7 @@ sticky_style <- list(backgroundColor = "#f7f7f7")
 # base color palette numerical columns
 pal_num_scale <- generate_alpha_palette("#1c75bc", 100)
 
-#  * * 7.2 cells -----------------------------------------------
+#  * * 8.2 cells -----------------------------------------------
 
 #bars columns
 bar_vars <- c("sia_es_long", "sia_es_short")
@@ -86,7 +90,7 @@ yn_vars <- names(sia_df)[sapply(sia_df, is.character) & names(sia_df) != "releas
 #char columns to rename
 char_vars <- setdiff(names(sia_df), c(names(bar_vars), names(yn_vars), names(numeric_vars), "id"))
 
-#  * 8 Mandatory fields ---------------------------
+#  * 9 Mandatory fields ---------------------------
 
 fieldsMandatory_data <- c("name","email","manufacturer","model","website","market_status","main_use",
                           "device_cost","wearable_type","location","weight","size")
@@ -104,12 +108,12 @@ char_no_digit_mand <- intersect(char_no_digit_ids, fieldsMandatory_data)
 
 csv_delims_pattern <- "[,;]"
 
-# * * 8.2 email
+# * * 9.2 email
 fieldsMandatory_email <- c("name", "email", "message")
 
-# * 9 Rename table variables ---------------------------
+# * 10 Rename table variables ---------------------------
 
-# * * 9.1 Filters ---------------------------
+# * * 10.1 Filters ---------------------------
 
 rename_map <- c(
   "sia_es_long" = "Long-Term SiA Score",
@@ -158,7 +162,7 @@ rename_map <- c(
   "no_studies_usab_reviewed" = "Usability Studies Reviewed"
 )
 
-# * * 9.1 Submit data ---------------------------
+# * * 10.1 Submit data ---------------------------
 
 rename_subm<- names(rename_map)
 
@@ -166,7 +170,7 @@ rename_subm <- rename_subm[!rename_subm %in% c("sia_es_long", "sia_es_short")]
 
 rename_subm <- c("name", "email", "telephone", "institution", rename_subm, "additional_information")
 
-#  * 10 Time-out message -----------------------------------------------
+#  * 11 Time-out message -----------------------------------------------
 disconnected <- tagList(
   p(strong("Time Out!", style = "color: #1c75bc; font-size:30px")),
   p(tags$img(src = "favicon.ico", height = 100, width = 100)),
