@@ -393,15 +393,60 @@ mod_sub_data__server <- function(id) {
     })
 
     # Submit flow
+    # observeEvent(input$submit_final, {
+    #   # snapshot the form once
+    #   df <- build_form()
+    #   last_submission(df)
+    #
+    #   # build + send email attachment from the snapshot
+    #   csv_path <- file.path(tempdir(), paste0("sia_data_submission_", input$email, "_", format(Sys.Date(), "%Y%m%d", ".csv")))
+    #   write.csv(df, csv_path, row.names = FALSE)
+    #
+    #   subject <- sprintf("SiA Wearables submission: %s", input$email)
+    #   body <- paste0(
+    #     "New submission received.\n\n",
+    #     "Name: ",        input$name,        "\n",
+    #     "Email: ",       input$email,       "\n",
+    #     "Telephone: ",   input$telephone,   "\n",
+    #     "Institution: ", input$institution, "\n"
+    #   )
+    #   send_email(body = body, subject = subject, attachment = csv_path)
+    #
+    #   # trigger the hidden download (now backed by last_submission)
+    #   session$onFlushed(function() {
+    #     runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
+    #   }, once = TRUE)
+    #
+    #   session$sendCustomMessage("dataSubmitted",
+    #                             "Thank you for your data submission! We will get back to you soon.")
+    #
+    #   # finally reset inputs
+    #   reset_inputs_sub_data(session, input)
+    # })
+
     observeEvent(input$submit_final, {
-      # snapshot the form once
+      # 1) snapshot & write CSV (with a real .csv extension)
       df <- build_form()
       last_submission(df)
 
-      # build + send email attachment from the snapshot
-      csv_path <- file.path(tempdir(), paste0("sia_submission_from_", input$email, ".csv"))
-      write.csv(df, csv_path, row.names = FALSE)
+      csv_path <- file.path(
+        tempdir(),
+        paste0("sia_data_submission_", input$email, "_", format(Sys.time(), "%Y%m%d-%H%M%S"), ".csv"
+        )
+      )
 
+      write.csv(df, csv_path, row.names = FALSE)
+      stopifnot(file.exists(csv_path))
+
+      # 2) trigger the download + message immediately (so the UI completes)
+      session$onFlushed(function() {
+        shinyjs::runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
+      }, once = TRUE)
+      session$sendCustomMessage("dataSubmitted",
+                                "Thank you for your data submission! We will get back to you soon.")
+      reset_inputs_sub_data(session, input)
+
+      # 3) now send the email (synchronous, same function you already use)
       subject <- sprintf("SiA Wearables submission: %s", input$email)
       body <- paste0(
         "New submission received.\n\n",
@@ -411,18 +456,8 @@ mod_sub_data__server <- function(id) {
         "Institution: ", input$institution, "\n"
       )
       send_email(body = body, subject = subject, attachment = csv_path)
-
-      # trigger the hidden download (now backed by last_submission)
-      session$onFlushed(function() {
-        runjs(sprintf("document.getElementById('%s').click();", ns("dl_csv_submit")))
-      }, once = TRUE)
-
-      session$sendCustomMessage("dataSubmitted",
-                                "Thank you for your data submission! We will get back to you soon.")
-
-      # finally reset inputs
-      reset_inputs_sub_data(session, input)
     })
+
 
   })
 }
