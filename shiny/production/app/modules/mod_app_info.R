@@ -47,10 +47,10 @@ mod_app_info_ui <- function(id) {
           footer = div(
             style = "padding-top: 10px;",
             div(style = "text-align: center; font-size: 18px;",
-              p(strong(paste(n_wearables, "Wearables included"), style = "color: #f15a29;"),
-                br(),
-                "see the controlbar ", tags$img(src = "controlbar.png", width = "15px", height = "15px"), " for an overview"
-              )
+                p(strong(paste(n_wearables, "Wearables included"), style = "color: #f15a29;"),
+                  br(),
+                  "see the sidebar", tags$img(src = "controlbar.png", width = "15px", height = "15px"), "at the top right corner for an overview of", br(), "wearables and glossary."
+                )
             )
           )
         )
@@ -63,22 +63,56 @@ mod_app_info_ui <- function(id) {
 
       column(
         width = 4,
-            bs4Card(
-              title = "User Guide",
-              status = "primary",
-              solidHeader = TRUE,
-              width = 12,
-              collapsible = FALSE,
-              headerBorder = FALSE,
-              style = "height: 300px; overflow-y: auto;",
-              p(strong("Terms of citation"), br(),
-                "When making use of the wearables database and/or the web app, you must cite the two papers describe in", strong("Papers to Cite", style = "color: #f15a29;"), "and/or", strong("Research", style = "color: #1c75bc;")),
-              p("To use this app, navigate to the 'Filters' section to explore wearables based on your
-                criteria. If you have new data to add, visit the 'Submit Data' section.", style = "text-align: justify;"),
-              p("For more details, check the documentation or contact support.", style = "text-align: justify;")
-            )
+        bs4Card(
+          title = "User Guide",
+          status = "primary",
+          solidHeader = TRUE,
+          width = 12,
+          collapsible = FALSE,
+          headerBorder = FALSE,
+          style = "height: 300px; overflow-y: auto;",
+          p(strong("Terms of citation")),
+          p(
+            "When using the wearables database and/or this web app, you must cite the two papers listed under ",
+            strong("Papers to Cite", style = "color: #f15a29;"),
+            " and/or ",
+            strong("Research", style = "color: #1c75bc;"),
+            "."
           ),
-
+          p(strong("Using this app")),
+          p(
+            "Go to the ", strong("Filters"), " section to explore wearables based on your criteria.",
+            style = "text-align: justify;"
+          ),
+          p(
+            "Use the ", em("Product Filter"), " to compare multiple wearables side-by-side."
+          ),
+          p(
+            "Use the ", em("Feature Filter"), " to select wearables based on capabilities and preferences."
+          ),
+          p(
+            "For terminology, open the menu in the top right corner and browse the ",
+            strong("Glossary"), ".",
+            style = "text-align: justify;"
+          ),
+          p(
+            "If you have new data to add, visit the ", strong("Submit Data"), " section.",
+            style = "text-align: justify;"
+          ),
+          p(
+            strong("Research"), "provides background information about the database and the two papers.",
+            style = "text-align: justify;"
+          ),
+          p(
+            "The ", strong("About"), " section describes Stress in Action (the project funding this database) and lists the team and institutions involved.",
+            style = "text-align: justify;"
+          ),
+          p(
+            "Questions? Reach out via ", strong("Contact Us"), ".",
+            style = "text-align: justify;"
+          )
+        )
+        ),
       column(width = 3),  # spacer
 
       column(

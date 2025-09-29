@@ -102,7 +102,7 @@ mod_feat_fil_ui <- function(id) {
                   prettyCheckbox(ns("water_resistance"), label = "Water Resistant", icon = icon("check"), status = "primary"),
                   sliderInput(
                     ns("battery_life"),
-                    label = "Battery Life (min)",
+                    label = "Battery Life (hrs)",
                     min   = 0,
                     max   = max(sia_df$battery_life, na.rm = TRUE),
                     value = c(0, max(sia_df$battery_life, na.rm = TRUE)),
